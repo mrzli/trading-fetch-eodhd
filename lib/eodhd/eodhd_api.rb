@@ -12,20 +12,29 @@ module Eodhd
 
     # Hardcoded first iteration: fetch CSV for MCD.US
     def fetch_mcd_csv!
-      uri = URI.join(@base_url + "/", "eod/MCD.US")
+      uri = get_full_url("eod/MCD.US")
       uri.query = URI.encode_www_form(
         api_token: @api_token,
         fmt: "csv"
       )
 
       response = Net::HTTP.get_response(uri)
+      validate_response!(response)
 
+      response.body.to_s
+    end
+
+    private
+
+    def get_full_url(path)
+      URI.join(@base_url + "/", path)
+    end
+
+    def validate_response!(response)
       unless response.is_a?(Net::HTTPSuccess)
         body_preview = response.body.to_s[0, 500]
         raise "Request failed: HTTP #{response.code} #{response.message}\n#{body_preview}"
       end
-
-      response.body.to_s
     end
   end
 end
