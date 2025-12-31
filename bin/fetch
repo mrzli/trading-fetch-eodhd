@@ -13,9 +13,10 @@ rescue TradingFetchEodhd::Config::Error => e
 	abort e.message
 end
 
-output_path = TradingFetchEodhd::Fetch.fetch_mcd_csv!(
+csv = TradingFetchEodhd::Fetch.fetch_mcd_csv!(
   api_token: cfg.api_token,
-  base_url: cfg.base_url,
-  output_dir: cfg.output_dir
+  base_url: cfg.base_url
 )
+
+output_path = TradingFetchEodhd::Fetch.save_mcd_csv!(csv: csv, output_dir: cfg.output_dir)
 puts "Wrote #{output_path}"
