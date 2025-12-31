@@ -30,5 +30,14 @@ module TradingFetchEodhd
     def eodhd_output_dir!
       File.expand_path(required_env!("EODHD_OUTPUT_DIR"))
     end
+
+    def eodhd_base_url!
+      base = required_env!("EODHD_BASE_URL")
+      base = base.chomp("/")
+      unless base.start_with?("http://", "https://")
+        raise Error, "EODHD_BASE_URL must start with http:// or https://"
+      end
+      base
+    end
   end
 end

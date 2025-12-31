@@ -86,7 +86,7 @@ Yes—this is normal/standard: keep `bin/*` as thin wrappers and put the “meat
 
 ```bash
 cp .env.example .env
-# edit .env: set EODHD_API_TOKEN and EODHD_OUTPUT_DIR
+# edit .env: set EODHD_BASE_URL, EODHD_API_TOKEN and EODHD_OUTPUT_DIR
 ```
 
 2. Run:
