@@ -9,14 +9,9 @@ module TradingFetchEodhd
     module_function
 
     def fetch_mcd_csv!(api_token:, base_url:, output_dir:)
-      api_token = api_token.to_s.strip
-      raise ArgumentError, "api_token is required" if api_token.empty?
-
-      base_url = base_url.to_s.strip
-      raise ArgumentError, "base_url is required" if base_url.empty?
-
-      output_dir = output_dir.to_s.strip
-      raise ArgumentError, "output_dir is required" if output_dir.empty?
+      api_token = Validate.required_string!("api_token", api_token)
+      base_url = Validate.required_string!("base_url", base_url)
+      output_dir = Validate.required_string!("output_dir", output_dir)
 
       uri = URI.join(base_url.end_with?("/") ? base_url : (base_url + "/"), "eod/MCD.US")
       uri.query = URI.encode_www_form(

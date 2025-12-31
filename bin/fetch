@@ -8,12 +8,14 @@ $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 require "trading_fetch_eodhd"
 
 begin
-	api_token = TradingFetchEodhd::Config.eodhd_api_token!
-	base_url = TradingFetchEodhd::Config.eodhd_base_url!
-	output_dir = TradingFetchEodhd::Config.eodhd_output_dir!
+	cfg = TradingFetchEodhd::Config.eodhd!
 rescue TradingFetchEodhd::Config::Error => e
 	abort e.message
 end
 
-output_path = TradingFetchEodhd::Fetch.fetch_mcd_csv!(api_token: api_token, base_url: base_url, output_dir: output_dir)
+output_path = TradingFetchEodhd::Fetch.fetch_mcd_csv!(
+  api_token: cfg.api_token,
+  base_url: cfg.base_url,
+  output_dir: cfg.output_dir
+)
 puts "Wrote #{output_path}"
