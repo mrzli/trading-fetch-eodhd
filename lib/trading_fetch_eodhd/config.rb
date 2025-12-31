@@ -28,7 +28,7 @@ module TradingFetchEodhd
     end
 
     def eodhd_output_dir!
-      required_env!("EODHD_OUTPUT_DIR")
+      File.expand_path(required_env!("EODHD_OUTPUT_DIR"))
     end
   end
 end

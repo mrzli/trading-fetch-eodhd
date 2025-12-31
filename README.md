@@ -80,6 +80,8 @@ Yes—this is normal/standard: keep `bin/*` as thin wrappers and put the “meat
 
 `bin/fetch` fetches CSV for `MCD.US` and writes it to `EODHD_OUTPUT_DIR/MCD.US.csv`.
 
+`EODHD_OUTPUT_DIR` can be relative (e.g. `data`) or absolute (e.g. `/home/you/data` or `~/data`).
+
 1. Set required env vars (recommended via `.env`):
 
 ```bash
