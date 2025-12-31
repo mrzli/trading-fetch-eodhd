@@ -3,7 +3,7 @@
 require "net/http"
 require "uri"
 
-module TradingFetchEodhd
+module Eodhd
   class EodhdApi
     def initialize(base_url:, api_token:)
       @base_url = Validate.required_string!("base_url", base_url).chomp("/")

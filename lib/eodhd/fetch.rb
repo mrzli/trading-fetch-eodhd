@@ -2,7 +2,7 @@
 
 require "fileutils"
 
-module TradingFetchEodhd
+module Eodhd
   module Fetch
     module_function
 

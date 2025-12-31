@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TradingFetchEodhd
+module Eodhd
   module Config
     class Error < StandardError; end
 
