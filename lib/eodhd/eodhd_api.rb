@@ -6,12 +6,8 @@ require "uri"
 module Eodhd
   class EodhdApi
     def initialize(base_url:, api_token:)
-      @base_url = Validate.required_string!("base_url", base_url).chomp("/")
+      @base_url = Validate.http_url!("base_url", base_url)
       @api_token = Validate.required_string!("api_token", api_token)
-
-      unless @base_url.start_with?("http://", "https://")
-        raise ArgumentError, "base_url must start with http:// or https://"
-      end
     end
 
     # Hardcoded first iteration: fetch CSV for MCD.US

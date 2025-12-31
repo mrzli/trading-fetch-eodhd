@@ -10,5 +10,16 @@ module Eodhd
       raise ArgumentError, "#{name} is required" if str.empty?
       str
     end
+
+    # Validates and normalizes an HTTP(S) base URL.
+    # - Requires http:// or https://
+    # - Strips trailing slash
+    def http_url!(name, value)
+      str = required_string!(name, value).chomp("/")
+      unless str.start_with?("http://", "https://")
+        raise ArgumentError, "#{name} must start with http:// or https://"
+      end
+      str
+    end
   end
 end
