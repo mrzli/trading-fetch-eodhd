@@ -7,7 +7,7 @@ module Eodhd
     module_function
 
     def fetch_mcd_csv!(api_token:, base_url:)
-      api = EodhdApi.new(base_url: base_url, api_token: api_token)
+      api = Api.new(base_url: base_url, api_token: api_token)
       api.fetch_mcd_csv!
     end
 

@@ -4,7 +4,7 @@ require "net/http"
 require "uri"
 
 module Eodhd
-  class EodhdApi
+  class Api
     def initialize(base_url:, api_token:)
       @base_url = Validate.http_url!("base_url", base_url)
       @api_token = Validate.required_string!("api_token", api_token)
