@@ -46,4 +46,27 @@ mise exec -- bundle install
 ./bin/hello
 ```
 
+## Using an env var (dotenv)
+
+Yes, `dotenv` is commonly used in Ruby apps to load environment variables from a local `.env` file.
+It’s mainly for local development; in production you typically set real env vars (and don’t use `.env`).
+
+1. Create a local env file:
+
+```bash
+cp .env.example .env
+```
+
+2. Install gems (if you haven’t yet):
+
+```bash
+mise exec -- bundle install
+```
+
+3. Run:
+
+```bash
+./bin/hello
+```
+
 If you have mise shell activation enabled, you can also run `ruby -v` directly.

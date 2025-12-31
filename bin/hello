@@ -3,5 +3,7 @@
 
 require "bundler/setup"
 require "colorize"
+require "dotenv/load"
 
-puts "hello".green
+app_name = ENV.fetch("APP_NAME", "(missing APP_NAME)")
+puts "hello from #{app_name}".green
