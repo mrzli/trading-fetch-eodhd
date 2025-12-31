@@ -8,9 +8,12 @@ module TradingFetchEodhd
   module Fetch
     module_function
 
-    def fetch_mcd_csv!(api_token:, output_dir: "data")
+    def fetch_mcd_csv!(api_token:, output_dir:)
       api_token = api_token.to_s.strip
       raise ArgumentError, "api_token is required" if api_token.empty?
+
+      output_dir = output_dir.to_s.strip
+      raise ArgumentError, "output_dir is required" if output_dir.empty?
 
       uri = URI("https://eodhd.com/api/eod/MCD.US")
       uri.query = URI.encode_www_form(

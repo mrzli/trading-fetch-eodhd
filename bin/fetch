@@ -10,5 +10,8 @@ require "trading_fetch_eodhd"
 api_token = ENV["EODHD_API_TOKEN"].to_s.strip
 abort "Missing EODHD_API_TOKEN in environment (.env)" if api_token.empty?
 
-output_path = TradingFetchEodhd::Fetch.fetch_mcd_csv!(api_token: api_token)
+output_dir = ENV["EODHD_OUTPUT_DIR"].to_s.strip
+abort "Missing EODHD_OUTPUT_DIR in environment (.env)" if output_dir.empty?
+
+output_path = TradingFetchEodhd::Fetch.fetch_mcd_csv!(api_token: api_token, output_dir: output_dir)
 puts "Wrote #{output_path}"

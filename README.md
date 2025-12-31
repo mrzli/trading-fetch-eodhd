@@ -76,4 +76,21 @@ Yes—this is normal/standard: keep `bin/*` as thin wrappers and put the “meat
 - `bin/fetch`: reads env/args and calls library code
 - `lib/trading_fetch_eodhd/fetch.rb`: implements the actual HTTP + file writing
 
+## Fetch CSV (MCD.US)
+
+`bin/fetch` fetches CSV for `MCD.US` and writes it to `EODHD_OUTPUT_DIR/MCD.US.csv`.
+
+1. Set required env vars (recommended via `.env`):
+
+```bash
+cp .env.example .env
+# edit .env: set EODHD_API_TOKEN and EODHD_OUTPUT_DIR
+```
+
+2. Run:
+
+```bash
+./bin/fetch
+```
+
 If you have mise shell activation enabled, you can also run `ruby -v` directly.
