@@ -3,13 +3,8 @@
 require "fileutils"
 
 module Eodhd
-  module Fetch
+  module Io
     module_function
-
-    def fetch_mcd_csv!(api_token:, base_url:)
-      api = Api.new(base_url: base_url, api_token: api_token)
-      api.fetch_mcd_csv!
-    end
 
     def save_mcd_csv!(csv:, output_dir:)
       csv = Validate.required_string!("csv", csv)

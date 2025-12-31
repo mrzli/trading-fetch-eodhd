@@ -19,5 +19,5 @@ api = Eodhd::Api.new(
 )
 csv = api.fetch_mcd_csv!
 
-output_path = Eodhd::Fetch.save_mcd_csv!(csv: csv, output_dir: cfg.output_dir)
+output_path = Eodhd::Io.save_mcd_csv!(csv: csv, output_dir: cfg.output_dir)
 puts "Wrote #{output_path}"
