@@ -4,25 +4,23 @@ require "fileutils"
 require "json"
 
 module Eodhd
-  module Io
-    module_function
-
-    def save_mcd_csv!(csv:, output_dir:)
-      csv = Validate.required_string!("csv", csv)
-      output_dir = Validate.required_string!("output_dir", output_dir)
-
-      FileUtils.mkdir_p(output_dir)
-      output_path = File.join(output_dir, "MCD.US.csv")
-      File.write(output_path, csv)
-      output_path
+  class Io
+    def initialize(output_dir:)
+      @output_dir = Validate.required_string!("output_dir", output_dir)
     end
 
-    def save_exchanges_list_json!(json:, output_dir:)
-      json = Validate.required_string!("json", json)
-      output_dir = Validate.required_string!("output_dir", output_dir)
+    def save_mcd_csv!(csv:)
+      csv = Validate.required_string!("csv", csv)
 
-      FileUtils.mkdir_p(output_dir)
-      output_path = File.join(output_dir, "exchanges-list.json")
+      write_text_file!(
+        filename: "MCD.US.csv",
+        content: csv,
+        ensure_trailing_newline: false
+      )
+    end
+
+    def save_exchanges_list_json!(json:)
+      json = Validate.required_string!("json", json)
 
       pretty = begin
         JSON.pretty_generate(JSON.parse(json))
@@ -30,7 +28,23 @@ module Eodhd
         json
       end
 
-      File.write(output_path, pretty.end_with?("\n") ? pretty : (pretty + "\n"))
+      write_text_file!(
+        filename: "exchanges-list.json",
+        content: pretty,
+        ensure_trailing_newline: true
+      )
+    end
+
+    private
+
+    def write_text_file!(filename:, content:, ensure_trailing_newline:)
+      FileUtils.mkdir_p(@output_dir)
+      output_path = File.join(@output_dir, filename)
+
+      content = content.to_s
+      content += "\n" if ensure_trailing_newline && !content.end_with?("\n")
+
+      File.write(output_path, content)
       output_path
     end
   end
