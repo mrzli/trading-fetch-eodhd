@@ -13,10 +13,11 @@ rescue Eodhd::Config::Error => e
 	abort e.message
 end
 
-csv = Eodhd::Fetch.fetch_mcd_csv!(
-  api_token: cfg.api_token,
-  base_url: cfg.base_url
+api = Eodhd::Api.new(
+  base_url: cfg.base_url,
+  api_token: cfg.api_token
 )
+csv = api.fetch_mcd_csv!
 
 output_path = Eodhd::Fetch.save_mcd_csv!(csv: csv, output_dir: cfg.output_dir)
 puts "Wrote #{output_path}"
