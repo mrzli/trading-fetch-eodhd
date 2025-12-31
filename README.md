@@ -69,4 +69,11 @@ mise exec -- bundle install
 ./bin/hello
 ```
 
+## Suggested structure (standard Ruby pattern)
+
+Yes—this is normal/standard: keep `bin/*` as thin wrappers and put the “meat” in `lib/`.
+
+- `bin/fetch`: reads env/args and calls library code
+- `lib/trading_fetch_eodhd/fetch.rb`: implements the actual HTTP + file writing
+
 If you have mise shell activation enabled, you can also run `ruby -v` directly.
