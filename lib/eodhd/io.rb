@@ -13,7 +13,7 @@ module Eodhd
       csv = Validate.required_string!("csv", csv)
 
       write_text_file!(
-        filename: "MCD.US.csv",
+        relative_path: "data/MCD.US.csv",
         content: csv,
         ensure_trailing_newline: false
       )
@@ -29,7 +29,7 @@ module Eodhd
       end
 
       write_text_file!(
-        filename: "exchanges-list.json",
+        relative_path: "exchanges-list.json",
         content: pretty,
         ensure_trailing_newline: true
       )
@@ -37,9 +37,9 @@ module Eodhd
 
     private
 
-    def write_text_file!(filename:, content:, ensure_trailing_newline:)
-      FileUtils.mkdir_p(@output_dir)
-      output_path = File.join(@output_dir, filename)
+    def write_text_file!(relative_path:, content:, ensure_trailing_newline:)
+      output_path = File.join(@output_dir, relative_path)
+      FileUtils.mkdir_p(File.dirname(output_path))
 
       content = content.to_s
       content += "\n" if ensure_trailing_newline && !content.end_with?("\n")
