@@ -8,6 +8,9 @@
 /log/
 *.log
 
+# App output
+/data/
+
 # Test/coverage
 /coverage/
 
