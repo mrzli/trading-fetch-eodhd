@@ -5,5 +5,8 @@ require "bundler/setup"
 require "colorize"
 require "dotenv/load"
 
-app_name = ENV.fetch("APP_NAME", "(missing APP_NAME)")
+$LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
+require "trading_fetch_eodhd"
+
+app_name = TradingFetchEodhd::Config.app_name
 puts "hello from #{app_name}".green
