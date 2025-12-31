@@ -17,6 +17,11 @@ api = Eodhd::Api.new(
   base_url: cfg.base_url,
   api_token: cfg.api_token
 )
+
+exchanges_json = api.get_exchanges_list_json!
+exchanges_path = Eodhd::Io.save_exchanges_list_json!(json: exchanges_json, output_dir: cfg.output_dir)
+puts "Wrote #{exchanges_path}"
+
 csv = api.fetch_mcd_csv!
 
 output_path = Eodhd::Io.save_mcd_csv!(csv: csv, output_dir: cfg.output_dir)

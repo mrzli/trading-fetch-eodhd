@@ -10,6 +10,19 @@ module Eodhd
       @api_token = Validate.required_string!("api_token", api_token)
     end
 
+    def get_exchanges_list_json!
+      uri = get_full_url("exchanges-list")
+      uri.query = URI.encode_www_form(
+        api_token: @api_token,
+        fmt: "json"
+      )
+
+      response = Net::HTTP.get_response(uri)
+      validate_response!(response)
+
+      response.body.to_s
+    end
+
     # Hardcoded first iteration: fetch CSV for MCD.US
     def fetch_mcd_csv!
       uri = get_full_url("eod/MCD.US")
