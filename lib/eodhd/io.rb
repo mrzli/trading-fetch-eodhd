@@ -22,11 +22,7 @@ module Eodhd
     def save_exchanges_list_json!(json:)
       json = Validate.required_string!("json", json)
 
-      pretty = begin
-        JSON.pretty_generate(JSON.parse(json))
-      rescue JSON::ParserError
-        json
-      end
+      pretty = pretty_json(json)
 
       write_text_file!(
         relative_path: "exchanges-list.json",
@@ -36,6 +32,12 @@ module Eodhd
     end
 
     private
+
+    def pretty_json(json)
+      JSON.pretty_generate(JSON.parse(json))
+    rescue JSON::ParserError
+      json
+    end
 
     def write_text_file!(relative_path:, content:, ensure_trailing_newline:)
       output_path = File.join(@output_dir, relative_path)
