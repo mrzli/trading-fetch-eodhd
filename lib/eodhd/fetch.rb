@@ -41,7 +41,7 @@ module Eodhd
         code
       end
 
-      exchange_codes.each do |exchange_code|
+      exchange_codes.take(1).each do |exchange_code|
         begin
           symbols_json = api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
           symbols_path = io.save_exchange_symbol_list_json!(exchange_code: exchange_code, json: symbols_json)
