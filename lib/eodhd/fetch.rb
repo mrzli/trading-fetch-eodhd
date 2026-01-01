@@ -7,6 +7,8 @@ module Eodhd
     module_function
 
     def run!
+      log = Eodhd::Logging::Logger.new
+
       begin
         cfg = Eodhd::Config.eodhd!
       rescue Eodhd::Config::Error => e
@@ -22,7 +24,7 @@ module Eodhd
 
       exchanges_json = api.get_exchanges_list_json!
       exchanges_path = io.save_exchanges_list_json!(json: exchanges_json)
-      puts "Wrote #{exchanges_path}"
+      log.info("Wrote #{exchanges_path}")
 
       exchanges = JSON.parse(exchanges_json)
       unless exchanges.is_a?(Array)
@@ -40,15 +42,19 @@ module Eodhd
       end
 
       exchange_codes.each do |exchange_code|
-        symbols_json = api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
-        symbols_path = io.save_exchange_symbol_list_json!(exchange_code: exchange_code, json: symbols_json)
-        puts "Wrote #{symbols_path}"
+        begin
+          symbols_json = api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
+          symbols_path = io.save_exchange_symbol_list_json!(exchange_code: exchange_code, json: symbols_json)
+          log.info("Wrote #{symbols_path}")
+        rescue StandardError => e
+          log.warn("Failed symbols for #{exchange_code}: #{e.class}: #{e.message}")
+        end
       end
 
       csv = api.fetch_mcd_csv!
 
       output_path = io.save_mcd_csv!(csv: csv)
-      puts "Wrote #{output_path}"
+      log.info("Wrote #{output_path}")
     end
   end
 end
