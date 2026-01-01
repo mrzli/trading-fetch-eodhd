@@ -68,4 +68,48 @@ describe Eodhd::Validate do
       assert_match(/must start with http:\/\/ or https:\/\//, err.message)
     end
   end
+
+  test_equals(
+    ".integer!",
+    [
+      {
+        description: "parses positive integer",
+        input: { name: "n", value: "123" },
+        expected: 123
+      },
+      {
+        description: "parses negative integer",
+        input: { name: "n", value: "-5" },
+        expected: -5
+      },
+      {
+        description: "strips whitespace",
+        input: { name: "n", value: "  7  " },
+        expected: 7
+      }
+    ],
+    call: ->(input) { Eodhd::Validate.integer!(input[:name], input[:value]) }
+  )
+
+  test_raises(
+    ".integer! errors",
+    [
+      {
+        description: "rejects blank",
+        input: { name: "n", value: "  " },
+        exception: ArgumentError
+      },
+      {
+        description: "rejects non-integer",
+        input: { name: "n", value: "12.3" },
+        exception: ArgumentError
+      },
+      {
+        description: "rejects junk",
+        input: { name: "n", value: "abc" },
+        exception: ArgumentError
+      }
+    ],
+    call: ->(input) { Eodhd::Validate.integer!(input[:name], input[:value]) }
+  )
 end

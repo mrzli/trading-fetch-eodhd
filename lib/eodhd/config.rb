@@ -50,25 +50,19 @@ module Eodhd
       end
 
       def request_pause_ms!
-        raw = ENV.fetch("REQUEST_PAUSE_MS", "100")
-        ms = Integer(raw, 10)
+        ms = Validate.integer!("REQUEST_PAUSE_MS", ENV.fetch("REQUEST_PAUSE_MS", "100"))
         if ms.negative?
           raise Error, "REQUEST_PAUSE_MS must be a non-negative integer."
         end
         ms
-      rescue ArgumentError
-        raise Error, "REQUEST_PAUSE_MS must be a non-negative integer."
       end
 
       def min_file_age_minutes!
-        raw = ENV.fetch("MIN_FILE_AGE_MINUTES", "60")
-        minutes = Integer(raw, 10)
+        minutes = Validate.integer!("MIN_FILE_AGE_MINUTES", ENV.fetch("MIN_FILE_AGE_MINUTES", "60"))
         if minutes.negative?
           raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
         end
         minutes
-      rescue ArgumentError
-        raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
       end
     end
   end
