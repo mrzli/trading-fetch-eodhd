@@ -7,7 +7,7 @@ module Eodhd
     module_function
 
     def run!
-      log = Eodhd::Logging::Logger.new
+      log = Eodhd::Logger.new
 
       begin
         cfg = Eodhd::Config.eodhd!
