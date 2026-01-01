@@ -17,6 +17,12 @@ module Eodhd
       save_json!(relative_path: "exchanges-list.json", json: json, pretty: true)
     end
 
+    def save_exchange_symbol_list_json!(exchange_code:, json:)
+      exchange_code = Validate.required_string!("exchange_code", exchange_code)
+      relative_path = File.join("symbols", "#{exchange_code}.json")
+      save_json!(relative_path: relative_path, json: json, pretty: true)
+    end
+
     private
 
     def save_csv!(relative_path:, csv:)

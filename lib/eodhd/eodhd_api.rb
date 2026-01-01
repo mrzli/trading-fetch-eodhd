@@ -23,6 +23,21 @@ module Eodhd
       response.body.to_s
     end
 
+    def get_exchange_symbol_list_json!(exchange_code:)
+      exchange_code = Validate.required_string!("exchange_code", exchange_code)
+
+      uri = get_full_url("exchange-symbol-list/#{exchange_code}")
+      uri.query = URI.encode_www_form(
+        api_token: @api_token,
+        fmt: "json"
+      )
+
+      response = Net::HTTP.get_response(uri)
+      validate_response!(response)
+
+      response.body.to_s
+    end
+
     # Hardcoded first iteration: fetch CSV for MCD.US
     def fetch_mcd_csv!
       uri = get_full_url("eod/MCD.US")

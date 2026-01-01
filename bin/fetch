@@ -24,6 +24,12 @@ exchanges_json = api.get_exchanges_list_json!
 exchanges_path = io.save_exchanges_list_json!(json: exchanges_json)
 puts "Wrote #{exchanges_path}"
 
+# First iteration: hardcoded exchange code
+exchange_code = "US"
+symbols_json = api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
+symbols_path = io.save_exchange_symbol_list_json!(exchange_code: exchange_code, json: symbols_json)
+puts "Wrote #{symbols_path}"
+
 csv = api.fetch_mcd_csv!
 
 output_path = io.save_mcd_csv!(csv: csv)
