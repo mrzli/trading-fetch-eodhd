@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "json"
-require_relative "processor"
 
 module Eodhd
   module Fetch
@@ -23,12 +22,12 @@ module Eodhd
 
       io = Eodhd::Io.new(output_dir: cfg.output_dir)
 
-      processor = Eodhd::Processor.new(log: log, cfg: cfg)
+      processor = Eodhd::Processor.new(log: log, cfg: cfg, api: api, io: io)
 
-      exchanges_json = processor.fetch_exchanges_list(api: api, io: io)
+      exchanges_json = processor.fetch_exchanges_list
       exchange_codes = processor.exchange_codes_from(exchanges_json)
-      processor.fetch_symbols_for_exchanges(api: api, io: io, exchange_codes: exchange_codes)
-      processor.fetch_mcd_csv(api: api, io: io)
+      processor.fetch_symbols_for_exchanges(exchange_codes: exchange_codes)
+      processor.fetch_mcd_csv
     end
   end
 end
