@@ -23,7 +23,11 @@ module Eodhd
       io = Eodhd::Io.new(output_dir: cfg.output_dir)
 
       exchanges_json = api.get_exchanges_list_json!
-      exchanges_path = io.save_exchanges_list_json!(json: exchanges_json)
+      exchanges_path = io.save_json!(
+        relative_path: Eodhd::Path.exchanges_list,
+        json: exchanges_json,
+        pretty: true
+      )
       log.info("Wrote #{exchanges_path}")
 
       exchanges = JSON.parse(exchanges_json)
@@ -44,7 +48,11 @@ module Eodhd
       exchange_codes.take(1).each do |exchange_code|
         begin
           symbols_json = api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
-          symbols_path = io.save_exchange_symbol_list_json!(exchange_code: exchange_code, json: symbols_json)
+          symbols_path = io.save_json!(
+            relative_path: Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code),
+            json: symbols_json,
+            pretty: true
+          )
           log.info("Wrote #{symbols_path}")
         rescue StandardError => e
           log.warn("Failed symbols for #{exchange_code}: #{e.class}: #{e.message}")

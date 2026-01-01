@@ -13,21 +13,19 @@ module Eodhd
       save_csv!(relative_path: "data/MCD.US.csv", csv: csv)
     end
 
-    def save_exchanges_list_json!(json:)
-      save_json!(relative_path: "exchanges-list.json", json: json, pretty: true)
+    def file_exists?(relative_path:)
+      File.exist?(output_path(relative_path: relative_path))
     end
 
-    def save_exchange_symbol_list_json!(exchange_code:, json:)
-      exchange_code = Validate.required_string!("exchange_code", exchange_code)
-      relative_path = File.join("symbols", "#{exchange_code}.json")
-      save_json!(relative_path: relative_path, json: json, pretty: true)
-    end
+    def file_last_updated_at(relative_path:)
+      output_path = output_path(relative_path: relative_path)
+      return nil unless File.exist?(output_path)
 
-    private
+      File.mtime(output_path)
+    end
 
     def save_csv!(relative_path:, csv:)
       csv = Validate.required_string!("csv", csv)
-      relative_path = Validate.required_string!("relative_path", relative_path)
 
       write_text_file!(
         relative_path: relative_path,
@@ -38,7 +36,6 @@ module Eodhd
 
     def save_json!(relative_path:, json:, pretty: true)
       json = Validate.required_string!("json", json)
-      relative_path = Validate.required_string!("relative_path", relative_path)
 
       content = pretty ? pretty_json(json) : json
 
@@ -49,6 +46,13 @@ module Eodhd
       )
     end
 
+    private
+
+    def output_path(relative_path:)
+      relative_path = Validate.required_string!("relative_path", relative_path)
+      File.join(@output_dir, relative_path)
+    end
+
     def pretty_json(json)
       JSON.pretty_generate(JSON.parse(json))
     rescue JSON::ParserError
@@ -56,7 +60,7 @@ module Eodhd
     end
 
     def write_text_file!(relative_path:, content:, ensure_trailing_newline:)
-      output_path = File.join(@output_dir, relative_path)
+      output_path = output_path(relative_path: relative_path)
       FileUtils.mkdir_p(File.dirname(output_path))
 
       content = content.to_s
