@@ -4,6 +4,8 @@ require "json"
 
 module Eodhd
   class Processor
+    EXCLUDED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
+
     def initialize(log:, cfg:, api:, io:)
       @log = log
       @cfg = cfg
@@ -41,6 +43,11 @@ module Eodhd
 
         code = exchange["Code"].to_s.strip
         next if code.empty?
+
+        if EXCLUDED_EXCHANGE_CODES.include?(code)
+          @log.debug("Skipping excluded exchange: #{code}")
+          next
+        end
 
         code
       end
