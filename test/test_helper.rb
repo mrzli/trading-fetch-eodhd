@@ -5,3 +5,6 @@ $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 require "minitest/autorun"
 require "minitest/spec"
 require "eodhd"
+
+require_relative "support/data_driven"
+include TestSupport::DataDriven

@@ -3,41 +3,65 @@
 require_relative "../test_helper"
 
 describe Eodhd::Validate do
-  describe ".required_string!" do
-    it "strips whitespace" do
-      assert_equal "abc", Eodhd::Validate.required_string!("x", "  abc  ")
-    end
+  test_equals(
+    ".required_string!",
+       [
+         {
+           input: { name: "x", value: "  abc  " },
+           expected: "abc"
+         }
+       ],
+       call: ->(input) { Eodhd::Validate.required_string!(input[:name], input[:value]) })
 
-    it "raises on nil" do
-      assert_raises(ArgumentError) do
-        Eodhd::Validate.required_string!("x", nil)
-      end
-    end
+  test_raises(
+    ".required_string! errors",
+              [
+                {
+                  input: { name: "x", value: nil },
+                  exception: ArgumentError
+                },
+                {
+                  input: { name: "x", value: "   " },
+                  exception: ArgumentError
+                }
+              ],
+              call: ->(input) { Eodhd::Validate.required_string!(input[:name], input[:value]) })
 
-    it "raises on blank" do
-      assert_raises(ArgumentError) do
-        Eodhd::Validate.required_string!("x", "  d ")
-      end
-    end
-  end
+  test_equals(
+    ".http_url!",
+       [
+         {
+           input: { name: "base", value: "https://example.com/" },
+           expected: "https://example.com"
+         },
+         {
+           input: { name: "base", value: "http://example.com/api" },
+           expected: "http://example.com/api"
+         }
+       ],
+       call: ->(input) { Eodhd::Validate.http_url!(input[:name], input[:value]) })
 
-  describe ".http_url!" do
-    it "accepts http(s) and strips trailing slash" do
-      assert_equal "https://example.com", Eodhd::Validate.http_url!("base", "https://example.com/")
-      assert_equal "http://example.com/api", Eodhd::Validate.http_url!("base", "http://example.com/api")
-    end
+  test_raises(
+    ".http_url! errors",
+              [
+                {
+                  input: { name: "base", value: "ftp://example.com" },
+                  exception: ArgumentError,
+                  description: "ftp:// is rejected"
+                },
+                {
+                  input: { name: "base", value: "" },
+                  exception: ArgumentError
+                }
+              ],
+              call: ->(input) { Eodhd::Validate.http_url!(input[:name], input[:value]) })
 
-    it "rejects non-http urls" do
+  describe "http_url! error message" do
+    it "includes scheme hint" do
       err = assert_raises(ArgumentError) do
         Eodhd::Validate.http_url!("base", "ftp://example.com")
       end
       assert_match(/must start with http:\/\/ or https:\/\//, err.message)
-    end
-
-    it "rejects blank" do
-      assert_raises(ArgumentError) do
-        Eodhd::Validate.http_url!("base", "")
-      end
     end
   end
 end
