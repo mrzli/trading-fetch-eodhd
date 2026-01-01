@@ -24,6 +24,10 @@ module Eodhd
       File.mtime(output_path)
     end
 
+    def read_text(relative_path:)
+      File.read(output_path(relative_path: relative_path))
+    end
+
     def save_csv!(relative_path:, csv:)
       csv = Validate.required_string!("csv", csv)
 

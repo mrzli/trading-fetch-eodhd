@@ -22,13 +22,21 @@ module Eodhd
 
       io = Eodhd::Io.new(output_dir: cfg.output_dir)
 
-      exchanges_json = api.get_exchanges_list_json!
-      exchanges_path = io.save_json!(
-        relative_path: Eodhd::Path.exchanges_list,
-        json: exchanges_json,
-        pretty: true
-      )
-      log.info("Wrote #{exchanges_path}")
+      exchanges_relative_path = Eodhd::Path.exchanges_list
+      exchanges_json = if file_stale?(io: io, relative_path: exchanges_relative_path, min_age_minutes: cfg.min_file_age_minutes)
+        log.info("Fetching exchanges list...")
+        fetched = api.get_exchanges_list_json!
+        exchanges_path = io.save_json!(
+          relative_path: exchanges_relative_path,
+          json: fetched,
+          pretty: true
+        )
+        log.info("Wrote #{exchanges_path}")
+        fetched
+      else
+        log.info("Skipping exchanges list (fresh): #{exchanges_relative_path}")
+        io.read_text(relative_path: exchanges_relative_path)
+      end
 
       exchanges = JSON.parse(exchanges_json)
       unless exchanges.is_a?(Array)
@@ -45,11 +53,17 @@ module Eodhd
         code
       end
 
-      exchange_codes.take(3).each do |exchange_code|
+      exchange_codes.each do |exchange_code|
+        symbols_relative_path = Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code)
+        unless file_stale?(io: io, relative_path: symbols_relative_path, min_age_minutes: cfg.min_file_age_minutes)
+          log.info("Skipping symbols (fresh): #{symbols_relative_path}")
+          next
+        end
+
         begin
           symbols_json = api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
           symbols_path = io.save_json!(
-            relative_path: Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code),
+            relative_path: symbols_relative_path,
             json: symbols_json,
             pretty: true
           )
@@ -63,10 +77,26 @@ module Eodhd
         end
       end
 
-      csv = api.fetch_mcd_csv!
-
-      output_path = io.save_mcd_csv!(csv: csv)
-      log.info("Wrote #{output_path}")
+      mcd_relative_path = Eodhd::Path.mcd_csv
+      if file_stale?(io: io, relative_path: mcd_relative_path, min_age_minutes: cfg.min_file_age_minutes)
+        log.info("Fetching MCD.US CSV...")
+        csv = api.fetch_mcd_csv!
+        output_path = io.save_mcd_csv!(csv: csv)
+        log.info("Wrote #{output_path}")
+      else
+        log.info("Skipping MCD.US CSV (fresh): #{mcd_relative_path}")
+      end
     end
+    
+
+    def file_stale?(io:, relative_path:, min_age_minutes:)
+      min_age_minutes = Validate.required_string!("min_age_minutes", min_age_minutes).to_i
+      last_updated_at = io.file_last_updated_at(relative_path: relative_path)
+      return true if last_updated_at.nil?
+
+      (Time.now - last_updated_at) >= (min_age_minutes * 60)
+    end
+
+    private :file_stale?
   end
 end

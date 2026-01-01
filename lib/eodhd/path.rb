@@ -11,6 +11,10 @@ module Eodhd
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
         File.join("symbols", "#{exchange_code}.json")
       end
+
+      def mcd_csv
+        File.join("data", "MCD.US.csv")
+      end
     end
   end
 end

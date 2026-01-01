@@ -4,7 +4,13 @@ module Eodhd
   module Config
     class Error < StandardError; end
 
-    Eodhd = Data.define(:base_url, :api_token, :output_dir, :request_pause_ms)
+    Eodhd = Data.define(
+      :base_url,
+      :api_token,
+      :output_dir,
+      :request_pause_ms,
+      :min_file_age_minutes
+    )
 
     class << self
       def eodhd!
@@ -12,7 +18,8 @@ module Eodhd
           base_url: eodhd_base_url!,
           api_token: eodhd_api_token!,
           output_dir: eodhd_output_dir!,
-          request_pause_ms: request_pause_ms!
+          request_pause_ms: request_pause_ms!,
+          min_file_age_minutes: min_file_age_minutes!
         )
       end
 
@@ -51,6 +58,17 @@ module Eodhd
         ms
       rescue ArgumentError
         raise Error, "REQUEST_PAUSE_MS must be a non-negative integer."
+      end
+
+      def min_file_age_minutes!
+        raw = ENV.fetch("MIN_FILE_AGE_MINUTES", "60")
+        minutes = Integer(raw, 10)
+        if minutes.negative?
+          raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
+        end
+        minutes
+      rescue ArgumentError
+        raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
       end
     end
   end
