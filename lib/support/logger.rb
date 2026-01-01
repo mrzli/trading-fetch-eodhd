@@ -5,7 +5,7 @@ require "time"
 
 module Eodhd
   class Logger
-    def initialize(io: $stdout, level: ENV["EODHD_LOG_LEVEL"], progname: "eodhd")
+    def initialize(io: $stdout, level: ENV["LOG_LEVEL"], progname: "eodhd")
       @logger = ::Logger.new(io)
       @logger.level = normalize_level(level)
       @logger.progname = progname

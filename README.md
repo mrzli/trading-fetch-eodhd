@@ -78,15 +78,16 @@ Yes—this is normal/standard: keep `bin/*` as thin wrappers and put the “meat
 
 ## Fetch CSV (MCD.US)
 
-`bin/fetch` fetches CSV for `MCD.US` and writes it to `EODHD_OUTPUT_DIR/MCD.US.csv`.
+`bin/fetch` fetches CSV for `MCD.US` and writes it to `OUTPUT_DIR/MCD.US.csv`.
 
-`EODHD_OUTPUT_DIR` can be relative (e.g. `data`) or absolute (e.g. `/home/you/data` or `~/data`).
+`OUTPUT_DIR` can be relative (e.g. `data`) or absolute (e.g. `/home/you/data` or `~/data`).
 
 1. Set required env vars (recommended via `.env`):
 
 ```bash
 cp .env.example .env
-# edit .env: set EODHD_BASE_URL, EODHD_API_TOKEN and EODHD_OUTPUT_DIR
+# edit .env: set BASE_URL, API_TOKEN and OUTPUT_DIR
+# optionally set REQUEST_PAUSE_MS (0-200) and LOG_LEVEL
 ```
 
 2. Run:

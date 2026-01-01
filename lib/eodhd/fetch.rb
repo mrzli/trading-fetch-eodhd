@@ -45,7 +45,7 @@ module Eodhd
         code
       end
 
-      exchange_codes.take(1).each do |exchange_code|
+      exchange_codes.take(3).each do |exchange_code|
         begin
           symbols_json = api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
           symbols_path = io.save_json!(
@@ -56,6 +56,10 @@ module Eodhd
           log.info("Wrote #{symbols_path}")
         rescue StandardError => e
           log.warn("Failed symbols for #{exchange_code}: #{e.class}: #{e.message}")
+        ensure
+          if cfg.request_pause_ms.positive?
+            sleep(cfg.request_pause_ms / 1000.0)
+          end
         end
       end
 

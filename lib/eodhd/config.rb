@@ -4,14 +4,15 @@ module Eodhd
   module Config
     class Error < StandardError; end
 
-    Eodhd = Data.define(:base_url, :api_token, :output_dir)
+    Eodhd = Data.define(:base_url, :api_token, :output_dir, :request_pause_ms)
 
     class << self
       def eodhd!
         Eodhd.new(
           base_url: eodhd_base_url!,
           api_token: eodhd_api_token!,
-          output_dir: eodhd_output_dir!
+          output_dir: eodhd_output_dir!,
+          request_pause_ms: request_pause_ms!
         )
       end
 
@@ -25,20 +26,31 @@ module Eodhd
       end
 
       def eodhd_api_token!
-        required_env!("EODHD_API_TOKEN")
+        required_env!("API_TOKEN")
       end
 
       def eodhd_output_dir!
-        File.expand_path(required_env!("EODHD_OUTPUT_DIR"))
+        File.expand_path(required_env!("OUTPUT_DIR"))
       end
 
       def eodhd_base_url!
-        base = required_env!("EODHD_BASE_URL")
+        base = required_env!("BASE_URL")
         base = base.chomp("/")
         unless base.start_with?("http://", "https://")
-          raise Error, "EODHD_BASE_URL must start with http:// or https://"
+          raise Error, "BASE_URL must start with http:// or https://"
         end
         base
+      end
+
+      def request_pause_ms!
+        raw = ENV.fetch("REQUEST_PAUSE_MS", "100")
+        ms = Integer(raw, 10)
+        if ms.negative?
+          raise Error, "REQUEST_PAUSE_MS must be a non-negative integer."
+        end
+        ms
+      rescue ArgumentError
+        raise Error, "REQUEST_PAUSE_MS must be a non-negative integer."
       end
     end
   end
