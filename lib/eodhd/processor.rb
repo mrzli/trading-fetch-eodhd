@@ -20,11 +20,14 @@ module Eodhd
         fetched = @api.get_exchanges_list_json!
         saved_path = @io.save_json!(relative_path, fetched, true)
         @log.info("Wrote #{saved_path}")
-        fetched
       else
         @log.info("Skipping exchanges list (fresh): #{relative_path}")
-        @io.read_text(relative_path)
       end
+    end
+
+    def read_exchanges_list_json
+      relative_path = Path.exchanges_list
+      @io.read_text(relative_path)
     end
 
     def fetch_symbols_for_exchanges(exchange_codes)
