@@ -4,11 +4,12 @@ require "json"
 require "set"
 
 module Eodhd
-  EXCLUDED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
-
   class ExchangesListParser
-    def initialize(log:)
+    DEFAULT_EXCLUDED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
+
+    def initialize(log:, excluded_exchange_codes: DEFAULT_EXCLUDED_EXCHANGE_CODES)
       @log = log
+      @excluded_exchange_codes = excluded_exchange_codes
     end
 
     def exchange_codes_from_json(exchanges_json)
@@ -23,7 +24,7 @@ module Eodhd
         code = exchange["Code"].to_s.strip
         next if code.empty?
 
-        if EXCLUDED_EXCHANGE_CODES.include?(code)
+        if @excluded_exchange_codes.include?(code)
           @log.debug("Skipping excluded exchange: #{code}")
           next
         end

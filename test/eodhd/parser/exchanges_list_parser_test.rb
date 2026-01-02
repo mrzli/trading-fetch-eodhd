@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-require_relative "../test_helper"
+require_relative "../../test_helper"
 
 describe Eodhd::ExchangesListParser do
   it "extracts exchange codes and skips excluded" do
     log = Eodhd::Logger.new
-    parser = Eodhd::ExchangesListParser.new(log: log)
+    parser = Eodhd::ExchangesListParser.new(
+      log: log,
+      excluded_exchange_codes: Set.new(["MONEY"])
+    )
 
     json = JSON.generate(
       [
