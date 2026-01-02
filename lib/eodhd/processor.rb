@@ -24,7 +24,7 @@ module Eodhd
       fetch_exchanges_list!
       exchange_codes = get_exhange_codes
       fetch_symbols_for_exchanges!(exchange_codes)
-      symbols_index = symbol_codes_index(exchange_codes)
+      symbols_hash = get_symbols_hash(exchange_codes)
 
       fetch_eod
     end
@@ -55,7 +55,7 @@ module Eodhd
     # - first level keys: exchange codes (as provided)
     # - second level keys: symbol types (derived from filenames under symbols/<exchange>/)
     # - third level values: array of symbol codes extracted from each file's entries ("Code" field)
-    def symbol_codes_index(exchange_codes)
+    def get_symbols_hash(exchange_codes)
       exchange_codes.each_with_object({}) do |exchange_code, acc|
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
         relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
