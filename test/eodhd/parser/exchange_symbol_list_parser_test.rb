@@ -4,7 +4,7 @@ require_relative "../../test_helper"
 
 describe Eodhd::ExchangeSymbolListParser do
   it "groups symbols by kebab-cased Type" do
-    log = Eodhd::Logger.new
+    log = Eodhd::Logger.new(io: '/dev/null')
     parser = Eodhd::ExchangeSymbolListParser.new(log: log)
 
     json = JSON.generate(

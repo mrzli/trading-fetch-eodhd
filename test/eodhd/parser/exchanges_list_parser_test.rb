@@ -4,7 +4,7 @@ require_relative "../../test_helper"
 
 describe Eodhd::ExchangesListParser do
   it "extracts exchange codes and skips excluded" do
-    log = Eodhd::Logger.new
+    log = Eodhd::Logger.new(io: '/dev/null')
     parser = Eodhd::ExchangesListParser.new(log: log)
 
     json = JSON.generate(
