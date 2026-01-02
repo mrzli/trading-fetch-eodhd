@@ -31,12 +31,12 @@ describe Eodhd::Path do
       {
         description: "symbol with exchange",
         input: { exchange: "US", symbol: "MCD" },
-        expected: File.join("eod", "mcd.us.json")
+        expected: File.join("eod", "us", "mcd.json")
       },
       {
         description: "symbol with dot class",
         input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("eod", "brk-b.us.json")
+        expected: File.join("eod", "us", "brk-b.json")
       }
     ],
     call: ->(input) { Eodhd::Path.eod_data(input[:exchange], input[:symbol]) }
