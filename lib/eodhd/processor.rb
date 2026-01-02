@@ -77,19 +77,7 @@ module Eodhd
       begin
         symbols_json = @api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
 
-        symbols = JSON.parse(symbols_json)
-        unless symbols.is_a?(Array)
-          raise TypeError, "Expected symbols JSON to be an Array, got #{symbols.class}"
-        end
-
-        groups = symbols.group_by do |symbol|
-          next "unknown" unless symbol.is_a?(Hash)
-
-          raw_type = symbol["Type"]
-          type = Eodhd::StringUtil.kebab_case(raw_type)
-          type = "unknown" if type.empty?
-          type
-        end
+        groups = Eodhd::ExchangeSymbolListParser.new.group_by_type_from_json(symbols_json)
 
         groups.each do |type, items|
           relative_path = Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code, type: type)
