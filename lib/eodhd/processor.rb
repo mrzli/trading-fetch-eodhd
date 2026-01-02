@@ -12,17 +12,12 @@ module Eodhd
       @io = io
     end
 
-    def fetch_exchanges_list
-      relative_path = Path.exchanges_list
-
-      if file_stale?(relative_path)
-        @log.info("Fetching exchanges list...")
-        fetched = @api.get_exchanges_list_json!
-        saved_path = @io.save_json!(relative_path, fetched, true)
-        @log.info("Wrote #{saved_path}")
-      else
-        @log.info("Skipping exchanges list (fresh): #{relative_path}")
-      end
+    def fetch!
+      fetch_exchanges_list!
+      exchanges_json = @io.read_text(Path.exchanges_list)
+      exchange_codes = ExchangesListParser.exchange_codes_from_json(exchanges_json, @log)
+      fetch_symbols_for_exchanges(exchange_codes)
+      fetch_eod
     end
 
     def read_exchanges_list_json
@@ -64,12 +59,25 @@ module Eodhd
 
     private
 
+    def fetch_exchanges_list!
+      relative_path = Path.exchanges_list
+
+      if file_stale?(relative_path)
+        @log.info("Fetching exchanges list...")
+        fetched = @api.get_exchanges_list_json!
+        saved_path = @io.save_json!(relative_path, fetched, true)
+        @log.info("Wrote #{saved_path}")
+      else
+        @log.info("Skipping exchanges list (fresh): #{relative_path}.")
+      end
+    end
+
     def fetch_symbols_for_exchange(exchange_code)
       exchange_code = Validate.required_string!("exchange_code", exchange_code)
 
       existing_paths = symbols_paths_for_exchange(exchange_code)
       if existing_paths.any? && existing_paths.none? { |path| file_stale?(path) }
-        @log.info("Skipping symbols (fresh): #{File.join('symbols', exchange_code_kebab(exchange_code), '*.json')}")
+        @log.info("Skipping symbols (fresh): #{File.join('symbols', StringUtil.kebab_case(exchange_code), '*.json')}")
         return
       end
 
@@ -90,12 +98,8 @@ module Eodhd
       end
     end
 
-    def exchange_code_kebab(exchange_code)
-      StringUtil.kebab_case(exchange_code)
-    end
-
     def symbols_paths_for_exchange(exchange_code)
-      relative_dir = File.join("symbols", exchange_code_kebab(exchange_code))
+      relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
 
       @io
         .list_relative_paths(relative_dir)
