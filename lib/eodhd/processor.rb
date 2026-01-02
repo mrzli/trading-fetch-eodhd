@@ -23,6 +23,7 @@ module Eodhd
     def fetch!
       fetch_exchanges_list!
       exchange_codes = get_exhange_codes
+
       fetch_symbols_for_exchanges!(exchange_codes)
       symbols_hash = get_symbols_hash(exchange_codes)
 
