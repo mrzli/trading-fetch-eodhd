@@ -19,6 +19,9 @@ module Eodhd
       fetch_exchanges_list!
       exchange_codes = get_exhange_codes
       fetch_symbols_for_exchanges!(exchange_codes)
+      symbols_index = symbol_codes_index(exchange_codes)
+      puts symbols_index.inspect[0, 500]
+      
       fetch_eod
     end
 
@@ -40,6 +43,53 @@ module Eodhd
     def get_exhange_codes
       exchanges_json = @io.read_text(Path.exchanges_list)
       @exchanges_list_parser.exchange_codes_from_json(exchanges_json)
+    end
+
+    # Returns a nested Hash of:
+    # - first level keys: exchange codes (as provided)
+    # - second level keys: symbol types (derived from filenames under symbols/<exchange>/)
+    # - third level values: array of symbol codes extracted from each file's entries ("Code" field)
+    def symbol_codes_index(exchange_codes)
+      exchange_codes.each_with_object({}) do |exchange_code, acc|
+        exchange_code = Validate.required_string!("exchange_code", exchange_code)
+        relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
+
+        type_to_codes = @io
+          .list_relative_paths(relative_dir)
+          .select { |path| path.end_with?(".json") }
+          .sort
+          .each_with_object({}) do |relative_path, type_acc|
+            type = File.basename(relative_path, ".json")
+            type_acc[type] = symbol_codes_from_file(relative_path)
+          end
+
+        acc[exchange_code] = type_to_codes
+      end
+    end
+
+    def symbol_codes_from_file(relative_path)
+      json = @io.read_text(relative_path)
+      parsed = JSON.parse(json)
+
+      unless parsed.is_a?(Array)
+        @log.warn("Expected symbols file JSON to be an Array: #{relative_path}")
+        return []
+      end
+
+      parsed.filter_map do |row|
+        next unless row.is_a?(Hash)
+
+        code = row["Code"].to_s.strip
+        next if code.empty?
+
+        code
+      end
+    rescue JSON::ParserError => e
+      @log.warn("Failed to parse JSON: #{relative_path}: #{e.message}")
+      []
+    rescue StandardError => e
+      @log.warn("Failed to read symbols file: #{relative_path}: #{e.class}: #{e.message}")
+      []
     end
 
     def fetch_symbols_for_exchanges!(exchange_codes)
