@@ -10,12 +10,15 @@ module Eodhd
       @cfg = cfg
       @api = api
       @io = io
+
+      @exchanges_list_parser = ExchangesListParser.new(log: log)
+      @exchange_symbol_list_parser = ExchangeSymbolListParser.new(log: log)
     end
 
     def fetch!
       fetch_exchanges_list!
       exchanges_json = @io.read_text(Path.exchanges_list)
-      exchange_codes = ExchangesListParser.new(log: @log).exchange_codes_from_json(exchanges_json)
+      exchange_codes = @exchanges_list_parser.exchange_codes_from_json(exchanges_json)
       fetch_symbols_for_exchanges(exchange_codes)
       fetch_eod
     end
@@ -84,7 +87,7 @@ module Eodhd
       begin
         symbols_json = @api.get_exchange_symbol_list_json!(exchange_code)
 
-        groups = ExchangeSymbolListParser.new(log: @log).group_by_type_from_json(symbols_json)
+        groups = @exchange_symbol_list_parser.group_by_type_from_json(symbols_json)
 
         groups.each do |type, items|
           relative_path = Path.exchange_symbol_list(exchange_code, type)
