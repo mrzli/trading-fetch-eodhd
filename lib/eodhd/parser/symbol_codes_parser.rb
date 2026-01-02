@@ -8,10 +8,10 @@ module Eodhd
       @log = log
     end
 
-    def codes_from_json(symbols_json, source: nil)
+    def codes_from_json(symbols_json)
       parsed = JSON.parse(symbols_json)
       unless parsed.is_a?(Array)
-        @log.warn("Expected symbols JSON to be an Array#{source_suffix(source)}") if @log.respond_to?(:warn)
+        @log.warn("Expected symbols JSON to be an Array") if @log.respond_to?(:warn)
         return []
       end
 
@@ -24,7 +24,7 @@ module Eodhd
         code
       end
     rescue JSON::ParserError => e
-      @log.warn("Failed to parse symbols JSON#{source_suffix(source)}: #{e.message}") if @log.respond_to?(:warn)
+      @log.warn("Failed to parse symbols JSON: #{e.message}") if @log.respond_to?(:warn)
       []
     end
 
