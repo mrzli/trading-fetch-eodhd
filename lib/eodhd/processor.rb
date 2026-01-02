@@ -17,8 +17,7 @@ module Eodhd
 
     def fetch!
       fetch_exchanges_list!
-      exchanges_json = @io.read_text(Path.exchanges_list)
-      exchange_codes = @exchanges_list_parser.exchange_codes_from_json(exchanges_json)
+      exchange_codes = get_exhange_codes
       fetch_symbols_for_exchanges!(exchange_codes)
       fetch_eod
     end
@@ -36,6 +35,11 @@ module Eodhd
       else
         @log.info("Skipping exchanges list (fresh): #{relative_path}.")
       end
+    end
+
+    def get_exhange_codes
+      exchanges_json = @io.read_text(Path.exchanges_list)
+      @exchanges_list_parser.exchange_codes_from_json(exchanges_json)
     end
 
     def fetch_symbols_for_exchanges!(exchange_codes)
