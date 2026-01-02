@@ -26,7 +26,7 @@ module Eodhd
       fetch_symbols_for_exchanges!(exchange_codes)
       symbols_hash = get_symbols_hash(exchange_codes)
 
-      fetch_eod(symbols_hash)
+      fetch_eod!(symbols_hash)
     end
 
     private
@@ -131,7 +131,7 @@ module Eodhd
         .select { |path| path.end_with?(".json") }
     end
 
-    def fetch_eod(symbols_hash)
+    def fetch_eod!(symbols_hash)
       symbols_hash.each do |exchange_code, types_hash|
         next unless types_hash.is_a?(Hash)
 
