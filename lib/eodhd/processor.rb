@@ -6,8 +6,8 @@ require "set"
 module Eodhd
   class Processor
     UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
-    SYMBOL_EXCHANGED = Set.new(["US"]).freeze
-    SYMBOL_TYPES = Set.new(["common-stock"]).freeze
+    SYMBOL_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
+    SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
     def initialize(log:, cfg:, api:, io:)
       @log = log
