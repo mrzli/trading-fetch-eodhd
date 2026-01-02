@@ -28,6 +28,20 @@ module Eodhd
       File.read(output_path(relative_path: relative_path))
     end
 
+    def list_relative_paths(relative_dir:)
+      relative_dir = Validate.required_string!("relative_dir", relative_dir)
+      dir_path = output_path(relative_path: relative_dir)
+      return [] unless Dir.exist?(dir_path)
+
+      Dir.children(dir_path).filter_map do |name|
+        relative_path = File.join(relative_dir, name)
+        absolute_path = output_path(relative_path: relative_path)
+        next unless File.file?(absolute_path)
+
+        relative_path
+      end
+    end
+
     def save_csv!(relative_path:, csv:)
       csv = Validate.required_string!("csv", csv)
 

@@ -7,10 +7,15 @@ module Eodhd
         "exchanges-list.json"
       end
 
-      def exchange_symbol_list(exchange_code:)
+      def exchange_symbol_list(exchange_code:, type:)
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
-        code = Eodhd::StringUtil.kebab_case(exchange_code)
-        File.join("symbols", "#{code}.json")
+        type = Validate.required_string!("type", type)
+
+        exchange_code = Eodhd::StringUtil.kebab_case(exchange_code)
+        type = Eodhd::StringUtil.kebab_case(type)
+        type = "unknown" if type.empty?
+
+        File.join("symbols", "#{exchange_code}_#{type}.json")
       end
 
       def mcd_csv

@@ -77,26 +77,55 @@ module Eodhd
 
     def fetch_symbols_for_exchange(exchange_code:)
       exchange_code = Validate.required_string!("exchange_code", exchange_code)
-      relative_path = Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code)
 
-      unless file_stale?(relative_path: relative_path)
-        @log.info("Skipping symbols (fresh): #{relative_path}")
+      existing_paths = symbols_paths_for_exchange(exchange_code: exchange_code)
+      if existing_paths.any? && existing_paths.none? { |path| file_stale?(relative_path: path) }
+        @log.info("Skipping symbols (fresh): #{File.join('symbols', "#{exchange_code_kebab(exchange_code)}_*.json")}")
         return
       end
 
       begin
         symbols_json = @api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
-        saved_path = @io.save_json!(
-          relative_path: relative_path,
-          json: symbols_json,
-          pretty: true
-        )
-        @log.info("Wrote #{saved_path}")
+
+        symbols = JSON.parse(symbols_json)
+        unless symbols.is_a?(Array)
+          raise TypeError, "Expected symbols JSON to be an Array, got #{symbols.class}"
+        end
+
+        groups = symbols.group_by do |symbol|
+          next "unknown" unless symbol.is_a?(Hash)
+
+          raw_type = symbol["Type"]
+          type = Eodhd::StringUtil.kebab_case(raw_type)
+          type = "unknown" if type.empty?
+          type
+        end
+
+        groups.each do |type, items|
+          relative_path = Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code, type: type)
+          saved_path = @io.save_json!(
+            relative_path: relative_path,
+            json: JSON.generate(items),
+            pretty: true
+          )
+          @log.info("Wrote #{saved_path}")
+        end
       rescue StandardError => e
         @log.warn("Failed symbols for #{exchange_code}: #{e.class}: #{e.message}")
       ensure
         pause_between_requests
       end
+    end
+
+    def exchange_code_kebab(exchange_code)
+      Eodhd::StringUtil.kebab_case(exchange_code)
+    end
+
+    def symbols_paths_for_exchange(exchange_code:)
+      prefix = "#{exchange_code_kebab(exchange_code)}_"
+      @io
+        .list_relative_paths(relative_dir: "symbols")
+        .select { |path| File.basename(path).start_with?(prefix) && path.end_with?(".json") }
     end
 
     def pause_between_requests
