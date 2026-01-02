@@ -58,6 +58,11 @@ module Eodhd
     def get_symbols_hash(exchange_codes)
       exchange_codes.each_with_object({}) do |exchange_code, acc|
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
+
+        if !SYMBOL_INCLUDED_EXCHANGES.include?(exchange_code)
+          next
+        end
+
         relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
 
         type_to_codes = @io
@@ -66,6 +71,11 @@ module Eodhd
           .sort
           .each_with_object({}) do |relative_path, type_acc|
             type = File.basename(relative_path, ".json")
+
+            if !SYMBOL_INCLUDED_TYPES.include?(type)
+              next
+            end
+
             type_acc[type] = symbol_codes_from_file(relative_path)
           end
 
