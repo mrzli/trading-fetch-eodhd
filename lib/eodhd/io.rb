@@ -9,64 +9,56 @@ module Eodhd
       @output_dir = Validate.required_string!("output_dir", output_dir)
     end
 
-    def save_mcd_csv!(csv:)
-      save_csv!(relative_path: "data/MCD.US.csv", csv: csv)
+    def save_mcd_csv!(csv)
+      save_csv!("data/MCD.US.csv", csv)
     end
 
-    def file_exists?(relative_path:)
-      File.exist?(output_path(relative_path: relative_path))
+    def file_exists?(relative_path)
+      File.exist?(output_path(relative_path))
     end
 
-    def file_last_updated_at(relative_path:)
-      output_path = output_path(relative_path: relative_path)
+    def file_last_updated_at(relative_path)
+      output_path = output_path(relative_path)
       return nil unless File.exist?(output_path)
 
       File.mtime(output_path)
     end
 
-    def read_text(relative_path:)
-      File.read(output_path(relative_path: relative_path))
+    def read_text(relative_path)
+      File.read(output_path(relative_path))
     end
 
-    def list_relative_paths(relative_dir:)
+    def list_relative_paths(relative_dir)
       relative_dir = Validate.required_string!("relative_dir", relative_dir)
-      dir_path = output_path(relative_path: relative_dir)
+      dir_path = output_path(relative_dir)
       return [] unless Dir.exist?(dir_path)
 
       Dir.children(dir_path).filter_map do |name|
         relative_path = File.join(relative_dir, name)
-        absolute_path = output_path(relative_path: relative_path)
+        absolute_path = output_path(relative_path)
         next unless File.file?(absolute_path)
 
         relative_path
       end
     end
 
-    def save_csv!(relative_path:, csv:)
+    def save_csv!(relative_path, csv)
       csv = Validate.required_string!("csv", csv)
 
-      write_text_file!(
-        relative_path: relative_path,
-        content: csv,
-        ensure_trailing_newline: false
-      )
+      write_text_file!(relative_path, csv, false)
     end
 
-    def save_json!(relative_path:, json:, pretty: true)
+    def save_json!(relative_path, json, pretty = true)
       json = Validate.required_string!("json", json)
 
       content = pretty ? pretty_json(json) : json
 
-      write_text_file!(
-        relative_path: relative_path,
-        content: content,
-        ensure_trailing_newline: true
-      )
+      write_text_file!(relative_path, content, true)
     end
 
     private
 
-    def output_path(relative_path:)
+    def output_path(relative_path)
       relative_path = Validate.required_string!("relative_path", relative_path)
       File.join(@output_dir, relative_path)
     end
@@ -77,8 +69,8 @@ module Eodhd
       json
     end
 
-    def write_text_file!(relative_path:, content:, ensure_trailing_newline:)
-      output_path = output_path(relative_path: relative_path)
+    def write_text_file!(relative_path, content, ensure_trailing_newline)
+      output_path = output_path(relative_path)
       FileUtils.mkdir_p(File.dirname(output_path))
 
       content = content.to_s

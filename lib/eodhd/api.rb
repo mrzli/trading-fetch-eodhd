@@ -23,7 +23,7 @@ module Eodhd
       response.body.to_s
     end
 
-    def get_exchange_symbol_list_json!(exchange_code:)
+    def get_exchange_symbol_list_json!(exchange_code)
       exchange_code = Validate.required_string!("exchange_code", exchange_code)
 
       uri = get_full_url("exchange-symbol-list/#{exchange_code}")
@@ -38,7 +38,7 @@ module Eodhd
       response.body.to_s
     end
 
-    def get_eod_data_json!(exchange:, symbol:)
+    def get_eod_data_json!(exchange, symbol)
       exchange = Validate.required_string!("exchange", exchange)
       symbol = Validate.required_string!("symbol", symbol)
 

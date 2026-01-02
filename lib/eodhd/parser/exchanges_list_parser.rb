@@ -9,7 +9,7 @@ module Eodhd
 
     module_function
 
-    def exchange_codes_from_json(exchanges_json, log:, excluded_exchange_codes: DEFAULT_EXCLUDED_EXCHANGE_CODES)
+    def exchange_codes_from_json(exchanges_json, log, excluded_exchange_codes = DEFAULT_EXCLUDED_EXCHANGE_CODES)
       exchanges = JSON.parse(exchanges_json)
       unless exchanges.is_a?(Array)
         raise TypeError, "Expected exchanges list JSON to be an Array, got #{exchanges.class}"

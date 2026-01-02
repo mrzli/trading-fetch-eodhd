@@ -22,7 +22,7 @@ describe Eodhd::Path do
         expected: File.join("symbols", "foo-bar", "mutual-fund.json")
       }
     ],
-    call: ->(input) { Eodhd::Path.exchange_symbol_list(exchange_code: input[:exchange_code], type: input[:type]) }
+    call: ->(input) { Eodhd::Path.exchange_symbol_list(input[:exchange_code], input[:type]) }
   )
 
   test_equals(
@@ -39,6 +39,6 @@ describe Eodhd::Path do
         expected: File.join("eod", "brk-b.us.json")
       }
     ],
-    call: ->(input) { Eodhd::Path.eod_data(exchange: input[:exchange], symbol: input[:symbol]) }
+    call: ->(input) { Eodhd::Path.eod_data(input[:exchange], input[:symbol]) }
   )
 end

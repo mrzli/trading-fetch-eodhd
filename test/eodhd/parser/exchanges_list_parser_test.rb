@@ -18,8 +18,8 @@ describe Eodhd::ExchangesListParser do
 
     assert_equal ["US", "XETRA_GERMANY"], Eodhd::ExchangesListParser.exchange_codes_from_json(
       json,
-      log: log,
-      excluded_exchange_codes: Set.new(["MONEY"])
+      log,
+      Set.new(["MONEY"])
     )
   end
 end
