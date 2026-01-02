@@ -61,8 +61,11 @@ module Eodhd
     end
 
     def fetch_eod
-      ["MCD.US"].each do |symbol|
-        relative_path = Eodhd::Path.eod_data(symbol: symbol)
+      symbol = "MCD"
+
+      ["US", "NYSE"].each do |exchange|
+        symbol_with_exchange = "#{symbol}.#{exchange}"
+        relative_path = Eodhd::Path.eod_data(exchange: exchange, symbol: symbol)
 
         unless file_stale?(relative_path: relative_path)
           @log.info("Skipping EOD (fresh): #{relative_path}")
@@ -70,13 +73,13 @@ module Eodhd
         end
 
         begin
-          @log.info("Fetching EOD JSON: #{symbol}...")
-          json = @api.get_eod_data_json!(symbol: symbol)
+          @log.info("Fetching EOD JSON: #{symbol_with_exchange}...")
+          json = @api.get_eod_data_json!(exchange: exchange, symbol: symbol)
           saved_path = @io.save_json!(relative_path: relative_path, json: json, pretty: true)
           @log.info("Wrote #{saved_path}")
           return
         rescue StandardError => e
-          @log.warn("Failed EOD for #{symbol}: #{e.class}: #{e.message}")
+          @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
         ensure
           pause_between_requests
         end

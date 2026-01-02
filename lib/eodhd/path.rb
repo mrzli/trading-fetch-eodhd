@@ -7,10 +7,14 @@ module Eodhd
         "exchanges-list.json"
       end
 
-      def eod_data(symbol:)
+      def eod_data(exchange:, symbol:)
+        exchange = Validate.required_string!("exchange", exchange)
         symbol = Validate.required_string!("symbol", symbol)
+
+        exchange = Eodhd::StringUtil.kebab_case(exchange)
         symbol = Eodhd::StringUtil.kebab_case(symbol)
-        File.join("eod", "#{symbol}.json")
+
+        File.join("eod", "#{symbol}.#{exchange}.json")
       end
 
       def exchange_symbol_list(exchange_code:, type:)

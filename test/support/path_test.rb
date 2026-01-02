@@ -30,15 +30,15 @@ describe Eodhd::Path do
     [
       {
         description: "symbol with exchange",
-        input: { symbol: "MCD.US" },
-        expected: File.join("eod", "mcd-us.json")
+        input: { exchange: "US", symbol: "MCD" },
+        expected: File.join("eod", "mcd.us.json")
       },
       {
         description: "symbol with dot class",
-        input: { symbol: "BRK.B.US" },
-        expected: File.join("eod", "brk-b-us.json")
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("eod", "brk-b.us.json")
       }
     ],
-    call: ->(input) { Eodhd::Path.eod_data(symbol: input[:symbol]) }
+    call: ->(input) { Eodhd::Path.eod_data(exchange: input[:exchange], symbol: input[:symbol]) }
   )
 end
