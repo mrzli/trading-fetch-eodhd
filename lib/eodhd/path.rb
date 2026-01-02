@@ -9,7 +9,8 @@ module Eodhd
 
       def exchange_symbol_list(exchange_code:)
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
-        File.join("symbols", "#{exchange_code}.json")
+        code = Eodhd::StringUtil.kebab_case(exchange_code)
+        File.join("symbols", "#{code}.json")
       end
 
       def mcd_csv
