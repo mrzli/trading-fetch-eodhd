@@ -5,7 +5,9 @@ require "set"
 
 module Eodhd
   class Processor
-    attr_reader :symbols_index
+    UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
+    SYMBOL_EXCHANGED = Set.new(["US"]).freeze
+    SYMBOL_TYPES = Set.new(["common-stock"]).freeze
 
     def initialize(log:, cfg:, api:, io:)
       @log = log
@@ -22,7 +24,7 @@ module Eodhd
       fetch_exchanges_list!
       exchange_codes = get_exhange_codes
       fetch_symbols_for_exchanges!(exchange_codes)
-      @symbols_index = symbol_codes_index(exchange_codes)
+      symbols_index = symbol_codes_index(exchange_codes)
 
       fetch_eod
     end
@@ -44,7 +46,9 @@ module Eodhd
 
     def get_exhange_codes
       exchanges_json = @io.read_text(Path.exchanges_list)
-      @exchanges_list_parser.exchange_codes_from_json(exchanges_json)
+      @exchanges_list_parser.exchange_codes_from_json(exchanges_json).reject do |code|
+        UNSUPPORTED_EXCHANGE_CODES.include?(code)
+      end
     end
 
     # Returns a nested Hash of:
@@ -68,8 +72,6 @@ module Eodhd
         acc[exchange_code] = type_to_codes
       end
     end
-
-    public :symbol_codes_index
 
     def symbol_codes_from_file(relative_path)
       json = @io.read_text(relative_path)
