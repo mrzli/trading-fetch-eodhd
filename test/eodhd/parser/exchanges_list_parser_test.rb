@@ -5,6 +5,7 @@ require_relative "../../test_helper"
 describe Eodhd::ExchangesListParser do
   it "extracts exchange codes and skips excluded" do
     log = Eodhd::Logger.new
+    parser = Eodhd::ExchangesListParser.new(log: log)
 
     json = JSON.generate(
       [
@@ -16,10 +17,6 @@ describe Eodhd::ExchangesListParser do
       ]
     )
 
-    assert_equal ["US", "XETRA_GERMANY"], Eodhd::ExchangesListParser.exchange_codes_from_json(
-      json,
-      log,
-      Set.new(["MONEY"])
-    )
+    assert_equal ["US", "XETRA_GERMANY"], parser.exchange_codes_from_json(json, Set.new(["MONEY"]))
   end
 end

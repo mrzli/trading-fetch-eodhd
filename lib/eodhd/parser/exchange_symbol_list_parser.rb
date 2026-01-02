@@ -3,8 +3,10 @@
 require "json"
 
 module Eodhd
-  module ExchangeSymbolListParser
-    module_function
+  class ExchangeSymbolListParser
+    def initialize(log:)
+      @log = log
+    end
 
     def group_by_type_from_json(symbols_json)
       symbols = JSON.parse(symbols_json)
@@ -13,7 +15,10 @@ module Eodhd
       end
 
       symbols.group_by do |symbol|
-        next "unknown" unless symbol.is_a?(Hash)
+        unless symbol.is_a?(Hash)
+          @log.debug("Skipping non-hash symbol row: #{symbol.class}") if @log.respond_to?(:debug)
+          next "unknown"
+        end
 
         raw_type = symbol["Type"] || symbol["type"]
         type = StringUtil.kebab_case(raw_type)
