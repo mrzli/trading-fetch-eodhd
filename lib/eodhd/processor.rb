@@ -26,7 +26,7 @@ module Eodhd
       fetch_symbols_for_exchanges!(exchange_codes)
       symbols_hash = get_symbols_hash(exchange_codes)
 
-      fetch_eod
+      fetch_eod(symbols_hash)
     end
 
     private
@@ -85,7 +85,7 @@ module Eodhd
 
     def symbol_codes_from_file(relative_path)
       json = @io.read_text(relative_path)
-      @symbol_codes_parser.codes_from_json(json, source: relative_path)
+      @symbol_codes_parser.codes_from_json(json)
     rescue StandardError => e
       @log.warn("Failed to read symbols file: #{relative_path}: #{e.class}: #{e.message}") if @log.respond_to?(:warn)
       []
@@ -131,28 +131,34 @@ module Eodhd
         .select { |path| path.end_with?(".json") }
     end
 
-    def fetch_eod
-      symbol = "MCD"
+    def fetch_eod(symbols_hash)
+      symbols_hash.each do |exchange_code, types_hash|
+        next unless types_hash.is_a?(Hash)
 
-      ["US", "NYSE"].each do |exchange|
-        symbol_with_exchange = "#{symbol}.#{exchange}"
-        relative_path = Path.eod_data(exchange, symbol)
+        types_hash.each do |type, symbol_codes|
+          next unless symbol_codes.is_a?(Array)
 
-        unless file_stale?(relative_path)
-          @log.info("Skipping EOD (fresh): #{relative_path}")
-          return
-        end
+          symbol_codes.each do |symbol|
+            symbol = Validate.required_string!("symbol", symbol)
+            symbol_with_exchange = "#{symbol}.#{exchange_code}"
+            relative_path = Path.eod_data(exchange_code, symbol)
 
-        begin
-          @log.info("Fetching EOD JSON: #{symbol_with_exchange}...")
-          json = @api.get_eod_data_json!(exchange, symbol)
-          saved_path = @io.save_json!(relative_path, json, true)
-          @log.info("Wrote #{saved_path}")
-          return
-        rescue StandardError => e
-          @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
-        ensure
-          pause_between_requests
+            unless file_stale?(relative_path)
+              @log.info("Skipping EOD (fresh): #{relative_path}")
+              next
+            end
+
+            begin
+              @log.info("Fetching EOD JSON: #{symbol_with_exchange} (#{type})...")
+              json = @api.get_eod_data_json!(exchange_code, symbol)
+              saved_path = @io.save_json!(relative_path, json, true)
+              @log.info("Wrote #{saved_path}")
+            rescue StandardError => e
+              @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+            ensure
+              pause_between_requests
+            end
+          end
         end
       end
     end
