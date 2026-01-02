@@ -2,6 +2,7 @@
 
 require_relative "support/logger"
 require_relative "support/validate"
+require_relative "support/string_util"
 require_relative "eodhd/path"
 require_relative "eodhd/config"
 require_relative "eodhd/eodhd_api"
