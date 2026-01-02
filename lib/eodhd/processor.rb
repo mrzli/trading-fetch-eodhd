@@ -13,7 +13,7 @@ module Eodhd
     end
 
     def fetch_exchanges_list
-      relative_path = Eodhd::Path.exchanges_list
+      relative_path = Path.exchanges_list
 
       if file_stale?(relative_path: relative_path)
         @log.info("Fetching exchanges list...")
@@ -42,7 +42,7 @@ module Eodhd
 
       ["US", "NYSE"].each do |exchange|
         symbol_with_exchange = "#{symbol}.#{exchange}"
-        relative_path = Eodhd::Path.eod_data(exchange: exchange, symbol: symbol)
+        relative_path = Path.eod_data(exchange: exchange, symbol: symbol)
 
         unless file_stale?(relative_path: relative_path)
           @log.info("Skipping EOD (fresh): #{relative_path}")
@@ -77,10 +77,10 @@ module Eodhd
       begin
         symbols_json = @api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
 
-        groups = Eodhd::ExchangeSymbolListParser.group_by_type_from_json(symbols_json)
+        groups = ExchangeSymbolListParser.group_by_type_from_json(symbols_json)
 
         groups.each do |type, items|
-          relative_path = Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code, type: type)
+          relative_path = Path.exchange_symbol_list(exchange_code: exchange_code, type: type)
           saved_path = @io.save_json!(
             relative_path: relative_path,
             json: JSON.generate(items),
@@ -96,7 +96,7 @@ module Eodhd
     end
 
     def exchange_code_kebab(exchange_code)
-      Eodhd::StringUtil.kebab_case(exchange_code)
+      StringUtil.kebab_case(exchange_code)
     end
 
     def symbols_paths_for_exchange(exchange_code:)

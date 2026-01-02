@@ -11,8 +11,8 @@ module Eodhd
         exchange = Validate.required_string!("exchange", exchange)
         symbol = Validate.required_string!("symbol", symbol)
 
-        exchange = Eodhd::StringUtil.kebab_case(exchange)
-        symbol = Eodhd::StringUtil.kebab_case(symbol)
+        exchange = StringUtil.kebab_case(exchange)
+        symbol = StringUtil.kebab_case(symbol)
 
         File.join("eod", "#{symbol}.#{exchange}.json")
       end
@@ -21,8 +21,8 @@ module Eodhd
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
         type = Validate.required_string!("type", type)
 
-        exchange_code = Eodhd::StringUtil.kebab_case(exchange_code)
-        type = Eodhd::StringUtil.kebab_case(type)
+        exchange_code = StringUtil.kebab_case(exchange_code)
+        type = StringUtil.kebab_case(type)
         type = "unknown" if type.empty?
 
         File.join("symbols", exchange_code, "#{type}.json")

@@ -16,7 +16,7 @@ module Eodhd
         next "unknown" unless symbol.is_a?(Hash)
 
         raw_type = symbol["Type"] || symbol["type"]
-        type = Eodhd::StringUtil.kebab_case(raw_type)
+        type = StringUtil.kebab_case(raw_type)
         type = "unknown" if type.empty?
         type
       end
