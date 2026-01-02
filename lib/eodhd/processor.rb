@@ -5,6 +5,8 @@ require "set"
 
 module Eodhd
   class Processor
+    attr_reader :symbols_index
+
     def initialize(log:, cfg:, api:, io:)
       @log = log
       @cfg = cfg
@@ -13,15 +15,15 @@ module Eodhd
 
       @exchanges_list_parser = ExchangesListParser.new(log: log)
       @exchange_symbol_list_parser = ExchangeSymbolListParser.new(log: log)
+      @symbol_codes_parser = SymbolCodesParser.new(log: log)
     end
 
     def fetch!
       fetch_exchanges_list!
       exchange_codes = get_exhange_codes
       fetch_symbols_for_exchanges!(exchange_codes)
-      symbols_index = symbol_codes_index(exchange_codes)
-      puts symbols_index.inspect[0, 500]
-      
+      @symbols_index = symbol_codes_index(exchange_codes)
+
       fetch_eod
     end
 
@@ -67,28 +69,13 @@ module Eodhd
       end
     end
 
+    public :symbol_codes_index
+
     def symbol_codes_from_file(relative_path)
       json = @io.read_text(relative_path)
-      parsed = JSON.parse(json)
-
-      unless parsed.is_a?(Array)
-        @log.warn("Expected symbols file JSON to be an Array: #{relative_path}")
-        return []
-      end
-
-      parsed.filter_map do |row|
-        next unless row.is_a?(Hash)
-
-        code = row["Code"].to_s.strip
-        next if code.empty?
-
-        code
-      end
-    rescue JSON::ParserError => e
-      @log.warn("Failed to parse JSON: #{relative_path}: #{e.message}")
-      []
+      @symbol_codes_parser.codes_from_json(json, source: relative_path)
     rescue StandardError => e
-      @log.warn("Failed to read symbols file: #{relative_path}: #{e.class}: #{e.message}")
+      @log.warn("Failed to read symbols file: #{relative_path}: #{e.class}: #{e.message}") if @log.respond_to?(:warn)
       []
     end
 
