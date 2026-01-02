@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
+require "set"
 
 module Eodhd
   class Processor
@@ -55,26 +56,7 @@ module Eodhd
 
     def fetch_symbols_for_exchanges(exchange_codes:)
       exchange_codes.each do |exchange_code|
-        relative_path = Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code)
-
-        unless file_stale?(relative_path: relative_path)
-          @log.info("Skipping symbols (fresh): #{relative_path}")
-          next
-        end
-
-        begin
-          symbols_json = @api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
-          saved_path = @io.save_json!(
-            relative_path: relative_path,
-            json: symbols_json,
-            pretty: true
-          )
-          @log.info("Wrote #{saved_path}")
-        rescue StandardError => e
-          @log.warn("Failed symbols for #{exchange_code}: #{e.class}: #{e.message}")
-        ensure
-          pause_between_requests
-        end
+        fetch_symbols_for_exchange(exchange_code: exchange_code)
       end
     end
 
@@ -92,6 +74,30 @@ module Eodhd
     end
 
     private
+
+    def fetch_symbols_for_exchange(exchange_code:)
+      exchange_code = Validate.required_string!("exchange_code", exchange_code)
+      relative_path = Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code)
+
+      unless file_stale?(relative_path: relative_path)
+        @log.info("Skipping symbols (fresh): #{relative_path}")
+        return
+      end
+
+      begin
+        symbols_json = @api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
+        saved_path = @io.save_json!(
+          relative_path: relative_path,
+          json: symbols_json,
+          pretty: true
+        )
+        @log.info("Wrote #{saved_path}")
+      rescue StandardError => e
+        @log.warn("Failed symbols for #{exchange_code}: #{e.class}: #{e.message}")
+      ensure
+        pause_between_requests
+      end
+    end
 
     def pause_between_requests
       return unless @cfg.request_pause_ms.positive?
