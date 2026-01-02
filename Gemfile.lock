@@ -4,6 +4,10 @@ GEM
     colorize (1.1.0)
     dotenv (3.2.0)
     logger (1.7.0)
+    minitest (6.0.1)
+      prism (~> 1.5)
+    prism (1.7.0)
+    rake (13.3.1)
 
 PLATFORMS
   ruby
@@ -13,6 +17,8 @@ DEPENDENCIES
   colorize (~> 1.1)
   dotenv (~> 3.2)
   logger (~> 1.6)
+  minitest (~> 6.0)
+  rake (~> 13.0)
 
 RUBY VERSION
    ruby 3.4.7p58

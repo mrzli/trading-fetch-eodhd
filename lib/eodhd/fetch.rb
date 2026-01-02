@@ -27,7 +27,7 @@ module Eodhd
       exchanges_json = processor.fetch_exchanges_list
       exchange_codes = processor.exchange_codes_from(exchanges_json)
       processor.fetch_symbols_for_exchanges(exchange_codes: exchange_codes)
-      processor.fetch_mcd_csv
+      processor.fetch_eod
     end
   end
 end

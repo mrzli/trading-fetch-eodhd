@@ -60,16 +60,26 @@ module Eodhd
       end
     end
 
-    def fetch_mcd_csv
-      relative_path = Eodhd::Path.mcd_csv
+    def fetch_eod
+      ["MCD.US"].each do |symbol|
+        relative_path = Eodhd::Path.eod_data(symbol: symbol)
 
-      if file_stale?(relative_path: relative_path)
-        @log.info("Fetching MCD.US CSV...")
-        csv = @api.fetch_mcd_csv!
-        saved_path = @io.save_mcd_csv!(csv: csv)
-        @log.info("Wrote #{saved_path}")
-      else
-        @log.info("Skipping MCD.US CSV (fresh): #{relative_path}")
+        unless file_stale?(relative_path: relative_path)
+          @log.info("Skipping EOD (fresh): #{relative_path}")
+          return
+        end
+
+        begin
+          @log.info("Fetching EOD JSON: #{symbol}...")
+          json = @api.get_eod_data_json!(symbol: symbol)
+          saved_path = @io.save_json!(relative_path: relative_path, json: json, pretty: true)
+          @log.info("Wrote #{saved_path}")
+          return
+        rescue StandardError => e
+          @log.warn("Failed EOD for #{symbol}: #{e.class}: #{e.message}")
+        ensure
+          pause_between_requests
+        end
       end
     end
 

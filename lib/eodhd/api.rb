@@ -38,12 +38,13 @@ module Eodhd
       response.body.to_s
     end
 
-    # Hardcoded first iteration: fetch CSV for MCD.US
-    def fetch_mcd_csv!
-      uri = get_full_url("eod/MCD.US")
+    def get_eod_data_json!(symbol:)
+      symbol = Validate.required_string!("symbol", symbol)
+
+      uri = get_full_url("eod/#{symbol}")
       uri.query = URI.encode_www_form(
         api_token: @api_token,
-        fmt: "csv"
+        fmt: "json"
       )
 
       response = Net::HTTP.get_response(uri)
