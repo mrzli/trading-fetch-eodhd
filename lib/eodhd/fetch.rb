@@ -23,10 +23,9 @@ module Eodhd
       io = Eodhd::Io.new(output_dir: cfg.output_dir)
 
       processor = Eodhd::Processor.new(log: log, cfg: cfg, api: api, io: io)
-      exchanges_list_parser = Eodhd::ExchangesListParser.new(log: log)
 
       exchanges_json = processor.fetch_exchanges_list
-      exchange_codes = exchanges_list_parser.exchange_codes_from_json(exchanges_json)
+      exchange_codes = Eodhd::ExchangesListParser.exchange_codes_from_json(exchanges_json, log: log)
       processor.fetch_symbols_for_exchanges(exchange_codes: exchange_codes)
       processor.fetch_eod
     end

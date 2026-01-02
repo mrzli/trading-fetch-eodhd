@@ -77,7 +77,7 @@ module Eodhd
       begin
         symbols_json = @api.get_exchange_symbol_list_json!(exchange_code: exchange_code)
 
-        groups = Eodhd::ExchangeSymbolListParser.new.group_by_type_from_json(symbols_json)
+        groups = Eodhd::ExchangeSymbolListParser.group_by_type_from_json(symbols_json)
 
         groups.each do |type, items|
           relative_path = Eodhd::Path.exchange_symbol_list(exchange_code: exchange_code, type: type)

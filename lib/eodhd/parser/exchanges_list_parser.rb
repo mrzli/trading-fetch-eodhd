@@ -4,15 +4,12 @@ require "json"
 require "set"
 
 module Eodhd
-  class ExchangesListParser
+  module ExchangesListParser
     DEFAULT_EXCLUDED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
 
-    def initialize(log:, excluded_exchange_codes: DEFAULT_EXCLUDED_EXCHANGE_CODES)
-      @log = log
-      @excluded_exchange_codes = excluded_exchange_codes
-    end
+    module_function
 
-    def exchange_codes_from_json(exchanges_json)
+    def exchange_codes_from_json(exchanges_json, log:, excluded_exchange_codes: DEFAULT_EXCLUDED_EXCHANGE_CODES)
       exchanges = JSON.parse(exchanges_json)
       unless exchanges.is_a?(Array)
         raise TypeError, "Expected exchanges list JSON to be an Array, got #{exchanges.class}"
@@ -24,8 +21,8 @@ module Eodhd
         code = exchange["Code"].to_s.strip
         next if code.empty?
 
-        if @excluded_exchange_codes.include?(code)
-          @log.debug("Skipping excluded exchange: #{code}")
+        if excluded_exchange_codes.include?(code)
+          log.debug("Skipping excluded exchange: #{code}")
           next
         end
 

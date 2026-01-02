@@ -3,7 +3,9 @@
 require "json"
 
 module Eodhd
-  class ExchangeSymbolListParser
+  module ExchangeSymbolListParser
+    module_function
+
     def group_by_type_from_json(symbols_json)
       symbols = JSON.parse(symbols_json)
       unless symbols.is_a?(Array)
