@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
+require "set"
 
 module Eodhd
   EXCLUDED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
