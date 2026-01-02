@@ -38,14 +38,14 @@ module Eodhd
       response.body.to_s
     end
 
-    def get_eod_data_json!(exchange, symbol)
+    def get_eod_data_csv!(exchange, symbol)
       exchange = Validate.required_string!("exchange", exchange)
       symbol = Validate.required_string!("symbol", symbol)
 
       uri = get_full_url("eod/#{symbol}.#{exchange}")
       uri.query = URI.encode_www_form(
         api_token: @api_token,
-        fmt: "json"
+        fmt: "csv"
       )
 
       response = Net::HTTP.get_response(uri)

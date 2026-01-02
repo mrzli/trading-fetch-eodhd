@@ -150,9 +150,9 @@ module Eodhd
             end
 
             begin
-              @log.info("Fetching EOD JSON: #{symbol_with_exchange} (#{type})...")
-              json = @api.get_eod_data_json!(exchange_code, symbol)
-              saved_path = @io.save_json!(relative_path, json, true)
+              @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})...")
+              csv = @api.get_eod_data_csv!(exchange_code, symbol)
+              saved_path = @io.save_csv!(relative_path, csv)
               @log.info("Wrote #{saved_path}")
             rescue StandardError => e
               @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")

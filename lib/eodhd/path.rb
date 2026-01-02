@@ -14,7 +14,7 @@ module Eodhd
         exchange = StringUtil.kebab_case(exchange)
         symbol = StringUtil.kebab_case(symbol)
 
-        File.join("eod", exchange, "#{symbol}.json")
+        File.join("eod", exchange, "#{symbol}.csv")
       end
 
       def exchange_symbol_list(exchange_code, type)
