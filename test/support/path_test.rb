@@ -9,17 +9,17 @@ describe Eodhd::Path do
       {
         description: "upper-case code and type",
         input: { exchange_code: "US", type: "Common Stock" },
-        expected: File.join("symbols", "us_common-stock.json")
+        expected: File.join("symbols", "us", "common-stock.json")
       },
       {
         description: "snake-like code and type",
         input: { exchange_code: "XETRA_GERMANY", type: "ETF" },
-        expected: File.join("symbols", "xetra-germany_etf.json")
+        expected: File.join("symbols", "xetra-germany", "etf.json")
       },
       {
         description: "camelCase code and type",
         input: { exchange_code: "FooBar", type: "MutualFund" },
-        expected: File.join("symbols", "foo-bar_mutual-fund.json")
+        expected: File.join("symbols", "foo-bar", "mutual-fund.json")
       }
     ],
     call: ->(input) { Eodhd::Path.exchange_symbol_list(exchange_code: input[:exchange_code], type: input[:type]) }

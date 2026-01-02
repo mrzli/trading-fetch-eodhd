@@ -25,7 +25,7 @@ module Eodhd
         type = Eodhd::StringUtil.kebab_case(type)
         type = "unknown" if type.empty?
 
-        File.join("symbols", "#{exchange_code}_#{type}.json")
+        File.join("symbols", exchange_code, "#{type}.json")
       end
 
       def mcd_csv

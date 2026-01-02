@@ -93,7 +93,7 @@ module Eodhd
 
       existing_paths = symbols_paths_for_exchange(exchange_code: exchange_code)
       if existing_paths.any? && existing_paths.none? { |path| file_stale?(relative_path: path) }
-        @log.info("Skipping symbols (fresh): #{File.join('symbols', "#{exchange_code_kebab(exchange_code)}_*.json")}")
+        @log.info("Skipping symbols (fresh): #{File.join('symbols', exchange_code_kebab(exchange_code), '*.json')}")
         return
       end
 
@@ -135,10 +135,11 @@ module Eodhd
     end
 
     def symbols_paths_for_exchange(exchange_code:)
-      prefix = "#{exchange_code_kebab(exchange_code)}_"
+      relative_dir = File.join("symbols", exchange_code_kebab(exchange_code))
+
       @io
-        .list_relative_paths(relative_dir: "symbols")
-        .select { |path| File.basename(path).start_with?(prefix) && path.end_with?(".json") }
+        .list_relative_paths(relative_dir: relative_dir)
+        .select { |path| path.end_with?(".json") }
     end
 
     def pause_between_requests
