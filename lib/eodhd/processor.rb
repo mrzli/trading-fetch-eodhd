@@ -5,8 +5,6 @@ require "set"
 
 module Eodhd
   class Processor
-    EXCLUDED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
-
     def initialize(log:, cfg:, api:, io:)
       @log = log
       @cfg = cfg
@@ -30,27 +28,6 @@ module Eodhd
       else
         @log.info("Skipping exchanges list (fresh): #{relative_path}")
         @io.read_text(relative_path: relative_path)
-      end
-    end
-
-    def exchange_codes_from(exchanges_json)
-      exchanges = JSON.parse(exchanges_json)
-      unless exchanges.is_a?(Array)
-        raise TypeError, "Expected exchanges list JSON to be an Array, got #{exchanges.class}"
-      end
-
-      exchanges.filter_map do |exchange|
-        next unless exchange.is_a?(Hash)
-
-        code = exchange["Code"].to_s.strip
-        next if code.empty?
-
-        if EXCLUDED_EXCHANGE_CODES.include?(code)
-          @log.debug("Skipping excluded exchange: #{code}")
-          next
-        end
-
-        code
       end
     end
 

@@ -7,6 +7,7 @@ require_relative "eodhd/path"
 require_relative "eodhd/config"
 require_relative "eodhd/api"
 require_relative "eodhd/io"
+require_relative "eodhd/exchanges_list_parser"
 require_relative "eodhd/fetch"
 require_relative "eodhd/processor"
 
