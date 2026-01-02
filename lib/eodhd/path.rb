@@ -27,10 +27,6 @@ module Eodhd
 
         File.join("symbols", exchange_code, "#{type}.json")
       end
-
-      def mcd_csv
-        File.join("data", "MCD.US.csv")
-      end
     end
   end
 end

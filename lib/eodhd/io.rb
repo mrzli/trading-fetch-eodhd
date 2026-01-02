@@ -9,10 +9,6 @@ module Eodhd
       @output_dir = Validate.required_string!("output_dir", output_dir)
     end
 
-    def save_mcd_csv!(csv)
-      save_csv!("data/MCD.US.csv", csv)
-    end
-
     def file_exists?(relative_path)
       File.exist?(output_path(relative_path))
     end
