@@ -56,7 +56,7 @@ module Eodhd
     end
 
     def get_symbol_entries(exchange_codes)
-      exchange_codes.each_with_object([]) do |exchange_code, acc|
+      exchange_codes.flat_map do |exchange_code|
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
 
         # if !SYMBOL_INCLUDED_EXCHANGES.include?(exchange_code)
@@ -69,7 +69,7 @@ module Eodhd
           .list_relative_paths(relative_dir)
           .select { |path| path.end_with?(".json") }
           .sort
-          .each do |relative_path|
+          .flat_map do |relative_path|
             type = File.basename(relative_path, ".json")
 
             symbols_file_text = @io.read_text(relative_path)
@@ -79,9 +79,13 @@ module Eodhd
             #   next
             # end
 
-            symbol_entries.each do |entry|
-              symbol = Validate.required_string!("symbol", entry["Code"])
-              acc << { exchange: exchange_code, type: type, symbol: symbol }
+            symbol_entries.map do |entry|
+              {
+                exchange: exchange_code,
+                real_exchange: entry["Exchange"],
+                type: type,
+                symbol: entry["Code"]
+              }
             end
           end
       end
