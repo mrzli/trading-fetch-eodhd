@@ -28,14 +28,25 @@ module Eodhd
         File.join("eod", exchange, "#{symbol}.csv")
       end
 
-      def intraday_data(exchange, symbol)
+      def intraday_data_dir(exchange, symbol)
         exchange = Validate.required_string!("exchange", exchange)
         symbol = Validate.required_string!("symbol", symbol)
 
         exchange = StringUtil.kebab_case(exchange)
         symbol = StringUtil.kebab_case(symbol)
 
-        File.join("intraday", exchange, "#{symbol}.csv")
+        File.join("intraday", exchange, symbol)
+      end
+
+      def intraday_data(exchange, symbol, from)
+        exchange = Validate.required_string!("exchange", exchange)
+        symbol = Validate.required_string!("symbol", symbol)
+        from = Validate.integer!("from", from)
+
+        exchange = StringUtil.kebab_case(exchange)
+        symbol = StringUtil.kebab_case(symbol)
+
+        File.join("intraday", exchange, symbol, "#{from}.csv")
       end
     end
   end

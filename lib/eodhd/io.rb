@@ -52,6 +52,17 @@ module Eodhd
       write_text_file!(relative_path, content, true)
     end
 
+    def delete_dir!(relative_dir)
+      relative_dir = Validate.required_string!("relative_dir", relative_dir)
+      if relative_dir.include?("..") || relative_dir.start_with?("/")
+        raise ArgumentError, "relative_dir must be a safe relative path."
+      end
+
+      full_path = output_path(relative_dir)
+
+      FileUtils.rm_rf(full_path)
+    end
+
     private
 
     def output_path(relative_path)

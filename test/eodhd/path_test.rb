@@ -43,19 +43,36 @@ describe Eodhd::Path do
   )
 
   test_equals(
-    ".intraday_data",
+    ".intraday_data_dir",
     [
       {
         description: "symbol with exchange",
         input: { exchange: "US", symbol: "AAPL" },
-        expected: File.join("intraday", "us", "aapl.csv")
+        expected: File.join("intraday", "us", "aapl")
       },
       {
         description: "symbol with dot class",
         input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("intraday", "us", "brk-b.csv")
+        expected: File.join("intraday", "us", "brk-b")
       }
     ],
-    call: ->(input) { Eodhd::Path.intraday_data(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Path.intraday_data_dir(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
+    ".intraday_data",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL", from: 0 },
+        expected: File.join("intraday", "us", "aapl", "0.csv")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B", from: 123 },
+        expected: File.join("intraday", "us", "brk-b", "123.csv")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.intraday_data(input[:exchange], input[:symbol], input[:from]) }
   )
 end

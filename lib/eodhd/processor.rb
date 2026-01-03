@@ -172,15 +172,19 @@ module Eodhd
       symbol = Validate.required_string!("symbol", symbol)
       exchange_code = Validate.required_string!("exchange", exchange_code)
 
-      to = Time.now.to_i
-      from = [0, to - INTRADAY_MAX_RANGE_SECONDS].max
+      # to = Time.now.to_i
+      # from = [0, to - INTRADAY_MAX_RANGE_SECONDS].max
+      from = 0
+      to = INTRADAY_MAX_RANGE_SECONDS
 
-      relative_path = Path.intraday_data(exchange_code, symbol)
+      relative_path = Path.intraday_data(exchange_code, symbol, from)
 
       unless file_stale?(relative_path)
         @log.info("Skipping intraday (fresh): #{relative_path}")
         return
       end
+
+      @io.delete_dir!(Path.intraday_data_dir(exchange_code, symbol))
 
       begin
         @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from} to=#{to})...")
