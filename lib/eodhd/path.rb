@@ -38,14 +38,20 @@ module Eodhd
         File.join("intraday", exchange, symbol)
       end
 
-      def intraday_data(exchange, symbol, from)
+      def intraday_data_raw_dir(exchange, symbol)
         dir_for_intraday = intraday_data_dir(exchange, symbol)
+
+        File.join(dir_for_intraday, "raw")
+      end
+
+      def intraday_data(exchange, symbol, from)
+        dir_for_intraday_raw = intraday_data_raw_dir(exchange, symbol)
 
         from = Validate.integer!("from", from)
 
         from_formatted = DateUtil.utc_compact_datetime(from)
 
-        File.join(dir_for_intraday, "raw", "#{from_formatted}.csv")
+        File.join(dir_for_intraday_raw, "#{from_formatted}.csv")
       end
 
       def splits(exchange, symbol)

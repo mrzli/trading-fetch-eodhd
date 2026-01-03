@@ -60,6 +60,23 @@ describe Eodhd::Path do
   )
 
   test_equals(
+    ".intraday_data_raw_dir",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("intraday", "us", "aapl", "raw")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("intraday", "us", "brk-b", "raw")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.intraday_data_raw_dir(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
     ".intraday_data",
     [
       {
