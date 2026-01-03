@@ -16,7 +16,6 @@ module Eodhd
       @api = api
       @io = io
 
-      @exchange_symbol_list_parser = ExchangeSymbolListParser.new(log: log)
       @symbol_codes_parser = SymbolCodesParser.new(log: log)
     end
 
@@ -49,7 +48,8 @@ module Eodhd
     end
 
     def get_exhange_codes
-      exchanges = JSON.parse(@io.read_text(Path.exchanges_list))
+      exchanges_text = @io.read_text(Path.exchanges_list)
+      exchanges = JSON.parse(exchanges_text)
       exchanges.filter_map do |exchange|
         code = exchange["Code"].to_s.strip
         next if UNSUPPORTED_EXCHANGE_CODES.include?(code)
@@ -110,11 +110,17 @@ module Eodhd
       end
 
       begin
-        symbols_json = @api.get_exchange_symbol_list_json!(exchange_code)
+        symbols_text = @api.get_exchange_symbol_list_json!(exchange_code)
+        symbols = JSON.parse(symbols_text)
 
-        groups = @exchange_symbol_list_parser.group_by_type_from_json(symbols_json)
+        symbols_by_type = symbols.group_by do |symbol|
+          raw_type = symbol["Type"]
+          type = StringUtil.kebab_case(raw_type)
+          type = "unknown" if type.empty?
+          type
+        end
 
-        groups.each do |type, items|
+        symbols_by_type.each do |type, items|
           relative_path = Path.exchange_symbol_list(exchange_code, type)
           saved_path = @io.save_json!(relative_path, JSON.generate(items), true)
           @log.info("Wrote #{saved_path}")
