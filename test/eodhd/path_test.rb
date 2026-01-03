@@ -65,12 +65,12 @@ describe Eodhd::Path do
       {
         description: "symbol with exchange",
         input: { exchange: "US", symbol: "AAPL", from: 0 },
-        expected: File.join("intraday", "us", "aapl", "1970-01-01_00-00-00.csv")
+        expected: File.join("intraday", "us", "aapl", "raw", "1970-01-01_00-00-00.csv")
       },
       {
         description: "symbol with dot class",
         input: { exchange: "US", symbol: "BRK.B", from: 123 },
-        expected: File.join("intraday", "us", "brk-b", "1970-01-01_00-02-03.csv")
+        expected: File.join("intraday", "us", "brk-b", "raw", "1970-01-01_00-02-03.csv")
       }
     ],
     call: ->(input) { Eodhd::Path.intraday_data(input[:exchange], input[:symbol], input[:from]) }
