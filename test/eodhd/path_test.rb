@@ -41,4 +41,21 @@ describe Eodhd::Path do
     ],
     call: ->(input) { Eodhd::Path.eod_data(input[:exchange], input[:symbol]) }
   )
+
+  test_equals(
+    ".intraday_data",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("intraday", "us", "aapl.csv")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("intraday", "us", "brk-b.csv")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.intraday_data(input[:exchange], input[:symbol]) }
+  )
 end

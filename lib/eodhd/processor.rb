@@ -26,6 +26,7 @@ module Eodhd
       symbol_entries = get_symbol_entries(exchange_codes)
 
       fetch_eod!(symbol_entries)
+      fetch_intraday!(symbol_entries)
     end
 
     private
@@ -160,6 +161,34 @@ module Eodhd
         ensure
           pause_between_requests
         end
+      end
+    end
+
+    def fetch_intraday!(_symbol_entries)
+      symbol_with_exchange = "AAPL.US"
+      symbol, exchange_code = symbol_with_exchange.split(".", 2)
+      symbol = Validate.required_string!("symbol", symbol)
+      exchange_code = Validate.required_string!("exchange", exchange_code)
+
+      from = 0
+      to = Time.now.to_i
+
+      relative_path = Path.intraday_data(exchange_code, symbol)
+
+      unless file_stale?(relative_path)
+        @log.info("Skipping intraday (fresh): #{relative_path}")
+        return
+      end
+
+      begin
+        @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from} to=#{to})...")
+        csv = @api.get_intraday_csv!(symbol_with_exchange, from: from, to: to)
+        saved_path = @io.save_csv!(relative_path, csv)
+        @log.info("Wrote #{saved_path}")
+      rescue StandardError => e
+        @log.warn("Failed intraday for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+      ensure
+        pause_between_requests
       end
     end
 
