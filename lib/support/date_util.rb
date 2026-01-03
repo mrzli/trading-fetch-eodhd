@@ -4,13 +4,13 @@ module Eodhd
   class DateUtil
     class << self
       # Formats unix epoch seconds as UTC "YYYY-MM-DD_HH-MM-SS".
-      def utc_compact_datetime(value)
+      def seconds_to_datetime(value)
         seconds = Validate.integer!("seconds", value)
         Time.at(seconds).utc.strftime("%Y-%m-%d_%H-%M-%S")
       end
 
       # Parses UTC "YYYY-MM-DD_HH-MM-SS" into unix epoch seconds.
-      def utc_compact_datetime_to_seconds(value)
+      def datetime_to_seconds(value)
         str = Validate.required_string!("datetime", value)
         Time.strptime("#{str} +0000", "%Y-%m-%d_%H-%M-%S %z").to_i
       rescue ArgumentError

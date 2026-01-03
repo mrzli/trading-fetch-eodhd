@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 describe Eodhd::DateUtil do
   test_equals(
-    ".utc_compact_datetime",
+    ".seconds_to_datetime",
     [
       {
         description: "epoch 0",
@@ -27,11 +27,11 @@ describe Eodhd::DateUtil do
         expected: "1970-01-01_00-00-07"
       }
     ],
-    call: ->(input) { Eodhd::DateUtil.utc_compact_datetime(input) }
+    call: ->(input) { Eodhd::DateUtil.seconds_to_datetime(input) }
   )
 
   test_raises(
-    ".utc_compact_datetime errors",
+    ".seconds_to_datetime errors",
     [
       {
         description: "blank is rejected",
@@ -44,11 +44,11 @@ describe Eodhd::DateUtil do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::DateUtil.utc_compact_datetime(input) }
+    call: ->(input) { Eodhd::DateUtil.seconds_to_datetime(input) }
   )
 
   test_equals(
-    ".utc_compact_datetime_to_seconds",
+    ".datetime_to_seconds",
     [
       {
         description: "epoch 0",
@@ -67,15 +67,15 @@ describe Eodhd::DateUtil do
       },
       {
         description: "round trip (no timezone ambiguity)",
-        input: Eodhd::DateUtil.utc_compact_datetime(1_700_000_000),
+        input: Eodhd::DateUtil.seconds_to_datetime(1_700_000_000),
         expected: 1_700_000_000
       }
     ],
-    call: ->(input) { Eodhd::DateUtil.utc_compact_datetime_to_seconds(input) }
+    call: ->(input) { Eodhd::DateUtil.datetime_to_seconds(input) }
   )
 
   test_raises(
-    ".utc_compact_datetime_to_seconds errors",
+    ".datetime_to_seconds errors",
     [
       {
         description: "blank is rejected",
@@ -93,6 +93,6 @@ describe Eodhd::DateUtil do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::DateUtil.utc_compact_datetime_to_seconds(input) }
+    call: ->(input) { Eodhd::DateUtil.datetime_to_seconds(input) }
   )
 end

@@ -49,7 +49,7 @@ module Eodhd
 
         from = Validate.integer!("from", from)
 
-        from_formatted = DateUtil.utc_compact_datetime(from)
+        from_formatted = DateUtil.seconds_to_datetime(from)
 
         File.join(dir_for_intraday_raw, "#{from_formatted}.csv")
       end
