@@ -54,10 +54,13 @@ module Eodhd
       response.body.to_s
     end
 
-    def get_intraday_csv!(symbol_with_exchange, from:, to:)
-      symbol_with_exchange = Validate.required_string!("symbol_with_exchange", symbol_with_exchange)
+    def get_intraday_csv!(exchange, symbol, from:, to:)
+      exchange = Validate.required_string!("exchange", exchange)
+      symbol = Validate.required_string!("symbol", symbol)
       from = Validate.integer!("from", from)
       to = Validate.integer!("to", to)
+
+      symbol_with_exchange = "#{symbol}.#{exchange}"
 
       uri = get_full_url("intraday/#{symbol_with_exchange}")
       uri.query = URI.encode_www_form(
@@ -74,8 +77,11 @@ module Eodhd
       response.body.to_s
     end
 
-    def get_splits_json!(symbol_with_exchange)
-      symbol_with_exchange = Validate.required_string!("symbol_with_exchange", symbol_with_exchange)
+    def get_splits_json!(exchange, symbol)
+      exchange = Validate.required_string!("exchange", exchange)
+      symbol = Validate.required_string!("symbol", symbol)
+
+      symbol_with_exchange = "#{symbol}.#{exchange}"
 
       uri = get_full_url("splits/#{symbol_with_exchange}")
       uri.query = URI.encode_www_form(

@@ -168,8 +168,8 @@ module Eodhd
     end
 
     def fetch_intraday!(_symbol_entries)
-      symbol_with_exchange = "AAPL.US"
-      symbol, exchange_code = symbol_with_exchange.split(".", 2)
+      symbol = "AAPL"
+      exchange_code = "US"
       symbol = Validate.required_string!("symbol", symbol)
       exchange_code = Validate.required_string!("exchange", exchange_code)
 
@@ -184,12 +184,12 @@ module Eodhd
 
           from_formatted = DateUtil.utc_compact_datetime(from)
           to_formatted = DateUtil.utc_compact_datetime(to)
-          @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
+          @log.info("Fetching intraday CSV: #{symbol}.#{exchange_code} (from=#{from_formatted} to=#{to_formatted})...")
 
-          csv = @api.get_intraday_csv!(symbol_with_exchange, from: from, to: to)
+          csv = @api.get_intraday_csv!(exchange_code, symbol, from: from, to: to)
 
           if csv.to_s.length < INTRADAY_MIN_CSV_LENGTH
-            @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
+            @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol}.#{exchange_code} (from=#{from_formatted} to=#{to_formatted})")
             break
           end
 
