@@ -179,6 +179,18 @@ module Eodhd
       @io.delete_dir!(relative_dir)
 
       begin
+        begin
+          @log.info("Fetching splits JSON: #{symbol_with_exchange}...")
+          splits = @api.get_splits_json!(exchange_code, symbol)
+          splits_path = Path.intraday_splits(exchange_code, symbol)
+          saved_path = @io.save_json!(splits_path, splits, true)
+          @log.info("Wrote #{saved_path}")
+        rescue StandardError => e
+          @log.warn("Failed splits for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+        ensure
+          pause_between_requests
+        end
+
         to = Time.now.to_i
         while to > 0 do
           from = [0, to - INTRADAY_MAX_RANGE_SECONDS].max

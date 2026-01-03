@@ -39,15 +39,19 @@ module Eodhd
       end
 
       def intraday_data(exchange, symbol, from)
-        exchange = Validate.required_string!("exchange", exchange)
-        symbol = Validate.required_string!("symbol", symbol)
+        dir_for_intraday = intraday_data_dir(exchange, symbol)
+
         from = Validate.integer!("from", from)
 
-        exchange = StringUtil.kebab_case(exchange)
-        symbol = StringUtil.kebab_case(symbol)
-
         from_formatted = DateUtil.utc_compact_datetime(from)
-        File.join("intraday", exchange, symbol, "raw", "#{from_formatted}.csv")
+
+        File.join(dir_for_intraday, "raw", "#{from_formatted}.csv")
+      end
+
+      def splits(exchange, symbol)
+        dir_for_intraday = intraday_data_dir(exchange, symbol)
+
+        File.join(dir_for_intraday, "splits.json")
       end
     end
   end

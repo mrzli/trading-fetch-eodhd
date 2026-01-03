@@ -75,4 +75,21 @@ describe Eodhd::Path do
     ],
     call: ->(input) { Eodhd::Path.intraday_data(input[:exchange], input[:symbol], input[:from]) }
   )
+
+  test_equals(
+    ".splits",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("intraday", "us", "aapl", "splits.json")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("intraday", "us", "brk-b", "splits.json")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.splits(input[:exchange], input[:symbol]) }
+  )
 end
