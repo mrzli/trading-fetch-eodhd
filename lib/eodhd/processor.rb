@@ -2,6 +2,7 @@
 
 require "json"
 require "set"
+require "time"
 
 module Eodhd
   class Processor
@@ -174,20 +175,26 @@ module Eodhd
       exchange_code = Validate.required_string!("exchange", exchange_code)
 
       symbol_with_exchange = "#{symbol}.#{exchange_code}"
-
-      relative_dir = Path.intraday_data_dir(exchange_code, symbol)
-      @io.delete_dir!(relative_dir)
-
+      
       begin
         fetch_splits!(exchange_code, symbol, symbol_with_exchange)
+
+        latest_from_on_disk = latest_intraday_raw_from_seconds(exchange_code, symbol)
 
         to = Time.now.to_i
         while to > 0 do
           from = [0, to - INTRADAY_MAX_RANGE_SECONDS].max
+
+          if !latest_from_on_disk.nil? && from <= latest_from_on_disk
+            latest_from_formatted = DateUtil.seconds_to_datetime(latest_from_on_disk)
+            @log.info("Stopping intraday fetch (already have newer data): #{symbol_with_exchange} (from=#{DateUtil.seconds_to_datetime(from)} <= latest_from=#{latest_from_formatted})")
+            break
+          end
+
           relative_path = Path.intraday_data(exchange_code, symbol, from)
 
-          from_formatted = DateUtil.utc_compact_datetime(from)
-          to_formatted = DateUtil.utc_compact_datetime(to)
+          from_formatted = DateUtil.seconds_to_datetime(from)
+          to_formatted = DateUtil.seconds_to_datetime(to)
           @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
 
           csv = @api.get_intraday_csv!(exchange_code, symbol, from: from, to: to)
@@ -231,6 +238,29 @@ module Eodhd
       ensure
         pause_between_requests
       end
+    end
+
+    def latest_intraday_raw_from_seconds(exchange_code, symbol)
+      exchange_code = Validate.required_string!("exchange", exchange_code)
+      symbol = Validate.required_string!("symbol", symbol)
+
+      raw_dir = Path.intraday_data_raw_dir(exchange_code, symbol)
+      raw_paths = @io.list_relative_paths(raw_dir)
+
+      raw_paths
+        .select { |path| path.end_with?(".csv") }
+        .map do |path|
+          base_name = File.basename(path, ".csv")
+          DateUtil.datetime_to_seconds(base_name)
+        end
+        .max
+    end
+
+    def intraday_from_seconds_from_path(relative_path)
+      base = File.basename(relative_path.to_s, ".csv")
+      DateUtil.datetime_to_seconds(base)
+    rescue ArgumentError
+      nil
     end
 
     def pause_between_requests
