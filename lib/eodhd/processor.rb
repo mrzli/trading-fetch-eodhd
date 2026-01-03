@@ -11,6 +11,8 @@ module Eodhd
     SYMBOL_INCLUDED_REAL_EXCHANGES = Set.new(["NYSE", "NASDAQ"]).freeze
     SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
+    INTRADAY_MAX_RANGE_SECONDS = 118 * 24 * 60 * 60
+
     def initialize(log:, cfg:, api:, io:)
       @log = log
       @cfg = cfg
@@ -170,8 +172,8 @@ module Eodhd
       symbol = Validate.required_string!("symbol", symbol)
       exchange_code = Validate.required_string!("exchange", exchange_code)
 
-      from = 0
       to = Time.now.to_i
+      from = [0, to - INTRADAY_MAX_RANGE_SECONDS].max
 
       relative_path = Path.intraday_data(exchange_code, symbol)
 
