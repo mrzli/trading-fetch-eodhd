@@ -25,9 +25,6 @@ module Eodhd
       fetch_symbols_for_exchanges!(exchange_codes)
       symbol_entries = get_symbol_entries(exchange_codes)
 
-      puts "Total symbols to fetch EOD data for: #{symbol_entries.size}"
-      puts "First 5 symbols: #{symbol_entries.first(5).inspect}"
-
       fetch_eod!(symbol_entries)
     end
 
