@@ -173,6 +173,8 @@ module Eodhd
       symbol = Validate.required_string!("symbol", symbol)
       exchange_code = Validate.required_string!("exchange", exchange_code)
 
+      symbol_with_exchange = "#{symbol}.#{exchange_code}"
+
       relative_dir = Path.intraday_data_dir(exchange_code, symbol)
       @io.delete_dir!(relative_dir)
 
@@ -184,12 +186,12 @@ module Eodhd
 
           from_formatted = DateUtil.utc_compact_datetime(from)
           to_formatted = DateUtil.utc_compact_datetime(to)
-          @log.info("Fetching intraday CSV: #{symbol}.#{exchange_code} (from=#{from_formatted} to=#{to_formatted})...")
+          @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
 
           csv = @api.get_intraday_csv!(exchange_code, symbol, from: from, to: to)
 
           if csv.to_s.length < INTRADAY_MIN_CSV_LENGTH
-            @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol}.#{exchange_code} (from=#{from_formatted} to=#{to_formatted})")
+            @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
             break
           end
 
