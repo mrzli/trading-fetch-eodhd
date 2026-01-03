@@ -54,6 +54,25 @@ module Eodhd
       response.body.to_s
     end
 
+    def get_intraday_csv!(symbol_with_exchange, from:, to:)
+      symbol_with_exchange = Validate.required_string!("symbol_with_exchange", symbol_with_exchange)
+      from = Validate.integer!("from", from)
+      to = Validate.integer!("to", to)
+
+      uri = get_full_url("intraday/#{symbol_with_exchange}")
+      uri.query = URI.encode_www_form(
+        api_token: @api_token,
+        fmt: "csv",
+        from: from,
+        to: to
+      )
+
+      response = Net::HTTP.get_response(uri)
+      validate_response!(response)
+
+      response.body.to_s
+    end
+
     private
 
     def get_full_url(path)
