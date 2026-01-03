@@ -6,6 +6,7 @@ require "set"
 module Eodhd
   class Processor
     UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
+
     SYMBOL_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
     SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
@@ -25,9 +26,12 @@ module Eodhd
       exchange_codes = get_exhange_codes
 
       fetch_symbols_for_exchanges!(exchange_codes)
-      symbols_hash = get_symbols_hash(exchange_codes)
+      symbol_entries = get_symbol_entries(exchange_codes)
 
-      fetch_eod!(symbols_hash)
+      puts "Total symbols to fetch EOD data for: #{symbol_entries.size}"
+      puts "First 5 symbols: #{symbol_entries.first(5).inspect}"
+
+      # fetch_eod!(symbol_entries)
     end
 
     private
@@ -52,35 +56,32 @@ module Eodhd
       end
     end
 
-    # Returns a nested Hash of:
-    # - first level keys: exchange codes (as provided)
-    # - second level keys: symbol types (derived from filenames under symbols/<exchange>/)
-    # - third level values: array of symbol codes extracted from each file's entries ("Code" field)
-    def get_symbols_hash(exchange_codes)
-      exchange_codes.each_with_object({}) do |exchange_code, acc|
+    def get_symbol_entries(exchange_codes)
+      exchange_codes.each_with_object([]) do |exchange_code, acc|
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
 
-        if !SYMBOL_INCLUDED_EXCHANGES.include?(exchange_code)
-          next
-        end
+        # if !SYMBOL_INCLUDED_EXCHANGES.include?(exchange_code)
+        #   next
+        # end
 
         relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
 
-        type_to_codes = @io
+        @io
           .list_relative_paths(relative_dir)
           .select { |path| path.end_with?(".json") }
           .sort
-          .each_with_object({}) do |relative_path, type_acc|
+          .each do |relative_path|
             type = File.basename(relative_path, ".json")
 
-            if !SYMBOL_INCLUDED_TYPES.include?(type)
-              next
+            # if !SYMBOL_INCLUDED_TYPES.include?(type)
+            #   next
+            # end
+
+            symbol_codes_from_file(relative_path).each do |symbol|
+              symbol = Validate.required_string!("symbol", symbol)
+              acc << { exchange: exchange_code, type: type, symbol: symbol }
             end
-
-            type_acc[type] = symbol_codes_from_file(relative_path)
           end
-
-        acc[exchange_code] = type_to_codes
       end
     end
 
@@ -132,34 +133,29 @@ module Eodhd
         .select { |path| path.end_with?(".json") }
     end
 
-    def fetch_eod!(symbols_hash)
-      symbols_hash.each do |exchange_code, types_hash|
-        next unless types_hash.is_a?(Hash)
+    def fetch_eod!(symbol_entries)
+      symbol_entries.each do |entry|
+        exchange_code = Validate.required_string!("exchange", entry[:exchange])
+        type = Validate.required_string!("type", entry[:type])
+        symbol = Validate.required_string!("symbol", entry[:symbol])
 
-        types_hash.each do |type, symbol_codes|
-          next unless symbol_codes.is_a?(Array)
+        symbol_with_exchange = "#{symbol}.#{exchange_code}"
+        relative_path = Path.eod_data(exchange_code, symbol)
 
-          symbol_codes.each do |symbol|
-            symbol = Validate.required_string!("symbol", symbol)
-            symbol_with_exchange = "#{symbol}.#{exchange_code}"
-            relative_path = Path.eod_data(exchange_code, symbol)
+        unless file_stale?(relative_path)
+          @log.info("Skipping EOD (fresh): #{relative_path}")
+          next
+        end
 
-            unless file_stale?(relative_path)
-              @log.info("Skipping EOD (fresh): #{relative_path}")
-              next
-            end
-
-            begin
-              @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})...")
-              csv = @api.get_eod_data_csv!(exchange_code, symbol)
-              saved_path = @io.save_csv!(relative_path, csv)
-              @log.info("Wrote #{saved_path}")
-            rescue StandardError => e
-              @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
-            ensure
-              pause_between_requests
-            end
-          end
+        begin
+          @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})...")
+          csv = @api.get_eod_data_csv!(exchange_code, symbol)
+          saved_path = @io.save_csv!(relative_path, csv)
+          @log.info("Wrote #{saved_path}")
+        rescue StandardError => e
+          @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+        ensure
+          pause_between_requests
         end
       end
     end
