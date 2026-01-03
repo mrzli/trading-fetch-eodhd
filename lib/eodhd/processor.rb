@@ -8,6 +8,7 @@ module Eodhd
     UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
 
     SYMBOL_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
+    SYMBOL_INCLUDED_REAL_EXCHANGES = Set.new(["NYSE", "NASDAQ"]).freeze
     SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
     def initialize(log:, cfg:, api:, io:)
@@ -27,7 +28,7 @@ module Eodhd
       puts "Total symbols to fetch EOD data for: #{symbol_entries.size}"
       puts "First 5 symbols: #{symbol_entries.first(5).inspect}"
 
-      # fetch_eod!(symbol_entries)
+      fetch_eod!(symbol_entries)
     end
 
     private
@@ -59,10 +60,6 @@ module Eodhd
       exchange_codes.flat_map do |exchange_code|
         exchange_code = Validate.required_string!("exchange_code", exchange_code)
 
-        # if !SYMBOL_INCLUDED_EXCHANGES.include?(exchange_code)
-        #   next
-        # end
-
         relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
 
         @io
@@ -74,10 +71,6 @@ module Eodhd
 
             symbols_file_text = @io.read_text(relative_path)
             symbol_entries = JSON.parse(symbols_file_text)
-
-            # if !SYMBOL_INCLUDED_TYPES.include?(type)
-            #   next
-            # end
 
             symbol_entries.map do |entry|
               {
@@ -140,11 +133,20 @@ module Eodhd
     def fetch_eod!(symbol_entries)
       symbol_entries.each do |entry|
         exchange_code = Validate.required_string!("exchange", entry[:exchange])
+        real_exchange_code = Validate.required_string!("real_exchange", entry[:real_exchange])
         type = Validate.required_string!("type", entry[:type])
         symbol = Validate.required_string!("symbol", entry[:symbol])
 
         symbol_with_exchange = "#{symbol}.#{exchange_code}"
         relative_path = Path.eod_data(exchange_code, symbol)
+
+        if (
+          !SYMBOL_INCLUDED_EXCHANGES.include?(exchange_code) or
+          !SYMBOL_INCLUDED_REAL_EXCHANGES.include?(real_exchange_code) or
+          !SYMBOL_INCLUDED_TYPES.include?(type)
+        )
+          next
+        end
 
         unless file_stale?(relative_path)
           @log.info("Skipping EOD (fresh): #{relative_path}")
