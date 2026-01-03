@@ -12,6 +12,7 @@ module Eodhd
     SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
     INTRADAY_MAX_RANGE_SECONDS = 118 * 24 * 60 * 60
+    INTRADAY_MIN_CSV_LENGTH = 20
 
     def initialize(log:, cfg:, api:, io:)
       @log = log
@@ -186,6 +187,12 @@ module Eodhd
           @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
 
           csv = @api.get_intraday_csv!(symbol_with_exchange, from: from, to: to)
+
+          if csv.to_s.length < INTRADAY_MIN_CSV_LENGTH
+            @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
+            break
+          end
+
           saved_path = @io.save_csv!(relative_path, csv)
           @log.info("Wrote #{saved_path}")
 
