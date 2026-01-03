@@ -53,34 +53,6 @@ module Eodhd
       end
     end
 
-    def get_symbol_entries(exchange_codes)
-      exchange_codes.flat_map do |exchange_code|
-        exchange_code = Validate.required_string!("exchange_code", exchange_code)
-
-        relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
-
-        @io
-          .list_relative_paths(relative_dir)
-          .select { |path| path.end_with?(".json") }
-          .sort
-          .flat_map do |relative_path|
-            type = File.basename(relative_path, ".json")
-
-            symbols_file_text = @io.read_text(relative_path)
-            symbol_entries = JSON.parse(symbols_file_text)
-
-            symbol_entries.map do |entry|
-              {
-                exchange: exchange_code,
-                real_exchange: entry["Exchange"],
-                type: type,
-                symbol: entry["Code"]
-              }
-            end
-          end
-      end
-    end
-
     def fetch_symbols_for_exchanges!(exchange_codes)
       exchange_codes.each do |exchange_code|
         fetch_symbols_for_exchange!(exchange_code)
@@ -125,6 +97,34 @@ module Eodhd
       @io
         .list_relative_paths(relative_dir)
         .select { |path| path.end_with?(".json") }
+    end
+
+    def get_symbol_entries(exchange_codes)
+      exchange_codes.flat_map do |exchange_code|
+        exchange_code = Validate.required_string!("exchange_code", exchange_code)
+
+        relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
+
+        @io
+          .list_relative_paths(relative_dir)
+          .select { |path| path.end_with?(".json") }
+          .sort
+          .flat_map do |relative_path|
+            type = File.basename(relative_path, ".json")
+
+            symbols_file_text = @io.read_text(relative_path)
+            symbol_entries = JSON.parse(symbols_file_text)
+
+            symbol_entries.map do |entry|
+              {
+                exchange: exchange_code,
+                real_exchange: entry["Exchange"],
+                type: type,
+                symbol: entry["Code"]
+              }
+            end
+          end
+      end
     end
 
     def fetch_eod!(symbol_entries)
