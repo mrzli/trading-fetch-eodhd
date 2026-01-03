@@ -172,27 +172,26 @@ module Eodhd
       symbol = Validate.required_string!("symbol", symbol)
       exchange_code = Validate.required_string!("exchange", exchange_code)
 
-      # to = Time.now.to_i
-      # from = [0, to - INTRADAY_MAX_RANGE_SECONDS].max
-      from = 0
-      to = INTRADAY_MAX_RANGE_SECONDS
-
-      relative_path = Path.intraday_data(exchange_code, symbol, from)
-
-      unless file_stale?(relative_path)
-        @log.info("Skipping intraday (fresh): #{relative_path}")
-        return
-      end
-
-      @io.delete_dir!(Path.intraday_data_dir(exchange_code, symbol))
+      relative_dir = Path.intraday_data_dir(exchange_code, symbol)
+      @io.delete_dir!(relative_dir)
 
       begin
-        from_formatted = DateUtil.utc_compact_datetime(from)
-        to_formatted = DateUtil.utc_compact_datetime(to)
-        @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
-        csv = @api.get_intraday_csv!(symbol_with_exchange, from: from, to: to)
-        saved_path = @io.save_csv!(relative_path, csv)
-        @log.info("Wrote #{saved_path}")
+        to = Time.now.to_i
+        while to > 0 do
+          from = [0, to - INTRADAY_MAX_RANGE_SECONDS].max
+          relative_path = Path.intraday_data(exchange_code, symbol, from)
+
+          from_formatted = DateUtil.utc_compact_datetime(from)
+          to_formatted = DateUtil.utc_compact_datetime(to)
+          @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
+
+          csv = @api.get_intraday_csv!(symbol_with_exchange, from: from, to: to)
+          saved_path = @io.save_csv!(relative_path, csv)
+          @log.info("Wrote #{saved_path}")
+
+          to = from - 1
+          pause_between_requests
+        end
       rescue StandardError => e
         @log.warn("Failed intraday for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       ensure
