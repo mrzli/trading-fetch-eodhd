@@ -46,7 +46,8 @@ module Eodhd
         exchange = StringUtil.kebab_case(exchange)
         symbol = StringUtil.kebab_case(symbol)
 
-        File.join("intraday", exchange, symbol, "#{from}.csv")
+        from_formatted = DateUtil.utc_compact_datetime(from)
+        File.join("intraday", exchange, symbol, "#{from_formatted}.csv")
       end
     end
   end

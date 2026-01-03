@@ -187,7 +187,9 @@ module Eodhd
       @io.delete_dir!(Path.intraday_data_dir(exchange_code, symbol))
 
       begin
-        @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from} to=#{to})...")
+        from_formatted = DateUtil.utc_compact_datetime(from)
+        to_formatted = DateUtil.utc_compact_datetime(to)
+        @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
         csv = @api.get_intraday_csv!(symbol_with_exchange, from: from, to: to)
         saved_path = @io.save_csv!(relative_path, csv)
         @log.info("Wrote #{saved_path}")
