@@ -15,8 +15,6 @@ module Eodhd
       @cfg = cfg
       @api = api
       @io = io
-
-      @symbol_codes_parser = SymbolCodesParser.new(log: log)
     end
 
     def fetch!
@@ -74,24 +72,19 @@ module Eodhd
           .each do |relative_path|
             type = File.basename(relative_path, ".json")
 
+            symbols_file_text = @io.read_text(relative_path)
+            symbol_entries = JSON.parse(symbols_file_text)
+
             # if !SYMBOL_INCLUDED_TYPES.include?(type)
             #   next
             # end
 
-            symbol_codes_from_file(relative_path).each do |symbol|
-              symbol = Validate.required_string!("symbol", symbol)
+            symbol_entries.each do |entry|
+              symbol = Validate.required_string!("symbol", entry["Code"])
               acc << { exchange: exchange_code, type: type, symbol: symbol }
             end
           end
       end
-    end
-
-    def symbol_codes_from_file(relative_path)
-      json = @io.read_text(relative_path)
-      @symbol_codes_parser.codes_from_json(json)
-    rescue StandardError => e
-      @log.warn("Failed to read symbols file: #{relative_path}: #{e.class}: #{e.message}") if @log.respond_to?(:warn)
-      []
     end
 
     def fetch_symbols_for_exchanges!(exchange_codes)
