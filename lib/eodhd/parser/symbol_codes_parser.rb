@@ -27,13 +27,5 @@ module Eodhd
       @log.warn("Failed to parse symbols JSON: #{e.message}") if @log.respond_to?(:warn)
       []
     end
-
-    private
-
-    def source_suffix(source)
-      source_str = source.to_s.strip
-      return "" if source_str.empty?
-      ": #{source_str}"
-    end
   end
 end

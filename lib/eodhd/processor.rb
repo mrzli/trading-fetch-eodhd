@@ -16,7 +16,6 @@ module Eodhd
       @api = api
       @io = io
 
-      @exchanges_list_parser = ExchangesListParser.new(log: log)
       @exchange_symbol_list_parser = ExchangeSymbolListParser.new(log: log)
       @symbol_codes_parser = SymbolCodesParser.new(log: log)
     end
@@ -50,9 +49,11 @@ module Eodhd
     end
 
     def get_exhange_codes
-      exchanges_json = @io.read_text(Path.exchanges_list)
-      @exchanges_list_parser.exchange_codes_from_json(exchanges_json).reject do |code|
-        UNSUPPORTED_EXCHANGE_CODES.include?(code)
+      exchanges = JSON.parse(@io.read_text(Path.exchanges_list))
+      exchanges.filter_map do |exchange|
+        code = exchange["Code"].to_s.strip
+        next if UNSUPPORTED_EXCHANGE_CODES.include?(code)
+        code
       end
     end
 
