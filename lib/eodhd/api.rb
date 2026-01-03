@@ -63,6 +63,7 @@ module Eodhd
       uri.query = URI.encode_www_form(
         api_token: @api_token,
         fmt: "csv",
+        interval: '1m',
         from: from,
         to: to
       )
