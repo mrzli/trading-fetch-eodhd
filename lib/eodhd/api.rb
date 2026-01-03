@@ -60,9 +60,7 @@ module Eodhd
       from = Validate.integer!("from", from)
       to = Validate.integer!("to", to)
 
-      symbol_with_exchange = "#{symbol}.#{exchange}"
-
-      uri = get_full_url("intraday/#{symbol_with_exchange}")
+      uri = get_full_url("intraday/#{symbol}.#{exchange}")
       uri.query = URI.encode_www_form(
         api_token: @api_token,
         fmt: "csv",
@@ -81,9 +79,7 @@ module Eodhd
       exchange = Validate.required_string!("exchange", exchange)
       symbol = Validate.required_string!("symbol", symbol)
 
-      symbol_with_exchange = "#{symbol}.#{exchange}"
-
-      uri = get_full_url("splits/#{symbol_with_exchange}")
+      uri = get_full_url("splits/#{symbol}.#{exchange}")
       uri.query = URI.encode_www_form(
         api_token: @api_token,
         fmt: "json"
