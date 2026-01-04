@@ -157,21 +157,16 @@ module Eodhd
 
     def fetch_eod!(symbol_entries)
       symbol_entries.each do |entry|
+        if !should_fetch?(entry)
+          next
+        end
+
         exchange = Validate.required_string!("exchange", entry[:exchange])
-        real_exchange = Validate.required_string!("real_exchange", entry[:real_exchange])
         type = Validate.required_string!("type", entry[:type])
         symbol = Validate.required_string!("symbol", entry[:symbol])
 
         symbol_with_exchange = "#{symbol}.#{exchange}"
         relative_path = Path.raw_eod_data(exchange, symbol)
-
-        if (
-          !SYMBOL_INCLUDED_EXCHANGES.include?(exchange) or
-          !SYMBOL_INCLUDED_REAL_EXCHANGES.include?(real_exchange) or
-          !SYMBOL_INCLUDED_TYPES.include?(type)
-        )
-          next
-        end
 
         unless file_stale?(relative_path)
           @log.info("Skipping EOD (fresh): #{relative_path}")
@@ -261,6 +256,26 @@ module Eodhd
       DateUtil.datetime_to_seconds(base)
     rescue ArgumentError
       nil
+    end
+
+    def should_fetch?(symbol_entry)
+      exchange = Validate.required_string!("exchange", symbol_entry[:exchange])
+      real_exchange = Validate.required_string!("real_exchange", symbol_entry[:real_exchange])
+      type = Validate.required_string!("type", symbol_entry[:type])
+
+      if !SYMBOL_INCLUDED_EXCHANGES.include?(exchange)
+        return false
+      end
+
+      if !SYMBOL_INCLUDED_REAL_EXCHANGES.include?(real_exchange)
+        return false
+      end
+
+      if !SYMBOL_INCLUDED_TYPES.include?(type)
+        return false
+      end
+
+      true
     end
 
     def pause_between_requests
