@@ -24,10 +24,10 @@ module Eodhd
 
     def run!
       fetch_exchanges_list!
-      exchange_codes = get_exhange_codes
+      exchanges = get_exhange_codes
 
-      fetch_symbols_for_exchanges!(exchange_codes)
-      symbol_entries = get_symbol_entries(exchange_codes)
+      fetch_symbols_for_exchanges!(exchanges)
+      symbol_entries = get_symbol_entries(exchanges)
 
       fetch_eod!(symbol_entries)
       fetch_intraday!(symbol_entries)
@@ -58,23 +58,23 @@ module Eodhd
       end
     end
 
-    def fetch_symbols_for_exchanges!(exchange_codes)
-      exchange_codes.each do |exchange_code|
-        fetch_symbols_for_exchange!(exchange_code)
+    def fetch_symbols_for_exchanges!(exchanges)
+      exchanges.each do |exchange|
+        fetch_symbols_for_exchange!(exchange)
       end
     end
 
-    def fetch_symbols_for_exchange!(exchange_code)
-      exchange_code = Validate.required_string!("exchange_code", exchange_code)
+    def fetch_symbols_for_exchange!(exchange)
+      exchange = Validate.required_string!("exchange", exchange)
 
-      existing_paths = symbols_paths_for_exchange(exchange_code)
+      existing_paths = symbols_paths_for_exchange(exchange)
       if existing_paths.any? && existing_paths.none? { |path| file_stale?(path) }
-        @log.info("Skipping symbols (fresh): #{File.join('symbols', StringUtil.kebab_case(exchange_code), '*.json')}")
+        @log.info("Skipping symbols (fresh): #{File.join('symbols', StringUtil.kebab_case(exchange), '*.json')}")
         return
       end
 
       begin
-        symbols_text = @api.get_exchange_symbol_list_json!(exchange_code)
+        symbols_text = @api.get_exchange_symbol_list_json!(exchange)
         symbols = JSON.parse(symbols_text)
 
         symbols_by_type = symbols.group_by do |symbol|
@@ -85,30 +85,30 @@ module Eodhd
         end
 
         symbols_by_type.each do |type, items|
-          relative_path = Path.exchange_symbol_list(exchange_code, type)
+          relative_path = Path.exchange_symbol_list(exchange, type)
           saved_path = @io.save_json!(relative_path, JSON.generate(items), true)
           @log.info("Wrote #{saved_path}")
         end
       rescue StandardError => e
-        @log.warn("Failed symbols for #{exchange_code}: #{e.class}: #{e.message}")
+        @log.warn("Failed symbols for #{exchange}: #{e.class}: #{e.message}")
       ensure
         pause_between_requests
       end
     end
 
-    def symbols_paths_for_exchange(exchange_code)
-      relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
+    def symbols_paths_for_exchange(exchange)
+      relative_dir = File.join("symbols", StringUtil.kebab_case(exchange))
 
       @io
         .list_relative_paths(relative_dir)
         .select { |path| path.end_with?(".json") }
     end
 
-    def get_symbol_entries(exchange_codes)
-      exchange_codes.flat_map do |exchange_code|
-        exchange_code = Validate.required_string!("exchange_code", exchange_code)
+    def get_symbol_entries(exchanges)
+      exchanges.flat_map do |exchange|
+        exchange = Validate.required_string!("exchange", exchange)
 
-        relative_dir = File.join("symbols", StringUtil.kebab_case(exchange_code))
+        relative_dir = File.join("symbols", StringUtil.kebab_case(exchange))
 
         @io
           .list_relative_paths(relative_dir)
@@ -132,19 +132,42 @@ module Eodhd
       end
     end
 
+    def fetch_splits!(exchange, symbol, symbol_with_exchange)
+      exchange = Validate.required_string!("exchange", exchange)
+      symbol = Validate.required_string!("symbol", symbol)
+      symbol_with_exchange = Validate.required_string!("symbol_with_exchange", symbol_with_exchange)
+
+      splits_path = Path.splits(exchange, symbol)
+      unless file_stale?(splits_path)
+        @log.info("Skipping splits (fresh): #{splits_path}")
+        return
+      end
+
+      begin
+        @log.info("Fetching splits JSON: #{symbol_with_exchange}...")
+        splits = @api.get_splits_json!(exchange, symbol)
+        saved_path = @io.save_json!(splits_path, splits, true)
+        @log.info("Wrote #{saved_path}")
+      rescue StandardError => e
+        @log.warn("Failed splits for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+      ensure
+        pause_between_requests
+      end
+    end
+
     def fetch_eod!(symbol_entries)
       symbol_entries.each do |entry|
-        exchange_code = Validate.required_string!("exchange", entry[:exchange])
-        real_exchange_code = Validate.required_string!("real_exchange", entry[:real_exchange])
+        exchange = Validate.required_string!("exchange", entry[:exchange])
+        real_exchange = Validate.required_string!("real_exchange", entry[:real_exchange])
         type = Validate.required_string!("type", entry[:type])
         symbol = Validate.required_string!("symbol", entry[:symbol])
 
-        symbol_with_exchange = "#{symbol}.#{exchange_code}"
-        relative_path = Path.raw_eod_data(exchange_code, symbol)
+        symbol_with_exchange = "#{symbol}.#{exchange}"
+        relative_path = Path.raw_eod_data(exchange, symbol)
 
         if (
-          !SYMBOL_INCLUDED_EXCHANGES.include?(exchange_code) or
-          !SYMBOL_INCLUDED_REAL_EXCHANGES.include?(real_exchange_code) or
+          !SYMBOL_INCLUDED_EXCHANGES.include?(exchange) or
+          !SYMBOL_INCLUDED_REAL_EXCHANGES.include?(real_exchange) or
           !SYMBOL_INCLUDED_TYPES.include?(type)
         )
           next
@@ -157,7 +180,7 @@ module Eodhd
 
         begin
           @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})...")
-          csv = @api.get_eod_data_csv!(exchange_code, symbol)
+          csv = @api.get_eod_data_csv!(exchange, symbol)
           saved_path = @io.save_csv!(relative_path, csv)
           @log.info("Wrote #{saved_path}")
         rescue StandardError => e
@@ -170,16 +193,16 @@ module Eodhd
 
     def fetch_intraday!(_symbol_entries)
       symbol = "AAPL"
-      exchange_code = "US"
+      exchange = "US"
       symbol = Validate.required_string!("symbol", symbol)
-      exchange_code = Validate.required_string!("exchange", exchange_code)
+      exchange = Validate.required_string!("exchange", exchange)
 
-      symbol_with_exchange = "#{symbol}.#{exchange_code}"
+      symbol_with_exchange = "#{symbol}.#{exchange}"
       
       begin
-        fetch_splits!(exchange_code, symbol, symbol_with_exchange)
+        fetch_splits!(exchange, symbol, symbol_with_exchange)
 
-        latest_from_on_disk = latest_intraday_raw_from_seconds(exchange_code, symbol)
+        latest_from_on_disk = latest_intraday_raw_from_seconds(exchange, symbol)
 
         to = Time.now.to_i
         while to > 0 do
@@ -191,13 +214,13 @@ module Eodhd
             break
           end
 
-          relative_path = Path.raw_intraday_data(exchange_code, symbol, from)
+          relative_path = Path.raw_intraday_data(exchange, symbol, from)
 
           from_formatted = DateUtil.seconds_to_datetime(from)
           to_formatted = DateUtil.seconds_to_datetime(to)
           @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
 
-          csv = @api.get_intraday_csv!(exchange_code, symbol, from: from, to: to)
+          csv = @api.get_intraday_csv!(exchange, symbol, from: from, to: to)
 
           if csv.to_s.length < INTRADAY_MIN_CSV_LENGTH
             @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
@@ -217,34 +240,11 @@ module Eodhd
       end
     end
 
-    def fetch_splits!(exchange_code, symbol, symbol_with_exchange)
-      exchange_code = Validate.required_string!("exchange", exchange_code)
-      symbol = Validate.required_string!("symbol", symbol)
-      symbol_with_exchange = Validate.required_string!("symbol_with_exchange", symbol_with_exchange)
-
-      splits_path = Path.splits(exchange_code, symbol)
-      unless file_stale?(splits_path)
-        @log.info("Skipping splits (fresh): #{splits_path}")
-        return
-      end
-
-      begin
-        @log.info("Fetching splits JSON: #{symbol_with_exchange}...")
-        splits = @api.get_splits_json!(exchange_code, symbol)
-        saved_path = @io.save_json!(splits_path, splits, true)
-        @log.info("Wrote #{saved_path}")
-      rescue StandardError => e
-        @log.warn("Failed splits for #{symbol_with_exchange}: #{e.class}: #{e.message}")
-      ensure
-        pause_between_requests
-      end
-    end
-
-    def latest_intraday_raw_from_seconds(exchange_code, symbol)
-      exchange_code = Validate.required_string!("exchange", exchange_code)
+    def latest_intraday_raw_from_seconds(exchange, symbol)
+      exchange = Validate.required_string!("exchange", exchange)
       symbol = Validate.required_string!("symbol", symbol)
 
-      raw_dir = Path.raw_intraday_data_dir(exchange_code, symbol)
+      raw_dir = Path.raw_intraday_data_dir(exchange, symbol)
       raw_paths = @io.list_relative_paths(raw_dir)
 
       raw_paths
