@@ -8,41 +8,23 @@ module Eodhd
       end
 
       def exchange_symbol_list(exchange, type)
-        exchange = Validate.required_string!("exchange", exchange)
-        type = Validate.required_string!("type", type)
-
-        exchange = StringUtil.kebab_case(exchange)
-        type = StringUtil.kebab_case(type)
-        type = "unknown" if type.empty?
-
+        exchange, type = process_exchange_and_type(exchange, type)
         File.join("symbols", exchange, "#{type}.json")
       end
 
       def raw_eod_data(exchange, symbol)
-        exchange = Validate.required_string!("exchange", exchange)
-        symbol = Validate.required_string!("symbol", symbol)
-
-        exchange = StringUtil.kebab_case(exchange)
-        symbol = StringUtil.kebab_case(symbol)
-
+        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join("raw", "eod", exchange, "#{symbol}.csv")
       end
 
       def raw_intraday_data_dir(exchange, symbol)
-        exchange = Validate.required_string!("exchange", exchange)
-        symbol = Validate.required_string!("symbol", symbol)
-
-        exchange = StringUtil.kebab_case(exchange)
-        symbol = StringUtil.kebab_case(symbol)
-
+        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join("raw", "intraday", exchange, symbol)
       end
 
       def raw_intraday_data(exchange, symbol, from)
         dir_for_intraday_raw = raw_intraday_data_dir(exchange, symbol)
-
         from = Validate.integer!("from", from)
-
         from_formatted = DateUtil.seconds_to_datetime(from)
 
         File.join(dir_for_intraday_raw, "#{from_formatted}.csv")
@@ -50,8 +32,30 @@ module Eodhd
 
       def splits(exchange, symbol)
         dir_for_intraday = raw_intraday_data_dir(exchange, symbol)
-
         File.join(dir_for_intraday, "meta", "splits.json")
+      end
+
+      private
+
+      def process_exchange_and_type(exchange, type)
+        exchange = Validate.required_string!("exchange", exchange)
+        type = Validate.required_string!("type", type)
+
+        exchange = StringUtil.kebab_case(exchange)
+        type = StringUtil.kebab_case(type)
+        type = "unknown" if type.empty?
+
+        [exchange, type]
+      end
+
+      def process_exchange_and_symbol(exchange, symbol)
+        exchange = Validate.required_string!("exchange", exchange)
+        symbol = Validate.required_string!("symbol", symbol)
+
+        exchange = StringUtil.kebab_case(exchange)
+        symbol = StringUtil.kebab_case(symbol)
+
+        [exchange, symbol]
       end
     end
   end
