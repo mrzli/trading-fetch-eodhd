@@ -23,10 +23,10 @@ module Eodhd
       response.body.to_s
     end
 
-    def get_exchange_symbol_list_json!(exchange_code)
-      exchange_code = Validate.required_string!("exchange_code", exchange_code)
+    def get_exchange_symbol_list_json!(exchange)
+      exchange = Validate.required_string!("exchange", exchange)
 
-      uri = get_full_url("exchange-symbol-list/#{exchange_code}")
+      uri = get_full_url("exchange-symbol-list/#{exchange}")
       uri.query = URI.encode_www_form(
         api_token: @api_token,
         fmt: "json"
