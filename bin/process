@@ -3,8 +3,38 @@
 
 require "bundler/setup"
 require "dotenv/load"
+require "optparse"
 
 $LOAD_PATH.unshift(File.expand_path("../lib", __dir__))
 require "eodhd"
 
-Eodhd::Process.run!
+mode = "eod"
+
+parser = OptionParser.new do |opts|
+	opts.banner = "Usage: bin/process [options]"
+
+	opts.on("-mMODE", "--mode=MODE", "Mode: eod or intraday (default: eod)") do |v|
+		mode = v.to_s.strip
+	end
+
+	opts.on("-h", "--help", "Show this help") do
+		puts opts
+		exit 0
+	end
+end
+
+begin
+	parser.parse!(ARGV)
+rescue OptionParser::ParseError => e
+	warn e.message
+	warn parser
+	exit 2
+end
+
+unless ARGV.empty?
+	warn "Unexpected arguments: #{ARGV.join(" ")}."
+	warn parser
+	exit 2
+end
+
+Eodhd::Process.run!(mode: mode)
