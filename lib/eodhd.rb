@@ -8,8 +8,8 @@ require_relative "eodhd/shared/path"
 require_relative "eodhd/shared/config"
 require_relative "eodhd/shared/api"
 require_relative "eodhd/shared/io"
-require_relative "eodhd/fetch"
-require_relative "eodhd/processor"
+require_relative "eodhd/fetch/fetch"
+require_relative "eodhd/fetch/fetch_processor"
 
 module Eodhd
 end

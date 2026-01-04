@@ -22,7 +22,7 @@ module Eodhd
 
       io = Io.new(output_dir: cfg.output_dir)
 
-      processor = Processor.new(log: log, cfg: cfg, api: api, io: io)
+      processor = FetchProcessor.new(log: log, cfg: cfg, api: api, io: io)
       processor.fetch!
     end
   end
