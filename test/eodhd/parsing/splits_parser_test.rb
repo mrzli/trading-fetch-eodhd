@@ -2,9 +2,9 @@
 
 require_relative "../../test_helper"
 
-describe Eodhd::SplitParser do
+describe Eodhd::SplitsParser do
   it "returns [] for blank input" do
-    _(Eodhd::SplitParser.parse_splits!(" ")).must_equal []
+    _(Eodhd::SplitsParser.parse_splits!(" ")).must_equal []
   end
 
   it "parses, sorts by date, and builds rational factors" do
@@ -15,7 +15,7 @@ describe Eodhd::SplitParser do
       ]
     JSON
 
-    splits = Eodhd::SplitParser.parse_splits!(json)
+    splits = Eodhd::SplitsParser.parse_splits!(json)
 
     _(splits.length).must_equal 2
     _(splits[0].date).must_equal Date.iso8601("2000-06-21")
@@ -26,12 +26,12 @@ describe Eodhd::SplitParser do
   end
 
   it "raises for invalid JSON" do
-    err = _(-> { Eodhd::SplitParser.parse_splits!("not json") }).must_raise(Eodhd::SplitParser::Error)
+    err = _(-> { Eodhd::SplitsParser.parse_splits!("not json") }).must_raise(Eodhd::SplitsParser::Error)
     _(err.message).must_match(/Invalid splits_json/i)
   end
 
   it "raises if top-level is not an array" do
-    _(-> { Eodhd::SplitParser.parse_splits!("{}") }).must_raise(Eodhd::SplitParser::Error)
+    _(-> { Eodhd::SplitsParser.parse_splits!("{}") }).must_raise(Eodhd::SplitsParser::Error)
   end
 
   it "raises for invalid split format" do
@@ -39,7 +39,7 @@ describe Eodhd::SplitParser do
       [{"date":"2024-01-10","split":"4"}]
     JSON
 
-    _(-> { Eodhd::SplitParser.parse_splits!(json) }).must_raise(Eodhd::SplitParser::Error)
+    _(-> { Eodhd::SplitsParser.parse_splits!(json) }).must_raise(Eodhd::SplitsParser::Error)
   end
 
   it "raises for zero/negative split ratio" do
@@ -51,6 +51,6 @@ describe Eodhd::SplitParser do
       ]
     JSON
 
-    _(-> { Eodhd::SplitParser.parse_splits!(json) }).must_raise(Eodhd::SplitParser::Error)
+    _(-> { Eodhd::SplitsParser.parse_splits!(json) }).must_raise(Eodhd::SplitsParser::Error)
   end
 end

@@ -4,7 +4,7 @@ require "date"
 require "json"
 
 module Eodhd
-  class SplitParser
+  class SplitsParser
     class Error < StandardError; end
 
     Split = Data.define(:date, :factor)
