@@ -13,12 +13,6 @@ module Eodhd
       @io = io
     end
 
-    def run!
-      process_eod!
-    end
-
-    private
-
     def process_eod!
       raw_dir = File.join(@cfg.output_dir, "raw", "eod")
       unless Dir.exist?(raw_dir)

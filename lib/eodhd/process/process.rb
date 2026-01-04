@@ -18,7 +18,7 @@ module Eodhd
       io = Io.new(output_dir: cfg.output_dir)
 
       strategy = ProcessStrategy.new(log: log, cfg: cfg, io: io)
-      strategy.run!
+      strategy.process_eod!
     end
   end
 end
