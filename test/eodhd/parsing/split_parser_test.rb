@@ -1,0 +1,56 @@
+# frozen_string_literal: true
+
+require_relative "../../test_helper"
+
+describe Eodhd::SplitParser do
+  it "returns [] for blank input" do
+    _(Eodhd::SplitParser.parse_splits!(" ")).must_equal []
+  end
+
+  it "parses, sorts by date, and builds rational factors" do
+    json = <<~JSON
+      [
+        {"date":"2024-01-10","split":"4.000000/1.000000"},
+        {"date":"2000-06-21","split":"2.000000/1.000000"}
+      ]
+    JSON
+
+    splits = Eodhd::SplitParser.parse_splits!(json)
+
+    _(splits.length).must_equal 2
+    _(splits[0].date).must_equal Date.iso8601("2000-06-21")
+    _(splits[0].factor).must_equal Rational(2, 1)
+
+    _(splits[1].date).must_equal Date.iso8601("2024-01-10")
+    _(splits[1].factor).must_equal Rational(4, 1)
+  end
+
+  it "raises for invalid JSON" do
+    err = _(-> { Eodhd::SplitParser.parse_splits!("not json") }).must_raise(Eodhd::SplitParser::Error)
+    _(err.message).must_match(/Invalid splits_json/i)
+  end
+
+  it "raises if top-level is not an array" do
+    _(-> { Eodhd::SplitParser.parse_splits!("{}") }).must_raise(Eodhd::SplitParser::Error)
+  end
+
+  it "raises for invalid split format" do
+    json = <<~JSON
+      [{"date":"2024-01-10","split":"4"}]
+    JSON
+
+    _(-> { Eodhd::SplitParser.parse_splits!(json) }).must_raise(Eodhd::SplitParser::Error)
+  end
+
+  it "raises for zero/negative split ratio" do
+    json = <<~JSON
+      [
+        {"date":"2024-01-10","split":"0/1"},
+        {"date":"2024-01-11","split":"-2/1"},
+        {"date":"2024-01-12","split":"2/0"}
+      ]
+    JSON
+
+    _(-> { Eodhd::SplitParser.parse_splits!(json) }).must_raise(Eodhd::SplitParser::Error)
+  end
+end
