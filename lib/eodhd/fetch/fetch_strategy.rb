@@ -29,6 +29,8 @@ module Eodhd
       fetch_symbols_for_exchanges!(exchanges)
       symbol_entries = get_symbol_entries(exchanges)
 
+      fetch_splits!(symbol_entries)
+
       fetch_eod!(symbol_entries)
       fetch_intraday!(symbol_entries)
     end
@@ -122,7 +124,7 @@ module Eodhd
 
             symbol_entries.map do |entry|
               {
-                exchange: exchange_code,
+                exchange: exchange,
                 real_exchange: entry["Exchange"],
                 type: type,
                 symbol: entry["Code"]
@@ -132,9 +134,19 @@ module Eodhd
       end
     end
 
-    def fetch_splits!(exchange, symbol)
-      exchange = Validate.required_string!("exchange", exchange)
-      symbol = Validate.required_string!("symbol", symbol)
+    def fetch_splits!(symbol_entries)
+      symbol_entries.each do |entry|
+        if !should_fetch?(entry)
+          next
+        end
+
+        fetch_splits_single!(entry)
+      end
+    end
+
+    def fetch_splits_single!(symbol_entry)
+      exchange = Validate.required_string!("exchange", symbol_entry[:exchange])
+      symbol = Validate.required_string!("symbol", symbol_entry[:symbol])
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
       splits_path = Path.splits(exchange, symbol)
@@ -161,28 +173,32 @@ module Eodhd
           next
         end
 
-        exchange = Validate.required_string!("exchange", entry[:exchange])
-        type = Validate.required_string!("type", entry[:type])
-        symbol = Validate.required_string!("symbol", entry[:symbol])
+        fetch_eod_single!(entry)
+      end
+    end
 
-        symbol_with_exchange = "#{symbol}.#{exchange}"
-        relative_path = Path.raw_eod_data(exchange, symbol)
+    def fetch_eod_single!(symbol_entry)
+      exchange = Validate.required_string!("exchange", symbol_entry[:exchange])
+      type = Validate.required_string!("type", symbol_entry[:type])
+      symbol = Validate.required_string!("symbol", symbol_entry[:symbol])
 
-        unless file_stale?(relative_path)
-          @log.info("Skipping EOD (fresh): #{relative_path}")
-          next
-        end
+      symbol_with_exchange = "#{symbol}.#{exchange}"
+      relative_path = Path.raw_eod_data(exchange, symbol)
 
-        begin
-          @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})...")
-          csv = @api.get_eod_data_csv!(exchange, symbol)
-          saved_path = @io.save_csv!(relative_path, csv)
-          @log.info("Wrote #{saved_path}")
-        rescue StandardError => e
-          @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
-        ensure
-          pause_between_requests
-        end
+      unless file_stale?(relative_path)
+        @log.info("Skipping EOD (fresh): #{relative_path}")
+        return
+      end
+
+      begin
+        @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})...")
+        csv = @api.get_eod_data_csv!(exchange, symbol)
+        saved_path = @io.save_csv!(relative_path, csv)
+        @log.info("Wrote #{saved_path}")
+      rescue StandardError => e
+        @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+      ensure
+        pause_between_requests
       end
     end
 
@@ -195,8 +211,6 @@ module Eodhd
       symbol_with_exchange = "#{symbol}.#{exchange}"
       
       begin
-        fetch_splits!(exchange, symbol)
-
         latest_from_on_disk = latest_intraday_raw_from_seconds(exchange, symbol)
 
         to = Time.now.to_i
