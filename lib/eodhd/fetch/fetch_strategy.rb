@@ -132,10 +132,10 @@ module Eodhd
       end
     end
 
-    def fetch_splits!(exchange, symbol, symbol_with_exchange)
+    def fetch_splits!(exchange, symbol)
       exchange = Validate.required_string!("exchange", exchange)
       symbol = Validate.required_string!("symbol", symbol)
-      symbol_with_exchange = Validate.required_string!("symbol_with_exchange", symbol_with_exchange)
+      symbol_with_exchange = "#{symbol}.#{exchange}"
 
       splits_path = Path.splits(exchange, symbol)
       unless file_stale?(splits_path)
@@ -200,7 +200,7 @@ module Eodhd
       symbol_with_exchange = "#{symbol}.#{exchange}"
       
       begin
-        fetch_splits!(exchange, symbol, symbol_with_exchange)
+        fetch_splits!(exchange, symbol)
 
         latest_from_on_disk = latest_intraday_raw_from_seconds(exchange, symbol)
 
