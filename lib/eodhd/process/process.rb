@@ -19,6 +19,7 @@ module Eodhd
 
       strategy = ProcessStrategy.new(log: log, cfg: cfg, io: io)
       strategy.process_eod!
+      strategy.process_intraday!
     end
   end
 end

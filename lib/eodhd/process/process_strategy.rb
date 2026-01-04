@@ -73,5 +73,9 @@ module Eodhd
 
       false
     end
+
+    def process_intraday!
+      @log.info("Processing intraday not yet implemented.")
+    end
   end
 end
