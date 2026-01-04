@@ -19,7 +19,7 @@ module Eodhd
 
       def processed_eod_data(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-        File.join("processed", "eod", exchange, "#{symbol}.csv")
+        File.join("data", "eod", exchange, "#{symbol}.csv")
       end
 
       def raw_intraday_data_dir(exchange, symbol)

@@ -60,12 +60,12 @@ describe Eodhd::Path do
       {
         description: "symbol with exchange",
         input: { exchange: "US", symbol: "MCD" },
-        expected: File.join("processed", "eod", "us", "mcd.csv")
+        expected: File.join("data", "eod", "us", "mcd.csv")
       },
       {
         description: "symbol with dot class",
         input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("processed", "eod", "us", "brk-b.csv")
+        expected: File.join("data", "eod", "us", "brk-b.csv")
       }
     ],
     call: ->(input) { Eodhd::Path.processed_eod_data(input[:exchange], input[:symbol]) }
