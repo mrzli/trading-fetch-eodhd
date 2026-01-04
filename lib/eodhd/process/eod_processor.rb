@@ -49,9 +49,9 @@ module Eodhd
         required = ["Date", "Open", "High", "Low", "Close", "Volume"]
 
         missing = required.reject { |h| headers.include?(h) }
-        return if missing.empty?
-
-        raise Error, "Missing required columns: #{missing.join(", ")}" 
+        if missing.any?
+          raise Error, "Missing required columns: #{missing.join(", ")}" 
+        end
       end
 
       # Referent price is the latest price.
