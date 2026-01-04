@@ -140,7 +140,7 @@ module Eodhd
         symbol = Validate.required_string!("symbol", entry[:symbol])
 
         symbol_with_exchange = "#{symbol}.#{exchange_code}"
-        relative_path = Path.eod_data(exchange_code, symbol)
+        relative_path = Path.raw_eod_data(exchange_code, symbol)
 
         if (
           !SYMBOL_INCLUDED_EXCHANGES.include?(exchange_code) or
@@ -191,7 +191,7 @@ module Eodhd
             break
           end
 
-          relative_path = Path.intraday_data(exchange_code, symbol, from)
+          relative_path = Path.raw_intraday_data(exchange_code, symbol, from)
 
           from_formatted = DateUtil.seconds_to_datetime(from)
           to_formatted = DateUtil.seconds_to_datetime(to)
@@ -244,7 +244,7 @@ module Eodhd
       exchange_code = Validate.required_string!("exchange", exchange_code)
       symbol = Validate.required_string!("symbol", symbol)
 
-      raw_dir = Path.intraday_data_raw_dir(exchange_code, symbol)
+      raw_dir = Path.raw_intraday_data_dir(exchange_code, symbol)
       raw_paths = @io.list_relative_paths(raw_dir)
 
       raw_paths

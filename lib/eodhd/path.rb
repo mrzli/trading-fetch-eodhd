@@ -18,34 +18,28 @@ module Eodhd
         File.join("symbols", exchange_code, "#{type}.json")
       end
 
-      def eod_data(exchange, symbol)
+      def raw_eod_data(exchange, symbol)
         exchange = Validate.required_string!("exchange", exchange)
         symbol = Validate.required_string!("symbol", symbol)
 
         exchange = StringUtil.kebab_case(exchange)
         symbol = StringUtil.kebab_case(symbol)
 
-        File.join("eod", exchange, "#{symbol}.csv")
+        File.join("raw", "eod", exchange, "#{symbol}.csv")
       end
 
-      def intraday_data_dir(exchange, symbol)
+      def raw_intraday_data_dir(exchange, symbol)
         exchange = Validate.required_string!("exchange", exchange)
         symbol = Validate.required_string!("symbol", symbol)
 
         exchange = StringUtil.kebab_case(exchange)
         symbol = StringUtil.kebab_case(symbol)
 
-        File.join("intraday", exchange, symbol)
+        File.join("raw", "intraday", exchange, symbol)
       end
 
-      def intraday_data_raw_dir(exchange, symbol)
-        dir_for_intraday = intraday_data_dir(exchange, symbol)
-
-        File.join(dir_for_intraday, "raw")
-      end
-
-      def intraday_data(exchange, symbol, from)
-        dir_for_intraday_raw = intraday_data_raw_dir(exchange, symbol)
+      def raw_intraday_data(exchange, symbol, from)
+        dir_for_intraday_raw = raw_intraday_data_dir(exchange, symbol)
 
         from = Validate.integer!("from", from)
 
@@ -55,9 +49,9 @@ module Eodhd
       end
 
       def splits(exchange, symbol)
-        dir_for_intraday = intraday_data_dir(exchange, symbol)
+        dir_for_intraday = raw_intraday_data_dir(exchange, symbol)
 
-        File.join(dir_for_intraday, "splits.json")
+        File.join(dir_for_intraday, "meta", "splits.json")
       end
     end
   end
