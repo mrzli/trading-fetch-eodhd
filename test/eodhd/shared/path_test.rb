@@ -111,12 +111,12 @@ describe Eodhd::Path do
       {
         description: "symbol with exchange",
         input: { exchange: "US", symbol: "AAPL" },
-        expected: File.join("raw", "intraday", "us", "aapl", "meta", "splits.json")
+        expected: File.join("meta", "us", "aapl", "splits.json")
       },
       {
         description: "symbol with dot class",
         input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("raw", "intraday", "us", "brk-b", "meta", "splits.json")
+        expected: File.join("meta", "us", "brk-b", "splits.json")
       }
     ],
     call: ->(input) { Eodhd::Path.splits(input[:exchange], input[:symbol]) }

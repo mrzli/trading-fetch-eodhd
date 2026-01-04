@@ -31,8 +31,8 @@ module Eodhd
       end
 
       def splits(exchange, symbol)
-        dir_for_intraday = raw_intraday_data_dir(exchange, symbol)
-        File.join(dir_for_intraday, "meta", "splits.json")
+        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
+        File.join("meta", exchange, symbol, "splits.json")
       end
 
       private
