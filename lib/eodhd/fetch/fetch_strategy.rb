@@ -22,7 +22,7 @@ module Eodhd
       @io = io
     end
 
-    def fetch!
+    def run!
       fetch_exchanges_list!
       exchange_codes = get_exhange_codes
 

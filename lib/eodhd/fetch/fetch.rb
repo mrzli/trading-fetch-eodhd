@@ -23,7 +23,7 @@ module Eodhd
       io = Io.new(output_dir: cfg.output_dir)
 
       strategy = FetchStrategy.new(log: log, cfg: cfg, api: api, io: io)
-      strategy.fetch!
+      strategy.run!
     end
   end
 end
