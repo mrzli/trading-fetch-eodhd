@@ -6,5 +6,5 @@ require "minitest/autorun"
 require "minitest/spec"
 require "eodhd"
 
-require_relative "support/data_driven"
+require_relative "test_util/data_driven"
 include TestSupport::DataDriven
