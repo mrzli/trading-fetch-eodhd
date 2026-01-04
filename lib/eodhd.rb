@@ -9,7 +9,7 @@ require_relative "eodhd/shared/config"
 require_relative "eodhd/shared/api"
 require_relative "eodhd/shared/io"
 require_relative "eodhd/fetch/fetch"
-require_relative "eodhd/fetch/fetch_processor"
+require_relative "eodhd/fetch/fetch_strategy"
 
 module Eodhd
 end

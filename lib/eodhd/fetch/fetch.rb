@@ -22,8 +22,8 @@ module Eodhd
 
       io = Io.new(output_dir: cfg.output_dir)
 
-      processor = FetchProcessor.new(log: log, cfg: cfg, api: api, io: io)
-      processor.fetch!
+      strategy = FetchStrategy.new(log: log, cfg: cfg, api: api, io: io)
+      strategy.fetch!
     end
   end
 end

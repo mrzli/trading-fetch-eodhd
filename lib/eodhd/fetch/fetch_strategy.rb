@@ -5,7 +5,7 @@ require "set"
 require "time"
 
 module Eodhd
-  class FetchProcessor
+  class FetchStrategy
     UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
 
     SYMBOL_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
