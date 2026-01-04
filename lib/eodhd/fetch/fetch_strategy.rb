@@ -30,6 +30,7 @@ module Eodhd
       symbol_entries = get_symbol_entries(exchanges)
 
       fetch_splits!(symbol_entries)
+      fetch_dividends!(symbol_entries)
 
       fetch_eod!(symbol_entries)
       fetch_intraday!(symbol_entries)
@@ -162,6 +163,39 @@ module Eodhd
         @log.info("Wrote #{saved_path}")
       rescue StandardError => e
         @log.warn("Failed splits for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+      ensure
+        pause_between_requests
+      end
+    end
+
+    def fetch_dividends!(symbol_entries)
+      symbol_entries.each do |entry|
+        if !should_fetch?(entry)
+          next
+        end
+
+        fetch_dividends_single!(entry)
+      end
+    end
+
+    def fetch_dividends_single!(symbol_entry)
+      exchange = Validate.required_string!("exchange", symbol_entry[:exchange])
+      symbol = Validate.required_string!("symbol", symbol_entry[:symbol])
+      symbol_with_exchange = "#{symbol}.#{exchange}"
+
+      dividends_path = Path.dividends(exchange, symbol)
+      unless file_stale?(dividends_path)
+        @log.info("Skipping dividends (fresh): #{dividends_path}")
+        return
+      end
+
+      begin
+        @log.info("Fetching dividends JSON: #{symbol_with_exchange}...")
+        dividends = @api.get_dividends_json!(exchange, symbol)
+        saved_path = @io.save_json!(dividends_path, dividends, true)
+        @log.info("Wrote #{saved_path}")
+      rescue StandardError => e
+        @log.warn("Failed dividends for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       ensure
         pause_between_requests
       end

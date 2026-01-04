@@ -35,6 +35,11 @@ module Eodhd
         File.join("meta", exchange, symbol, "splits.json")
       end
 
+      def dividends(exchange, symbol)
+        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
+        File.join("meta", exchange, symbol, "dividends.json")
+      end
+
       private
 
       def process_exchange_and_type(exchange, type)

@@ -91,6 +91,22 @@ module Eodhd
       response.body.to_s
     end
 
+    def get_dividends_json!(exchange, symbol)
+      exchange = Validate.required_string!("exchange", exchange)
+      symbol = Validate.required_string!("symbol", symbol)
+
+      uri = get_full_url("div/#{symbol}.#{exchange}")
+      uri.query = URI.encode_www_form(
+        api_token: @api_token,
+        fmt: "json"
+      )
+
+      response = Net::HTTP.get_response(uri)
+      validate_response!(response)
+
+      response.body.to_s
+    end
+
     private
 
     def get_full_url(path)

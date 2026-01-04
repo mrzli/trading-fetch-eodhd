@@ -121,4 +121,21 @@ describe Eodhd::Path do
     ],
     call: ->(input) { Eodhd::Path.splits(input[:exchange], input[:symbol]) }
   )
+
+  test_equals(
+    ".dividends",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("meta", "us", "aapl", "dividends.json")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("meta", "us", "brk-b", "dividends.json")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.dividends(input[:exchange], input[:symbol]) }
+  )
 end
