@@ -24,7 +24,8 @@ describe Eodhd::EodProcessor do
       ]
     JSON
 
-    out = Eodhd::EodProcessor.process_csv!(raw_csv, splits_json)
+    splits = Eodhd::SplitsParser.parse_splits!(splits_json)
+    out = Eodhd::EodProcessor.process_csv!(raw_csv, splits)
 
     expected = <<~CSV
       Date,Open,High,Low,Close,Volume

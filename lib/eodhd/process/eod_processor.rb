@@ -12,9 +12,8 @@ module Eodhd
     class Error < StandardError; end
 
     class << self
-      def process_csv!(raw_csv, splits_json)
+      def process_csv!(raw_csv, splits)
         raw_csv = Validate.required_string!("raw_csv", raw_csv)
-        splits = SplitsParser.parse_splits!(splits_json)
 
         csv = CSV.parse(raw_csv, headers: true)
         validate_headers!(csv.headers)

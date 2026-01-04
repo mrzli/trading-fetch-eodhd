@@ -56,7 +56,9 @@ module Eodhd
           raw_csv = @io.read_text(rel)
           splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
 
-          processed_csv = EodProcessor.process_csv!(raw_csv, splits_json)
+          splits = SplitsParser.parse_splits!(splits_json)
+
+          processed_csv = EodProcessor.process_csv!(raw_csv, splits)
           saved_path = @io.save_csv!(processed_rel, processed_csv)
           @log.info("Wrote #{saved_path}")
         rescue StandardError => e
