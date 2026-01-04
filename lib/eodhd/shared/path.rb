@@ -7,15 +7,15 @@ module Eodhd
         "exchanges-list.json"
       end
 
-      def exchange_symbol_list(exchange_code, type)
-        exchange_code = Validate.required_string!("exchange_code", exchange_code)
+      def exchange_symbol_list(exchange, type)
+        exchange = Validate.required_string!("exchange", exchange)
         type = Validate.required_string!("type", type)
 
-        exchange_code = StringUtil.kebab_case(exchange_code)
+        exchange = StringUtil.kebab_case(exchange)
         type = StringUtil.kebab_case(type)
         type = "unknown" if type.empty?
 
-        File.join("symbols", exchange_code, "#{type}.json")
+        File.join("symbols", exchange, "#{type}.json")
       end
 
       def raw_eod_data(exchange, symbol)
