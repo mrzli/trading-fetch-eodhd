@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "support/logger"
-require_relative "support/validate"
-require_relative "support/string_util"
-require_relative "support/date_util"
+require_relative "util/logger"
+require_relative "util/validate"
+require_relative "util/string_util"
+require_relative "util/date_util"
 require_relative "eodhd/path"
 require_relative "eodhd/config"
 require_relative "eodhd/api"
