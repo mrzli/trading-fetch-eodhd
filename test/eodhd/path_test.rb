@@ -4,6 +4,18 @@ require_relative "../test_helper"
 
 describe Eodhd::Path do
   test_equals(
+    ".exchanges_list",
+    [
+      {
+        description: "filename",
+        input: nil,
+        expected: "exchanges-list.json"
+      }
+    ],
+    call: ->(_input) { Eodhd::Path.exchanges_list }
+  )
+
+  test_equals(
     ".exchange_symbol_list",
     [
       {
