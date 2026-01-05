@@ -3,7 +3,6 @@
 require "json"
 require "set"
 require "time"
-require "pathname"
 
 module Eodhd
   class ProcessStrategy
@@ -14,7 +13,7 @@ module Eodhd
     end
 
     def process_eod!
-      raw_root = File.join(@cfg.output_dir, "raw", "eod")
+      raw_root = @io.output_path(File.join("raw", "eod"))
       unless Dir.exist?(raw_root)
         @log.info("No raw EOD directory found: #{raw_root}")
         return
@@ -32,7 +31,7 @@ module Eodhd
         next if raw_abs_files.empty?
 
         raw_abs_files.each do |raw_abs|
-          rel = Pathname.new(raw_abs).relative_path_from(Pathname.new(@cfg.output_dir)).to_s
+          rel = @io.relative_path(raw_abs)
           symbol = File.basename(raw_abs, ".csv")
 
           processed_rel = Path.processed_eod_data(exchange, symbol)
@@ -59,7 +58,7 @@ module Eodhd
     end
 
     def process_intraday!
-      raw_root = File.join(@cfg.output_dir, "raw", "intraday")
+      raw_root = @io.output_path(File.join("raw", "intraday"))
       unless Dir.exist?(raw_root)
         @log.info("No raw intraday directory found: #{raw_root}")
         return
@@ -82,7 +81,7 @@ module Eodhd
           next if raw_abs_files.empty?
 
           raw_rels = raw_abs_files.map do |abs|
-            Pathname.new(abs).relative_path_from(Pathname.new(@cfg.output_dir)).to_s
+            @io.relative_path(abs)
           end
 
           splits_rel = Path.splits(exchange, symbol)
