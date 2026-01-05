@@ -123,6 +123,35 @@ describe Eodhd::Path do
   )
 
   test_equals(
+    ".processed_intraday_data_dir",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("data", "intraday", "us", "aapl")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("data", "intraday", "us", "brk-b")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.processed_intraday_data_dir(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
+    ".processed_intraday_year",
+    [
+      {
+        description: "year file",
+        input: { exchange: "US", symbol: "AAPL", year: 2003 },
+        expected: File.join("data", "intraday", "us", "aapl", "2003.csv")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.processed_intraday_year(input[:exchange], input[:symbol], input[:year]) }
+  )
+
+  test_equals(
     ".splits",
     [
       {

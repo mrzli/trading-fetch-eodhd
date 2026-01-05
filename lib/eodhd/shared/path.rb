@@ -35,6 +35,17 @@ module Eodhd
         File.join(dir_for_intraday_raw, "#{from_formatted}.csv")
       end
 
+      def processed_intraday_data_dir(exchange, symbol)
+        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
+        File.join("data", "intraday", exchange, symbol)
+      end
+
+      def processed_intraday_year(exchange, symbol, year)
+        dir = processed_intraday_data_dir(exchange, symbol)
+        year = Validate.integer!("year", year)
+        File.join(dir, "#{year}.csv")
+      end
+
       def splits(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join("meta", exchange, symbol, "splits.json")
