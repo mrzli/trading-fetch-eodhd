@@ -37,4 +37,11 @@ unless ARGV.empty?
 	exit 2
 end
 
+mode = mode.to_s.strip.downcase
+unless %w[eod intraday].include?(mode)
+	warn "Unknown mode: #{mode.inspect}. Expected 'eod' or 'intraday'."
+	warn parser
+	exit 2
+end
+
 Eodhd::Process.run!(mode: mode)
