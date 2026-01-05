@@ -75,56 +75,60 @@ module Eodhd
     end
 
     def process_intraday!
-      files = discover_intraday_files
-      if files.empty?
-        @log.info("No raw intraday CSV files found")
+      raw_root = File.join(@cfg.output_dir, "raw", "intraday")
+      unless Dir.exist?(raw_root)
+        @log.info("No raw intraday directory found: #{raw_root}")
         return
       end
 
-      grouped = files.group_by do |rel|
-        match = rel.match(%r{\Araw/intraday/([^/]+)/([^/]+)/.+\.csv\z})
-        unless match
-          @log.warn("Skipping unexpected intraday path: #{rel}")
-          next
-        end
-        [match[1], match[2]]
-      end
-      grouped.delete(nil)
-
-      if grouped.empty?
-        @log.info("No valid intraday input files to process")
+      exchanges = Dir.children(raw_root).select { |name| Dir.exist?(File.join(raw_root, name)) }.sort
+      if exchanges.empty?
+        @log.info("No exchange directories found under: #{raw_root}")
         return
       end
 
-      grouped.keys.sort.each do |(exchange, symbol)|
-        raw_rels = grouped.fetch([exchange, symbol]).sort
-        splits_rel = Path.splits(exchange, symbol)
-        processed_dir_rel = Path.processed_intraday_data_dir(exchange, symbol)
+      exchanges.each do |exchange|
+        exchange_dir = File.join(raw_root, exchange)
+        symbols = Dir.children(exchange_dir).select { |name| Dir.exist?(File.join(exchange_dir, name)) }.sort
+        next if symbols.empty?
 
-        unless should_process_intraday?(raw_rels: raw_rels, splits_rel: splits_rel, processed_dir_rel: processed_dir_rel)
-          @log.info("Skipping processed intraday (fresh): #{processed_dir_rel}")
-          next
-        end
+        symbols.each do |symbol|
+          symbol_dir = File.join(exchange_dir, symbol)
+          raw_abs_files = Dir.glob(File.join(symbol_dir, "*.csv")).sort
+          next if raw_abs_files.empty?
 
-        begin
-          splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
-          splits = SplitsParser.parse_splits!(splits_json)
+          raw_rels = raw_abs_files.map do |abs|
+            Pathname.new(abs).relative_path_from(Pathname.new(@cfg.output_dir)).to_s
+          end
 
-          raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
-          outputs = IntradayProcessor.process_csv_files!(raw_csv_files, splits)
+          splits_rel = Path.splits(exchange, symbol)
+          processed_dir_rel = Path.processed_intraday_data_dir(exchange, symbol)
 
-          if outputs.empty?
-            @log.info("No intraday rows produced for #{exchange}/#{symbol}")
+          unless should_process_intraday?(raw_rels: raw_rels, splits_rel: splits_rel, processed_dir_rel: processed_dir_rel)
+            @log.info("Skipping processed intraday (fresh): #{processed_dir_rel}")
             next
           end
 
-          outputs.keys.sort.each do |year|
-            processed_rel = Path.processed_intraday_year(exchange, symbol, year)
-            saved_path = @io.save_csv!(processed_rel, outputs.fetch(year))
-            @log.info("Wrote #{saved_path}")
+          begin
+            splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
+            splits = SplitsParser.parse_splits!(splits_json)
+
+            raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
+            outputs = IntradayProcessor.process_csv_files!(raw_csv_files, splits)
+
+            if outputs.empty?
+              @log.info("No intraday rows produced for #{exchange}/#{symbol}")
+              next
+            end
+
+            outputs.keys.sort.each do |year|
+              processed_rel = Path.processed_intraday_year(exchange, symbol, year)
+              saved_path = @io.save_csv!(processed_rel, outputs.fetch(year))
+              @log.info("Wrote #{saved_path}")
+            end
+          rescue StandardError => e
+            @log.warn("Failed processing intraday for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
           end
-        rescue StandardError => e
-          @log.warn("Failed processing intraday for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
         end
       end
     end
@@ -143,13 +147,6 @@ module Eodhd
       false
     end
 
-    def discover_intraday_files
-      raw_dir = File.join(@cfg.output_dir, "raw", "intraday")
-      return [] unless Dir.exist?(raw_dir)
-
-      Dir.glob(File.join(raw_dir, "*", "*", "*.csv"))
-        .sort
-        .map { |abs| Pathname.new(abs).relative_path_from(Pathname.new(@cfg.output_dir)).to_s }
-    end
+    private
   end
 end
