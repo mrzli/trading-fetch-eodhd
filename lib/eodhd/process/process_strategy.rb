@@ -46,47 +46,7 @@ module Eodhd
 
       exchanges.each do |exchange|
         exchange_dir = File.join(raw_root, exchange)
-        symbols = Dir.children(exchange_dir).select { |name| Dir.exist?(File.join(exchange_dir, name)) }.sort
-        next if symbols.empty?
-
-        symbols.each do |symbol|
-          symbol_dir = File.join(exchange_dir, symbol)
-          raw_abs_files = Dir.glob(File.join(symbol_dir, "*.csv")).sort
-          next if raw_abs_files.empty?
-
-          raw_rels = raw_abs_files.map do |abs|
-            @io.relative_path(abs)
-          end
-
-          splits_rel = Path.splits(exchange, symbol)
-          processed_dir_rel = Path.processed_intraday_data_dir(exchange, symbol)
-
-          unless should_process_intraday?(raw_rels: raw_rels, splits_rel: splits_rel, processed_dir_rel: processed_dir_rel)
-            @log.info("Skipping processed intraday (fresh): #{processed_dir_rel}")
-            next
-          end
-
-          begin
-            splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
-            splits = SplitsParser.parse_splits!(splits_json)
-
-            raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
-            outputs = IntradayProcessor.process_csv_files!(raw_csv_files, splits)
-
-            if outputs.empty?
-              @log.info("No intraday rows produced for #{exchange}/#{symbol}")
-              next
-            end
-
-            outputs.keys.sort.each do |year|
-              processed_rel = Path.processed_intraday_year(exchange, symbol, year)
-              saved_path = @io.save_csv!(processed_rel, outputs.fetch(year))
-              @log.info("Wrote #{saved_path}")
-            end
-          rescue StandardError => e
-            @log.warn("Failed processing intraday for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
-          end
-        end
+        process_intraday_exchange!(exchange, exchange_dir)
       end
     end
 
@@ -134,6 +94,51 @@ module Eodhd
       @log.info("Wrote #{saved_path}")
     rescue StandardError => e
       @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
+    end
+
+    def process_intraday_exchange!(exchange, exchange_dir)
+      symbols = Dir.children(exchange_dir).select { |name| Dir.exist?(File.join(exchange_dir, name)) }.sort
+      return if symbols.empty?
+
+      symbols.each do |symbol|
+        symbol_dir = File.join(exchange_dir, symbol)
+        process_intraday_symbol!(exchange, symbol, symbol_dir)
+      end
+    end
+
+    def process_intraday_symbol!(exchange, symbol, symbol_dir)
+      raw_abs_files = Dir.glob(File.join(symbol_dir, "*.csv")).sort
+      return if raw_abs_files.empty?
+
+      raw_rels = raw_abs_files.map { |abs| @io.relative_path(abs) }
+
+      splits_rel = Path.splits(exchange, symbol)
+      processed_dir_rel = Path.processed_intraday_data_dir(exchange, symbol)
+
+      unless should_process_intraday?(raw_rels: raw_rels, splits_rel: splits_rel, processed_dir_rel: processed_dir_rel)
+        @log.info("Skipping processed intraday (fresh): #{processed_dir_rel}")
+        return
+      end
+
+      splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
+      splits = SplitsParser.parse_splits!(splits_json)
+
+      raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
+
+      outputs = IntradayProcessor.process_csv_files!(raw_csv_files, splits)
+
+      if outputs.empty?
+        @log.info("No intraday rows produced for #{exchange}/#{symbol}")
+        return
+      end
+
+      outputs.keys.sort.each do |year|
+        processed_rel = Path.processed_intraday_year(exchange, symbol, year)
+        saved_path = @io.save_csv!(processed_rel, outputs.fetch(year))
+        @log.info("Wrote #{saved_path}")
+      end
+    rescue StandardError => e
+      @log.warn("Failed processing intraday for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
     end
 
     def should_process_intraday?(raw_rels:, splits_rel:, processed_dir_rel:)
