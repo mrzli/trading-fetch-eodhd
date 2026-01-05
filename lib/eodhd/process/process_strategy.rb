@@ -61,19 +61,6 @@ module Eodhd
       end
     end
 
-    def should_process_eod?(raw_rel:, splits_rel:, processed_rel:)
-      processed_mtime = @io.file_last_updated_at(processed_rel)
-      return true if processed_mtime.nil?
-
-      raw_mtime = @io.file_last_updated_at(raw_rel)
-      return true if raw_mtime && raw_mtime > processed_mtime
-
-      splits_mtime = @io.file_last_updated_at(splits_rel)
-      return true if splits_mtime && splits_mtime > processed_mtime
-
-      false
-    end
-
     def process_intraday!
       raw_root = File.join(@cfg.output_dir, "raw", "intraday")
       unless Dir.exist?(raw_root)
@@ -133,6 +120,21 @@ module Eodhd
       end
     end
 
+    private
+
+    def should_process_eod?(raw_rel:, splits_rel:, processed_rel:)
+      processed_mtime = @io.file_last_updated_at(processed_rel)
+      return true if processed_mtime.nil?
+
+      raw_mtime = @io.file_last_updated_at(raw_rel)
+      return true if raw_mtime && raw_mtime > processed_mtime
+
+      splits_mtime = @io.file_last_updated_at(splits_rel)
+      return true if splits_mtime && splits_mtime > processed_mtime
+
+      false
+    end
+
     def should_process_intraday?(raw_rels:, splits_rel:, processed_dir_rel:)
       processed_paths = @io.list_relative_paths(processed_dir_rel)
       processed_mtime = processed_paths.map { |p| @io.file_last_updated_at(p) }.compact.max
@@ -146,7 +148,5 @@ module Eodhd
 
       false
     end
-
-    private
   end
 end
