@@ -13,6 +13,7 @@ require_relative "eodhd/fetch/fetch"
 require_relative "eodhd/fetch/fetch_strategy"
 require_relative "eodhd/process/process"
 require_relative "eodhd/process/eod_processor"
+require_relative "eodhd/process/intraday_processor"
 require_relative "eodhd/process/process_strategy"
 
 module Eodhd
