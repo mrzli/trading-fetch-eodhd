@@ -14,49 +14,46 @@ module Eodhd
     end
 
     def process_eod!
-      raw_dir = File.join(@cfg.output_dir, "raw", "eod")
-      unless Dir.exist?(raw_dir)
-        @log.info("No raw EOD directory found: #{raw_dir}")
+      raw_root = File.join(@cfg.output_dir, "raw", "eod")
+      unless Dir.exist?(raw_root)
+        @log.info("No raw EOD directory found: #{raw_root}")
         return
       end
 
-      raw_files = Dir.glob(File.join(raw_dir, "**", "*.csv")).sort
-      if raw_files.empty?
-        @log.info("No raw EOD CSV files found under: #{raw_dir}")
+      exchanges = Dir.children(raw_root).select { |name| Dir.exist?(File.join(raw_root, name)) }.sort
+      if exchanges.empty?
+        @log.info("No exchange directories found under: #{raw_root}")
         return
       end
 
-      raw_files.each do |raw_abs|
-        rel = Pathname.new(raw_abs).relative_path_from(Pathname.new(@cfg.output_dir)).to_s
+      exchanges.each do |exchange|
+        exchange_dir = File.join(raw_root, exchange)
+        raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv")).sort
+        next if raw_abs_files.empty?
 
-        match = rel.match(%r{\Araw/eod/([^/]+)/([^/]+)\.csv\z})
-        unless match
-          @log.warn("Skipping unexpected EOD path: #{rel}")
-          next
-        end
+        raw_abs_files.each do |raw_abs|
+          rel = Pathname.new(raw_abs).relative_path_from(Pathname.new(@cfg.output_dir)).to_s
+          symbol = File.basename(raw_abs, ".csv")
 
-        exchange = match[1]
-        symbol = match[2]
+          processed_rel = Path.processed_eod_data(exchange, symbol)
+          splits_rel = Path.splits(exchange, symbol)
 
-        processed_rel = Path.processed_eod_data(exchange, symbol)
-        splits_rel = Path.splits(exchange, symbol)
+          unless should_process_eod?(raw_rel: rel, splits_rel: splits_rel, processed_rel: processed_rel)
+            @log.info("Skipping processed EOD (fresh): #{processed_rel}")
+            next
+          end
 
-        unless should_process_eod?(raw_rel: rel, splits_rel: splits_rel, processed_rel: processed_rel)
-          @log.info("Skipping processed EOD (fresh): #{processed_rel}")
-          next
-        end
+          begin
+            raw_csv = @io.read_text(rel)
+            splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
+            splits = SplitsParser.parse_splits!(splits_json)
 
-        begin
-          raw_csv = @io.read_text(rel)
-          splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
-
-          splits = SplitsParser.parse_splits!(splits_json)
-
-          processed_csv = EodProcessor.process_csv!(raw_csv, splits)
-          saved_path = @io.save_csv!(processed_rel, processed_csv)
-          @log.info("Wrote #{saved_path}")
-        rescue StandardError => e
-          @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
+            processed_csv = EodProcessor.process_csv!(raw_csv, splits)
+            saved_path = @io.save_csv!(processed_rel, processed_csv)
+            @log.info("Wrote #{saved_path}")
+          rescue StandardError => e
+            @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
+          end
         end
       end
     end
