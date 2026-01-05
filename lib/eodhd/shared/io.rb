@@ -2,11 +2,22 @@
 
 require "fileutils"
 require "json"
+require "pathname"
 
 module Eodhd
   class Io
     def initialize(output_dir:)
       @output_dir = Validate.required_string!("output_dir", output_dir)
+    end
+
+    def output_path(relative_path)
+      relative_path = Validate.required_string!("relative_path", relative_path)
+      File.join(@output_dir, relative_path)
+    end
+
+    def relative_path(output_path)
+      output_path = Validate.required_string!("output_path", output_path)
+      Pathname.new(output_path).relative_path_from(Pathname.new(@output_dir)).to_s
     end
 
     def file_exists?(relative_path)
@@ -64,11 +75,6 @@ module Eodhd
     end
 
     private
-
-    def output_path(relative_path)
-      relative_path = Validate.required_string!("relative_path", relative_path)
-      File.join(@output_dir, relative_path)
-    end
 
     def pretty_json(json)
       JSON.pretty_generate(JSON.parse(json))
