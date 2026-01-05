@@ -92,6 +92,19 @@ module Eodhd
 
     private
 
+    def should_process_eod?(raw_rel:, splits_rel:, processed_rel:)
+      processed_mtime = @io.file_last_updated_at(processed_rel)
+      return true if processed_mtime.nil?
+
+      raw_mtime = @io.file_last_updated_at(raw_rel)
+      return true if raw_mtime && raw_mtime > processed_mtime
+
+      splits_mtime = @io.file_last_updated_at(splits_rel)
+      return true if splits_mtime && splits_mtime > processed_mtime
+
+      false
+    end
+
     def process_eod_exchange!(exchange, exchange_dir)
       raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv")).sort
       return if raw_abs_files.empty?
@@ -121,19 +134,6 @@ module Eodhd
       @log.info("Wrote #{saved_path}")
     rescue StandardError => e
       @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
-    end
-
-    def should_process_eod?(raw_rel:, splits_rel:, processed_rel:)
-      processed_mtime = @io.file_last_updated_at(processed_rel)
-      return true if processed_mtime.nil?
-
-      raw_mtime = @io.file_last_updated_at(raw_rel)
-      return true if raw_mtime && raw_mtime > processed_mtime
-
-      splits_mtime = @io.file_last_updated_at(splits_rel)
-      return true if splits_mtime && splits_mtime > processed_mtime
-
-      false
     end
 
     def should_process_intraday?(raw_rels:, splits_rel:, processed_dir_rel:)
