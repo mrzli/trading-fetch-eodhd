@@ -12,9 +12,13 @@ module Eodhd
         File.join("symbols", exchange, "#{type}.json")
       end
 
+      def raw_eod_dir
+        File.join("raw", "eod")
+      end
+
       def raw_eod_data(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-        File.join("raw", "eod", exchange, "#{symbol}.csv")
+        File.join(raw_eod_dir, exchange, "#{symbol}.csv")
       end
 
       def processed_eod_data(exchange, symbol)
@@ -22,9 +26,13 @@ module Eodhd
         File.join("data", "eod", exchange, "#{symbol}.csv")
       end
 
+      def raw_intraday_dir
+        File.join("raw", "intraday")
+      end
+
       def raw_intraday_data_dir(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-        File.join("raw", "intraday", exchange, symbol)
+        File.join(raw_intraday_dir, exchange, symbol)
       end
 
       def raw_intraday_data(exchange, symbol, from)

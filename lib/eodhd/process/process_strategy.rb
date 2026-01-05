@@ -13,7 +13,7 @@ module Eodhd
     end
 
     def process_eod!
-      raw_root = @io.output_path(File.join("raw", "eod"))
+      raw_root = @io.output_path(Path.raw_eod_dir)
       unless Dir.exist?(raw_root)
         @log.info("No raw EOD directory found: #{raw_root}")
         return
@@ -58,7 +58,7 @@ module Eodhd
     end
 
     def process_intraday!
-      raw_root = @io.output_path(File.join("raw", "intraday"))
+      raw_root = @io.output_path(Path.raw_intraday_dir)
       unless Dir.exist?(raw_root)
         @log.info("No raw intraday directory found: #{raw_root}")
         return

@@ -38,6 +38,18 @@ describe Eodhd::Path do
   )
 
   test_equals(
+    ".raw_eod_dir",
+    [
+      {
+        description: "hardcoded root",
+        input: nil,
+        expected: File.join("raw", "eod")
+      }
+    ],
+    call: ->(_input) { Eodhd::Path.raw_eod_dir }
+  )
+
+  test_equals(
     ".raw_eod_data",
     [
       {
@@ -69,6 +81,18 @@ describe Eodhd::Path do
       }
     ],
     call: ->(input) { Eodhd::Path.processed_eod_data(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
+    ".raw_intraday_dir",
+    [
+      {
+        description: "hardcoded root",
+        input: nil,
+        expected: File.join("raw", "intraday")
+      }
+    ],
+    call: ->(_input) { Eodhd::Path.raw_intraday_dir }
   )
 
   test_equals(
