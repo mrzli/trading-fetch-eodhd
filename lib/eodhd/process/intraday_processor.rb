@@ -26,7 +26,7 @@ module Eodhd
 
         merged_rows = []
         raw_csv_files.each do |raw_csv|
-          file_rows = parse_file_rows!(raw_csv)
+          file_rows = parse_csv(raw_csv)
           next if file_rows.empty?
 
           if merged_rows.empty?
@@ -78,21 +78,9 @@ module Eodhd
 
       private
 
-      def validate_headers!(headers)
-        headers = headers.compact.map(&:to_s)
-        required = ["Timestamp", "Gmtoffset", "Datetime", "Open", "High", "Low", "Close", "Volume"]
-
-        missing = required.reject { |h| headers.include?(h) }
-        return if missing.empty?
-
-        raise Error, "Missing required columns: #{missing.join(", ")}" 
-      end
-
-      def parse_file_rows!(raw_csv)
-        raw_csv = Validate.required_string!("raw_csv", raw_csv)
-
+      def parse_csv(raw_csv)
         csv = CSV.parse(raw_csv, headers: true)
-        validate_headers!(csv.headers)
+        validate_raw_csv_headers!(csv.headers)
 
         # Last row wins within a file.
         rows_by_timestamp = {}
@@ -131,6 +119,16 @@ module Eodhd
         end
 
         rows_by_timestamp.values.sort_by { |r| r[:timestamp] }
+      end
+
+      def validate_raw_csv_headers!(headers)
+        headers = headers.compact.map(&:to_s)
+        required = ["Timestamp", "Gmtoffset", "Datetime", "Open", "High", "Low", "Close", "Volume"]
+
+        missing = required.reject { |h| headers.include?(h) }
+        return if missing.empty?
+
+        raise Error, "Missing required columns: #{missing.join(", ")}" 
       end
 
       def merge_in_place!(merged_rows, next_rows)
