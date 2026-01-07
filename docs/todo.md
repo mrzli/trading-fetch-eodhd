@@ -1,0 +1,23 @@
+- process intraday data
+  - get all files
+    - each file is in csv format
+    - Timestamp,Gmtoffset,Datetime,Open,High,Low,Close,Volume
+    - ensure Gmtoffset is 0, throw error if not
+  - parse all files
+    - put data in an array of six-tuples or hashes if not too slow
+      - timestamp
+      - open
+      - high
+      - low
+      - close
+      - volume
+    - have the first and last timestamps handy
+  - find data range
+    - start - first entry of first file
+    - end - last entry of last file
+  - create a list of output file intervals
+    - later on, we will be creating one file per interval
+    - in our case, one file per month, format YYYY-MM.csv
+  - for each interval
+    - find input data files (their parsed data) that overlap with the interval
+
