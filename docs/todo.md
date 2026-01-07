@@ -15,9 +15,45 @@
   - find data range
     - start - first entry of first file
     - end - last entry of last file
-  - create a list of output file intervals
+  <!-- - create a list of output file intervals
     - later on, we will be creating one file per interval
     - in our case, one file per month, format YYYY-MM.csv
   - for each interval
     - find input data files (their parsed data) that overlap with the interval
+    - for each overlapping input file data
+      - find data points that fall within the interval
+        - use binary search to find start and end indices
+      - if first input file for interval, just copy data rows
+      - else
+        - find index in current output data where the data from new input file should be inserted
+          - use binary search to find insertion index
+        - just crop old data after that index, and append new data -->
+  - merge data from all files
+    - apply data from first file directly
+    - for each subsequent file
+      - first check whether first timestamp is greater than last timestamp in merged data
+        - if yes
+          - just append all data
+        - else
+          - find insertion index using binary search
+          - crop old data after that index, and append new data
+    - consider storing this intermediate result on disk, for quicker future updates
+      - but for now, we will keep it in memory only
+  - apply splits
+    - prepare splits
+      - read splits data json
+      - calculate compound split factor for each segment
+        - segment is from one split date (inclusive) to next split date (exclusive)
+      - get timestamp for each segment start (or nil for first segment)
+      - store segments in an array
+    - if splits are empty array, you are done
+    - have current split segment index, starting at first segment
+    - for each data point in merged data
+      - while timestamp >= cssi->timestamp
+        - move to next split segment index
+      - if cssi is out of bounds
+        - you are done (factor is 1), break
+      - you are in the segment with such factor (before the split specified by that timestamp)
+      - ohlc divide by that factor
+      - volume multiply by that factorı
 
