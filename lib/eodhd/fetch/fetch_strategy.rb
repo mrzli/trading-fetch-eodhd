@@ -32,8 +32,8 @@ module Eodhd
       fetch_splits!(symbol_entries)
       fetch_dividends!(symbol_entries)
 
-      # fetch_eod!(symbol_entries)
-      # fetch_intraday!(symbol_entries)
+      fetch_eod!(symbol_entries)
+      fetch_intraday!(symbol_entries)
     end
 
     private
