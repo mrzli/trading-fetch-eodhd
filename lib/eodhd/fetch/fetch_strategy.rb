@@ -32,8 +32,8 @@ module Eodhd
       fetch_splits!(symbol_entries)
       fetch_dividends!(symbol_entries)
 
-      fetch_eod!(symbol_entries)
-      fetch_intraday!(symbol_entries)
+      # fetch_eod!(symbol_entries)
+      # fetch_intraday!(symbol_entries)
     end
 
     private
@@ -327,8 +327,8 @@ module Eodhd
     end
 
     def pause_between_requests
-      return unless @cfg.request_pause_ms.positive?
-      sleep(@cfg.request_pause_ms / 1000.0)
+      # return unless @cfg.request_pause_ms.positive?
+      # sleep(@cfg.request_pause_ms / 1000.0)
     end
 
     def file_stale?(relative_path)
