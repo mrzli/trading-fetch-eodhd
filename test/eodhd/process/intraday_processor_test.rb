@@ -57,4 +57,31 @@ describe Eodhd::IntradayProcessor do
     err = _(-> { Eodhd::IntradayProcessor.process_csv_files!([raw], []) }).must_raise(Eodhd::IntradayProcessor::Error)
     _(err.message).must_match(/Gmtoffset=0/i)
   end
+
+  it "crops old rows when a later file overlaps" do
+    csv1 = <<~CSV
+      Timestamp,Gmtoffset,Datetime,Open,High,Low,Close,Volume
+      100,0,"2003-12-01 00:00:00",1,1,1,1,10
+      200,0,"2003-12-01 00:01:00",2,2,2,2,20
+      300,0,"2003-12-01 00:02:00",3,3,3,3,30
+    CSV
+
+    # Starts at 200, so 200+ rows from csv1 should be discarded.
+    csv2 = <<~CSV
+      Timestamp,Gmtoffset,Datetime,Open,High,Low,Close,Volume
+      200,0,"2003-12-01 00:01:00",22,22,22,22,220
+      250,0,"2003-12-01 00:01:30",25,25,25,25,250
+    CSV
+
+    out = Eodhd::IntradayProcessor.process_csv_files!([csv1, csv2], [])
+
+    expected = <<~CSV
+      Timestamp,Datetime,Open,High,Low,Close,Volume
+      100,2003-12-01 00:00:00,1.0,1.0,1.0,1.0,10
+      200,2003-12-01 00:01:00,22.0,22.0,22.0,22.0,220
+      250,2003-12-01 00:01:30,25.0,25.0,25.0,25.0,250
+    CSV
+
+    assert_equal expected, out.fetch(2003)
+  end
 end
