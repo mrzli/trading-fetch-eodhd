@@ -120,8 +120,8 @@ module Eodhd
         return
       end
 
-      splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
-      splits = SplitsParser.parse_splits!(splits_json)
+      splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : nil
+      splits = splits_json ? SplitsParser.parse_splits!(splits_json) : []
 
       raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
 
