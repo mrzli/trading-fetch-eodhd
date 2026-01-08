@@ -2,6 +2,8 @@
 
 require_relative "../test_helper"
 
+require_relative "../../lib/util/date_util"
+
 describe Eodhd::DateUtil do
   test_equals(
     ".seconds_to_datetime",

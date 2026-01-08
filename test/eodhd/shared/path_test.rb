@@ -2,6 +2,8 @@
 
 require_relative "../../test_helper"
 
+require_relative "../../../lib/eodhd/shared/path"
+
 describe Eodhd::Path do
   test_equals(
     ".exchanges_list",

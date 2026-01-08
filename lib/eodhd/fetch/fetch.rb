@@ -2,6 +2,12 @@
 
 require "json"
 
+require_relative "../../util/logger"
+require_relative "../shared/config"
+require_relative "../shared/api"
+require_relative "../shared/io"
+require_relative "./fetch_strategy"
+
 module Eodhd
   module Fetch
     module_function

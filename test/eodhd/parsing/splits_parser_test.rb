@@ -2,6 +2,8 @@
 
 require_relative "../../test_helper"
 
+require_relative "../../../lib/eodhd/parsing/splits_parser"
+
 describe Eodhd::SplitsParser do
   it "returns [] for blank input" do
     _(Eodhd::SplitsParser.parse_splits!(" ")).must_equal []

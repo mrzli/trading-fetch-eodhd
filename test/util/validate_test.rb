@@ -2,6 +2,8 @@
 
 require_relative "../test_helper"
 
+require_relative "../../lib/util/validate"
+
 describe Eodhd::Validate do
   test_equals(
     ".required_string!",

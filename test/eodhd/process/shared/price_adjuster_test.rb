@@ -3,6 +3,7 @@
 require_relative "../../../test_helper"
 
 require "date"
+require_relative "../../../../lib/eodhd/process/shared/price_adjuster"
 
 describe Eodhd::PriceAdjuster do
   def parse_splits(json)

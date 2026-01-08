@@ -2,6 +2,8 @@
 
 require_relative "../test_helper"
 
+require_relative "../../lib/util/string_util"
+
 describe Eodhd::StringUtil do
   test_equals(
     ".kebab_case",

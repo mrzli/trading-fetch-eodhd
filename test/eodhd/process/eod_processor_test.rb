@@ -2,6 +2,9 @@
 
 require_relative "../../test_helper"
 
+require_relative "../../../lib/eodhd/parsing/splits_parser"
+require_relative "../../../lib/eodhd/process/eod_processor"
+
 describe Eodhd::EodProcessor do
   it "omits Adjusted_close and split-adjusts prior rows" do
     raw_csv = <<~CSV

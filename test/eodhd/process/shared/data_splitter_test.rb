@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
-require "bigdecimal"
 require_relative "../../../test_helper"
+
+require "bigdecimal"
+require_relative "../../../../lib/eodhd/process/shared/data_splitter"
 
 describe Eodhd::DataSplitter do
   describe "YearMonth" do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "./validate"
+
 module Eodhd
   class DateUtil
     class << self

@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
-require "bigdecimal"
 require_relative "../../test_helper"
+
+require "bigdecimal"
+require_relative "../../../lib/eodhd/parsing/csv_parser"
 
 describe Eodhd::CsvParser do
   it "parses intraday rows" do
