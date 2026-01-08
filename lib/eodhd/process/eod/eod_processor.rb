@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require "bigdecimal"
-require "bigdecimal/util"
 require "csv"
 require "date"
 
+require_relative "eod_csv_parser"
 require_relative "../shared/price_adjuster"
 
 module Eodhd
@@ -18,43 +18,27 @@ module Eodhd
     end
 
     def process_csv(raw_csv, splits)
-      csv = CSV.parse(raw_csv, headers: true)
-      validate_headers(csv.headers)
+      parsed_rows = EodCsvParser.parse(raw_csv)
 
-      out = CSV.generate do |out_csv|
+      CSV.generate do |out_csv|
         out_csv << OUTPUT_HEADERS
 
-        csv.each do |row|
-          date_str = row["Date"].to_s.strip
-          next if date_str.empty?
-
-          date = Date.iso8601(date_str)
-          factor = PriceAdjuster.cumulative_split_factor_for_date(date, splits)
+        parsed_rows.each do |row|
+          factor = PriceAdjuster.cumulative_split_factor_for_date(row[:date], splits)
 
           out_csv << [
-            date_str,
-            PriceAdjuster.adjust_price(row["Open"], factor),
-            PriceAdjuster.adjust_price(row["High"], factor),
-            PriceAdjuster.adjust_price(row["Low"], factor),
-            PriceAdjuster.adjust_price(row["Close"], factor),
-            PriceAdjuster.adjust_volume(row["Volume"], factor)
+            row[:date].iso8601,
+            PriceAdjuster.adjust_price(row[:open].to_s("F"), factor),
+            PriceAdjuster.adjust_price(row[:high].to_s("F"), factor),
+            PriceAdjuster.adjust_price(row[:low].to_s("F"), factor),
+            PriceAdjuster.adjust_price(row[:close].to_s("F"), factor),
+            PriceAdjuster.adjust_volume(row[:volume].to_s, factor)
           ]
         end
       end
-
-      out
+    rescue EodCsvParser::Error => e
+      raise Error, e.message
     end
 
-    private
-
-    def validate_headers(headers)
-      headers = headers.compact.map(&:to_s)
-      required = ["Date", "Open", "High", "Low", "Close", "Volume"]
-
-      missing = required.reject { |h| headers.include?(h) }
-      if missing.any?
-        raise Error, "Missing required columns: #{missing.join(", ")}" 
-      end
-    end
   end
 end
