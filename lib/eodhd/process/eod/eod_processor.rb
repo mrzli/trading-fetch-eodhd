@@ -5,7 +5,6 @@ require "bigdecimal/util"
 require "csv"
 require "date"
 
-require_relative "../../../util"
 require_relative "../shared/price_adjuster"
 
 module Eodhd
@@ -19,8 +18,6 @@ module Eodhd
     end
 
     def process_csv(raw_csv, splits)
-      raw_csv = Validate.required_string("raw_csv", raw_csv)
-
       csv = CSV.parse(raw_csv, headers: true)
       validate_headers(csv.headers)
 
