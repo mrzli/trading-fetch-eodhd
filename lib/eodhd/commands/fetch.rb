@@ -12,11 +12,11 @@ module Eodhd
   module Fetch
     module_function
 
-    def run!
+    def run
       log = Logger.new
 
       begin
-        cfg = Config.eodhd!
+        cfg = Config.eodhd
       rescue Config::Error => e
         abort e.message
       end
@@ -29,7 +29,7 @@ module Eodhd
       io = Io.new(output_dir: cfg.output_dir)
 
       strategy = FetchStrategy.new(log: log, cfg: cfg, api: api, io: io)
-      strategy.run!
+      strategy.run
     end
   end
 end

@@ -18,7 +18,7 @@ module Eodhd
       @intraday_processor = IntradayProcessor.new(log: log)
     end
 
-    def process_eod!
+    def process_eod
       raw_root = @io.output_path(Path.raw_eod_dir)
       unless Dir.exist?(raw_root)
         @log.info("No raw EOD directory found: #{raw_root}")
@@ -33,11 +33,11 @@ module Eodhd
 
       exchanges.each do |exchange|
         exchange_dir = File.join(raw_root, exchange)
-        process_eod_exchange!(exchange, exchange_dir)
+        process_eod_exchange(exchange, exchange_dir)
       end
     end
 
-    def process_intraday!
+    def process_intraday
       raw_root = @io.output_path(Path.raw_intraday_dir)
       unless Dir.exist?(raw_root)
         @log.info("No raw intraday directory found: #{raw_root}")
@@ -52,7 +52,7 @@ module Eodhd
 
       exchanges.each do |exchange|
         exchange_dir = File.join(raw_root, exchange)
-        process_intraday_exchange!(exchange, exchange_dir)
+        process_intraday_exchange(exchange, exchange_dir)
       end
     end
 
@@ -71,18 +71,18 @@ module Eodhd
       false
     end
 
-    def process_eod_exchange!(exchange, exchange_dir)
+    def process_eod_exchange(exchange, exchange_dir)
       raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv")).sort
       return if raw_abs_files.empty?
 
       raw_abs_files.each do |raw_abs|
         symbol = File.basename(raw_abs, ".csv")
         rel = @io.relative_path(raw_abs)
-        process_eod_symbol!(exchange, symbol, rel)
+        process_eod_symbol(exchange, symbol, rel)
       end
     end
 
-    def process_eod_symbol!(exchange, symbol, raw_rel)
+    def process_eod_symbol(exchange, symbol, raw_rel)
       processed_rel = Path.processed_eod_data(exchange, symbol)
       splits_rel = Path.splits(exchange, symbol)
 
@@ -93,26 +93,26 @@ module Eodhd
 
       raw_csv = @io.read_text(raw_rel)
       splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
-      splits = SplitsParser.parse_splits!(splits_json)
+      splits = SplitsParser.parse_splits(splits_json)
 
-      processed_csv = @eod_processor.process_csv!(raw_csv, splits)
-      saved_path = @io.save_csv!(processed_rel, processed_csv)
+      processed_csv = @eod_processor.process_csv(raw_csv, splits)
+      saved_path = @io.save_csv(processed_rel, processed_csv)
       @log.info("Wrote #{saved_path}")
     rescue StandardError => e
       @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
     end
 
-    def process_intraday_exchange!(exchange, exchange_dir)
+    def process_intraday_exchange(exchange, exchange_dir)
       symbols = Dir.children(exchange_dir).select { |name| Dir.exist?(File.join(exchange_dir, name)) }.sort
       return if symbols.empty?
 
       symbols.each do |symbol|
         symbol_dir = File.join(exchange_dir, symbol)
-        process_intraday_symbol!(exchange, symbol, symbol_dir)
+        process_intraday_symbol(exchange, symbol, symbol_dir)
       end
     end
 
-    def process_intraday_symbol!(exchange, symbol, symbol_dir)
+    def process_intraday_symbol(exchange, symbol, symbol_dir)
       raw_abs_files = Dir.glob(File.join(symbol_dir, "*.csv")).sort
       return if raw_abs_files.empty?
 
@@ -127,11 +127,11 @@ module Eodhd
       end
 
       splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : nil
-      splits = splits_json ? SplitsParser.parse_splits!(splits_json) : []
+      splits = splits_json ? SplitsParser.parse_splits(splits_json) : []
 
       raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
 
-      outputs = @intraday_processor.process_csv_files!(raw_csv_files, splits)
+      outputs = @intraday_processor.process_csv_files(raw_csv_files, splits)
 
       if outputs.empty?
         @log.info("No intraday rows produced for #{exchange}/#{symbol}")
@@ -140,7 +140,7 @@ module Eodhd
 
       outputs.keys.sort.each do |year|
         processed_rel = Path.processed_intraday_year(exchange, symbol, year)
-        saved_path = @io.save_csv!(processed_rel, outputs.fetch(year))
+        saved_path = @io.save_csv(processed_rel, outputs.fetch(year))
         @log.info("Wrote #{saved_path}")
       end
     rescue StandardError => e

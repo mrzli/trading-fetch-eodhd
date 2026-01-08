@@ -18,11 +18,11 @@ module Eodhd
       @log = log
     end
 
-    def process_csv!(raw_csv, splits)
-      raw_csv = Validate.required_string!("raw_csv", raw_csv)
+    def process_csv(raw_csv, splits)
+      raw_csv = Validate.required_string("raw_csv", raw_csv)
 
       csv = CSV.parse(raw_csv, headers: true)
-      validate_headers!(csv.headers)
+      validate_headers(csv.headers)
 
       out = CSV.generate do |out_csv|
         out_csv << OUTPUT_HEADERS
@@ -50,7 +50,7 @@ module Eodhd
 
     private
 
-    def validate_headers!(headers)
+    def validate_headers(headers)
       headers = headers.compact.map(&:to_s)
       required = ["Date", "Open", "High", "Low", "Close", "Volume"]
 

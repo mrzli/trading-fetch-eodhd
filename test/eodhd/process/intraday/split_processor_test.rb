@@ -23,7 +23,7 @@ describe Eodhd::SplitProcessor do
       ]
     JSON
 
-    splits = Eodhd::SplitsParser.parse_splits!(splits_json)
+    splits = Eodhd::SplitsParser.parse_splits(splits_json)
     result = Eodhd::SplitProcessor.process(splits)
 
     expected = [
@@ -45,7 +45,7 @@ describe Eodhd::SplitProcessor do
       ]
     JSON
 
-    splits = Eodhd::SplitsParser.parse_splits!(splits_json)
+    splits = Eodhd::SplitsParser.parse_splits(splits_json)
     result = Eodhd::SplitProcessor.process(splits)
 
     expected = [
@@ -65,7 +65,7 @@ describe Eodhd::SplitProcessor do
       ]
     JSON
 
-    splits = Eodhd::SplitsParser.parse_splits!(splits_json)
+    splits = Eodhd::SplitsParser.parse_splits(splits_json)
     result = Eodhd::SplitProcessor.process(splits)
 
     expected = [

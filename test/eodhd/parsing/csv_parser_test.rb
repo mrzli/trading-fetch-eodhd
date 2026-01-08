@@ -13,7 +13,7 @@ describe Eodhd::CsvParser do
       200,0,"2000-01-01 00:01:00",5.5,6.5,4.5,5.0,20
     CSV
 
-    result = Eodhd::CsvParser.parse_intraday!(raw)
+    result = Eodhd::CsvParser.parse_intraday(raw)
 
     expected = [
       {
@@ -45,7 +45,7 @@ describe Eodhd::CsvParser do
       100,3600,"2000-01-01 00:00:00",1,2,3,4,10
     CSV
 
-    err = _ { Eodhd::CsvParser.parse_intraday!(raw) }.must_raise(Eodhd::CsvParser::Error)
+    err = _ { Eodhd::CsvParser.parse_intraday(raw) }.must_raise(Eodhd::CsvParser::Error)
     _(err.message).must_match(/Gmtoffset=0/i)
   end
 
@@ -55,7 +55,7 @@ describe Eodhd::CsvParser do
       100,"2000-01-01 00:00:00",1,2,3,4,10
     CSV
 
-    err = _ { Eodhd::CsvParser.parse_intraday!(raw) }.must_raise(Eodhd::CsvParser::Error)
+    err = _ { Eodhd::CsvParser.parse_intraday(raw) }.must_raise(Eodhd::CsvParser::Error)
     _(err.message).must_match(/Missing required columns/i)
   end
 end

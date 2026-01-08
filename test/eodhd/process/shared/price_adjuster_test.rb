@@ -7,7 +7,7 @@ require_relative "../../../../lib/eodhd/process/shared/price_adjuster"
 
 describe Eodhd::PriceAdjuster do
   def parse_splits(json)
-    Eodhd::SplitsParser.parse_splits!(json)
+    Eodhd::SplitsParser.parse_splits(json)
   end
 
   it "computes cumulative split factors with strict split-date semantics" do

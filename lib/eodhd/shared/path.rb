@@ -39,7 +39,7 @@ module Eodhd
 
       def raw_intraday_data(exchange, symbol, from)
         dir_for_intraday_raw = raw_intraday_data_dir(exchange, symbol)
-        from = Validate.integer!("from", from)
+        from = Validate.integer("from", from)
         from_formatted = DateUtil.seconds_to_datetime(from)
 
         File.join(dir_for_intraday_raw, "#{from_formatted}.csv")
@@ -52,7 +52,7 @@ module Eodhd
 
       def processed_intraday_year(exchange, symbol, year)
         dir = processed_intraday_data_dir(exchange, symbol)
-        year = Validate.integer!("year", year)
+        year = Validate.integer("year", year)
         File.join(dir, "#{year}.csv")
       end
 
@@ -69,8 +69,8 @@ module Eodhd
       private
 
       def process_exchange_and_type(exchange, type)
-        exchange = Validate.required_string!("exchange", exchange)
-        type = Validate.required_string!("type", type)
+        exchange = Validate.required_string("exchange", exchange)
+        type = Validate.required_string("type", type)
 
         exchange = StringUtil.kebab_case(exchange)
         type = StringUtil.kebab_case(type)
@@ -80,8 +80,8 @@ module Eodhd
       end
 
       def process_exchange_and_symbol(exchange, symbol)
-        exchange = Validate.required_string!("exchange", exchange)
-        symbol = Validate.required_string!("symbol", symbol)
+        exchange = Validate.required_string("exchange", exchange)
+        symbol = Validate.required_string("symbol", symbol)
 
         exchange = StringUtil.kebab_case(exchange)
         symbol = StringUtil.kebab_case(symbol)

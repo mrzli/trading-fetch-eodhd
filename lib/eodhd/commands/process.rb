@@ -11,11 +11,11 @@ module Eodhd
   module Process
     module_function
 
-    def run!(mode: "eod")
+    def run(mode: "eod")
       log = Logger.new
 
       begin
-        cfg = Config.eodhd!
+        cfg = Config.eodhd
       rescue Config::Error => e
         abort e.message
       end
@@ -27,9 +27,9 @@ module Eodhd
       mode = mode.to_s.strip.downcase
       case mode
       when "eod"
-        strategy.process_eod!
+        strategy.process_eod
       when "intraday"
-        strategy.process_intraday!
+        strategy.process_intraday
       else
         raise ArgumentError, "Unknown mode: #{mode.inspect}. Expected 'eod' or 'intraday'."
       end

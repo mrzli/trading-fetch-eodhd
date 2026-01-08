@@ -30,9 +30,9 @@ describe Eodhd::IntradayProcessor do
   #     ]
   #   JSON
 
-  #   splits = Eodhd::SplitsParser.parse_splits!(splits_json)
+  #   splits = Eodhd::SplitsParser.parse_splits(splits_json)
   #   processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
-  #   out = processor.process_csv_files!([csv1, csv2], splits)
+  #   out = processor.process_csv_files([csv1, csv2], splits)
 
   #   expected_2003 = <<~CSV
   #     Timestamp,Datetime,Open,High,Low,Close,Volume
@@ -59,7 +59,7 @@ describe Eodhd::IntradayProcessor do
   #   CSV
 
   #   processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
-  #   err = _(-> { processor.process_csv_files!([raw], []) }).must_raise(Eodhd::IntradayProcessor::Error)
+  #   err = _(-> { processor.process_csv_files([raw], []) }).must_raise(Eodhd::IntradayProcessor::Error)
   #   _(err.message).must_match(/Gmtoffset=0/i)
   # end
 
@@ -79,7 +79,7 @@ describe Eodhd::IntradayProcessor do
   #   CSV
 
   #   processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
-  #   out = processor.process_csv_files!([csv1, csv2], [])
+  #   out = processor.process_csv_files([csv1, csv2], [])
 
   #   expected = <<~CSV
   #     Timestamp,Datetime,Open,High,Low,Close,Volume

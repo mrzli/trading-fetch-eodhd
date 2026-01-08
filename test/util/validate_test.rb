@@ -6,18 +6,18 @@ require_relative "../../lib/util"
 
 describe Eodhd::Validate do
   test_equals(
-    ".required_string!",
+    ".required_string",
     [
       {
         input: { name: "x", value: "  abc  " },
         expected: "abc"
       }
     ],
-    call: ->(input) { Eodhd::Validate.required_string!(input[:name], input[:value]) }
+    call: ->(input) { Eodhd::Validate.required_string(input[:name], input[:value]) }
   )
 
   test_raises(
-    ".required_string! errors",
+    ".required_string errors",
     [
       {
         input: { name: "x", value: nil },
@@ -28,11 +28,11 @@ describe Eodhd::Validate do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::Validate.required_string!(input[:name], input[:value]) }
+    call: ->(input) { Eodhd::Validate.required_string(input[:name], input[:value]) }
   )
 
   test_equals(
-    ".http_url!",
+    ".http_url",
     [
       {
         input: { name: "base", value: "https://example.com/" },
@@ -43,11 +43,11 @@ describe Eodhd::Validate do
         expected: "http://example.com/api"
       }
     ],
-    call: ->(input) { Eodhd::Validate.http_url!(input[:name], input[:value]) }
+    call: ->(input) { Eodhd::Validate.http_url(input[:name], input[:value]) }
   )
 
   test_raises(
-    ".http_url! errors",
+    ".http_url errors",
     [
       {
         description: "ftp:// is rejected",
@@ -59,20 +59,20 @@ describe Eodhd::Validate do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::Validate.http_url!(input[:name], input[:value]) }
+    call: ->(input) { Eodhd::Validate.http_url(input[:name], input[:value]) }
   )
 
-  describe "http_url! error message" do
+  describe "http_url error message" do
     it "includes scheme hint" do
       err = assert_raises(ArgumentError) do
-        Eodhd::Validate.http_url!("base", "ftp://example.com")
+        Eodhd::Validate.http_url("base", "ftp://example.com")
       end
       assert_match(/must start with http:\/\/ or https:\/\//, err.message)
     end
   end
 
   test_equals(
-    ".integer!",
+    ".integer",
     [
       {
         description: "parses positive integer",
@@ -90,11 +90,11 @@ describe Eodhd::Validate do
         expected: 7
       }
     ],
-    call: ->(input) { Eodhd::Validate.integer!(input[:name], input[:value]) }
+    call: ->(input) { Eodhd::Validate.integer(input[:name], input[:value]) }
   )
 
   test_raises(
-    ".integer! errors",
+    ".integer errors",
     [
       {
         description: "rejects blank",
@@ -112,6 +112,5 @@ describe Eodhd::Validate do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::Validate.integer!(input[:name], input[:value]) }
-  )
+    call: ->(input) { Eodhd::Validate.integer(input[:name], input[:value]) }  )
 end

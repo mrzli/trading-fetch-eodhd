@@ -16,13 +16,13 @@ module Eodhd
       @log = log
     end
 
-    def process_csv_files!(raw_csv_files, splits)
+    def process_csv_files(raw_csv_files, splits)
       unless raw_csv_files.is_a?(Array)
         raise ArgumentError, "raw_csv_files must be an Array"
       end
 
       inputs = raw_csv_files.drop(70).map.with_index do |raw_csv, index|
-        parsed = CsvParser.parse_intraday!(raw_csv)
+        parsed = CsvParser.parse_intraday(raw_csv)
         if parsed.empty?
           @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")
           next
@@ -44,7 +44,7 @@ module Eodhd
           next
         end
 
-        merge_in_place!(merged_rows, input)
+        merge_in_place(merged_rows, input)
       end
 
       splits = SplitProcessor.process(splits)
@@ -97,7 +97,7 @@ module Eodhd
 
     private
 
-    def merge_in_place!(merged_rows, next_rows)
+    def merge_in_place(merged_rows, next_rows)
       return if next_rows.empty?
       return merged_rows.concat(next_rows) if merged_rows.empty?
 

@@ -8,9 +8,9 @@ module Eodhd
     class Error < StandardError; end
 
     class << self
-      def parse_intraday!(raw_csv)
+      def parse_intraday(raw_csv)
         csv = CSV.parse(raw_csv, headers: true)
-        validate_intraday_headers!(csv.headers)
+        validate_intraday_headers(csv.headers)
 
         csv.map do |row|
           begin
@@ -47,7 +47,7 @@ module Eodhd
 
       private
 
-      def validate_intraday_headers!(headers)
+      def validate_intraday_headers(headers)
         headers = headers.compact.map(&:to_s)
         required = ["Timestamp", "Gmtoffset", "Datetime", "Open", "High", "Low", "Close", "Volume"]
 

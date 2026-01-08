@@ -24,7 +24,7 @@ parser = OptionParser.new do |opts|
 end
 
 begin
-	parser.parse!(ARGV)
+	parser.parse(ARGV)
 rescue OptionParser::ParseError => e
 	warn e.message
 	warn parser
@@ -44,4 +44,4 @@ unless %w[eod intraday].include?(mode)
 	exit 2
 end
 
-Eodhd::Process.run!(mode: mode)
+Eodhd::Process.run(mode: mode)

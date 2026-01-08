@@ -12,7 +12,7 @@ module Eodhd
     Split = Data.define(:date, :factor)
 
     class << self
-      def parse_splits!(splits_json)
+      def parse_splits(splits_json)
         splits_json = splits_json.to_s
         return [] if splits_json.strip.empty?
 
@@ -25,12 +25,12 @@ module Eodhd
           date_str = entry.is_a?(Hash) ? entry["date"] : nil
           split_str = entry.is_a?(Hash) ? entry["split"] : nil
 
-          date_str = Validate.required_string!("split.date", date_str)
-          split_str = Validate.required_string!("split.split", split_str)
+          date_str = Validate.required_string("split.date", date_str)
+          split_str = Validate.required_string("split.split", split_str)
 
           Split.new(
             date: Date.iso8601(date_str),
-            factor: parse_split_factor!(split_str)
+            factor: parse_split_factor(split_str)
           )
         end
 
@@ -42,7 +42,7 @@ module Eodhd
 
       private
 
-      def parse_split_factor!(split_str)
+      def parse_split_factor(split_str)
         parts = split_str.split("/")
         unless parts.length == 2
           raise Error, "Invalid split format: #{split_str.inspect}"

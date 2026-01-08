@@ -9,16 +9,16 @@ require_relative "../../util"
 module Eodhd
   class Io
     def initialize(output_dir:)
-      @output_dir = Validate.required_string!("output_dir", output_dir)
+      @output_dir = Validate.required_string("output_dir", output_dir)
     end
 
     def output_path(relative_path)
-      relative_path = Validate.required_string!("relative_path", relative_path)
+      relative_path = Validate.required_string("relative_path", relative_path)
       File.join(@output_dir, relative_path)
     end
 
     def relative_path(output_path)
-      output_path = Validate.required_string!("output_path", output_path)
+      output_path = Validate.required_string("output_path", output_path)
       Pathname.new(output_path).relative_path_from(Pathname.new(@output_dir)).to_s
     end
 
@@ -38,7 +38,7 @@ module Eodhd
     end
 
     def list_relative_paths(relative_dir)
-      relative_dir = Validate.required_string!("relative_dir", relative_dir)
+      relative_dir = Validate.required_string("relative_dir", relative_dir)
       dir_path = output_path(relative_dir)
       return [] unless Dir.exist?(dir_path)
 
@@ -51,22 +51,22 @@ module Eodhd
       end
     end
 
-    def save_csv!(relative_path, csv)
-      csv = Validate.required_string!("csv", csv)
+    def save_csv(relative_path, csv)
+      csv = Validate.required_string("csv", csv)
 
-      write_text_file!(relative_path, csv, false)
+      write_text_file(relative_path, csv, false)
     end
 
-    def save_json!(relative_path, json, pretty = true)
-      json = Validate.required_string!("json", json)
+    def save_json(relative_path, json, pretty = true)
+      json = Validate.required_string("json", json)
 
       content = pretty ? pretty_json(json) : json
 
-      write_text_file!(relative_path, content, true)
+      write_text_file(relative_path, content, true)
     end
 
-    def delete_dir!(relative_dir)
-      relative_dir = Validate.required_string!("relative_dir", relative_dir)
+    def delete_dir(relative_dir)
+      relative_dir = Validate.required_string("relative_dir", relative_dir)
       if relative_dir.include?("..") || relative_dir.start_with?("/")
         raise ArgumentError, "relative_dir must be a safe relative path."
       end
@@ -84,7 +84,7 @@ module Eodhd
       json
     end
 
-    def write_text_file!(relative_path, content, ensure_trailing_newline)
+    def write_text_file(relative_path, content, ensure_trailing_newline)
       output_path = output_path(relative_path)
       FileUtils.mkdir_p(File.dirname(output_path))
 

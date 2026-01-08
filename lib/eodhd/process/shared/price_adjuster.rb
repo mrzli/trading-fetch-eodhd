@@ -32,14 +32,14 @@ module Eodhd
       end
 
       def adjust_price(value, factor)
-        value = Validate.required_string!("price", value)
+        value = Validate.required_string("price", value)
         bd = BigDecimal(value)
         factor_bd = rational_to_bigdecimal(factor)
         (bd / factor_bd).to_s("F")
       end
 
       def adjust_volume(value, factor)
-        value = Validate.required_string!("volume", value)
+        value = Validate.required_string("volume", value)
         vol = Integer(value)
 
         adjusted = Rational(vol, 1) * factor
