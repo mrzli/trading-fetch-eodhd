@@ -55,7 +55,8 @@ describe Eodhd::IntradayProcessor do
       1070236800,3600,"2003-12-01 01:00:00",1,2,0.5,1.5,10
     CSV
 
-    err = _(-> { Eodhd::IntradayProcessor.process_csv_files!([raw], []) }).must_raise(Eodhd::IntradayProcessor::Error)
+    processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
+    err = _(-> { processor.process_csv_files!([raw], []) }).must_raise(Eodhd::IntradayProcessor::Error)
     _(err.message).must_match(/Gmtoffset=0/i)
   end
 
@@ -74,7 +75,8 @@ describe Eodhd::IntradayProcessor do
       250,0,"2003-12-01 00:01:30",25,25,25,25,250
     CSV
 
-    out = Eodhd::IntradayProcessor.process_csv_files!([csv1, csv2], [])
+    processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
+    out = processor.process_csv_files!([csv1, csv2], [])
 
     expected = <<~CSV
       Timestamp,Datetime,Open,High,Low,Close,Volume
