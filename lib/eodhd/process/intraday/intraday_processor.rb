@@ -3,7 +3,7 @@
 require "csv"
 require "date"
 
-require_relative "../../parsing/csv_parser"
+require_relative "intraday_csv_parser"
 require_relative "split_processor"
 
 module Eodhd
@@ -22,7 +22,7 @@ module Eodhd
       end
 
       inputs = raw_csv_files.drop(70).map.with_index do |raw_csv, index|
-        parsed = CsvParser.parse_intraday(raw_csv)
+        parsed = IntradayCsvParser.parse(raw_csv)
         if parsed.empty?
           @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")
           next
