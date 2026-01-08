@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "eodhd/fetch/fetch"
-require_relative "eodhd/process/process"
+require_relative "eodhd/commands/fetch"
+require_relative "eodhd/commands/process"
 
 module Eodhd
 end

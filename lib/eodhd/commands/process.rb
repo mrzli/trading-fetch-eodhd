@@ -3,9 +3,9 @@
 require "json"
 
 require_relative "../../util"
+require_relative "../process/process_strategy"
 require_relative "../shared/config"
 require_relative "../shared/io"
-require_relative "./process_strategy"
 
 module Eodhd
   module Process
