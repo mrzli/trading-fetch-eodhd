@@ -13,47 +13,49 @@ module Eodhd
 
     class Error < StandardError; end
 
-    class << self
-      def process_csv!(raw_csv, splits)
-        raw_csv = Validate.required_string!("raw_csv", raw_csv)
+    def initialize(log:)
+      @log = log
+    end
 
-        csv = CSV.parse(raw_csv, headers: true)
-        validate_headers!(csv.headers)
+    def process_csv!(raw_csv, splits)
+      raw_csv = Validate.required_string!("raw_csv", raw_csv)
 
-        out = CSV.generate do |out_csv|
-          out_csv << OUTPUT_HEADERS
+      csv = CSV.parse(raw_csv, headers: true)
+      validate_headers!(csv.headers)
 
-          csv.each do |row|
-            date_str = row["Date"].to_s.strip
-            next if date_str.empty?
+      out = CSV.generate do |out_csv|
+        out_csv << OUTPUT_HEADERS
 
-            date = Date.iso8601(date_str)
-            factor = PriceAdjuster.cumulative_split_factor_for_date(date, splits)
+        csv.each do |row|
+          date_str = row["Date"].to_s.strip
+          next if date_str.empty?
 
-            out_csv << [
-              date_str,
-              PriceAdjuster.adjust_price(row["Open"], factor),
-              PriceAdjuster.adjust_price(row["High"], factor),
-              PriceAdjuster.adjust_price(row["Low"], factor),
-              PriceAdjuster.adjust_price(row["Close"], factor),
-              PriceAdjuster.adjust_volume(row["Volume"], factor)
-            ]
-          end
+          date = Date.iso8601(date_str)
+          factor = PriceAdjuster.cumulative_split_factor_for_date(date, splits)
+
+          out_csv << [
+            date_str,
+            PriceAdjuster.adjust_price(row["Open"], factor),
+            PriceAdjuster.adjust_price(row["High"], factor),
+            PriceAdjuster.adjust_price(row["Low"], factor),
+            PriceAdjuster.adjust_price(row["Close"], factor),
+            PriceAdjuster.adjust_volume(row["Volume"], factor)
+          ]
         end
-
-        out
       end
 
-      private
+      out
+    end
 
-      def validate_headers!(headers)
-        headers = headers.compact.map(&:to_s)
-        required = ["Date", "Open", "High", "Low", "Close", "Volume"]
+    private
 
-        missing = required.reject { |h| headers.include?(h) }
-        if missing.any?
-          raise Error, "Missing required columns: #{missing.join(", ")}" 
-        end
+    def validate_headers!(headers)
+      headers = headers.compact.map(&:to_s)
+      required = ["Date", "Open", "High", "Low", "Close", "Volume"]
+
+      missing = required.reject { |h| headers.include?(h) }
+      if missing.any?
+        raise Error, "Missing required columns: #{missing.join(", ")}" 
       end
     end
   end

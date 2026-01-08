@@ -28,7 +28,8 @@ describe Eodhd::IntradayProcessor do
     JSON
 
     splits = Eodhd::SplitsParser.parse_splits!(splits_json)
-    out = Eodhd::IntradayProcessor.process_csv_files!([csv1, csv2], splits)
+    processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
+    out = processor.process_csv_files!([csv1, csv2], splits)
 
     expected_2003 = <<~CSV
       Timestamp,Datetime,Open,High,Low,Close,Volume

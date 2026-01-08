@@ -10,6 +10,8 @@ module Eodhd
       @log = log
       @cfg = cfg
       @io = io
+      @eod_processor = EodProcessor.new(log: log)
+      @intraday_processor = IntradayProcessor.new(log: log)
     end
 
     def process_eod!
@@ -89,7 +91,7 @@ module Eodhd
       splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
       splits = SplitsParser.parse_splits!(splits_json)
 
-      processed_csv = EodProcessor.process_csv!(raw_csv, splits)
+      processed_csv = @eod_processor.process_csv!(raw_csv, splits)
       saved_path = @io.save_csv!(processed_rel, processed_csv)
       @log.info("Wrote #{saved_path}")
     rescue StandardError => e
@@ -125,7 +127,7 @@ module Eodhd
 
       raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
 
-      outputs = IntradayProcessor.process_csv_files!(raw_csv_files, splits)
+      outputs = @intraday_processor.process_csv_files!(raw_csv_files, splits)
 
       if outputs.empty?
         @log.info("No intraday rows produced for #{exchange}/#{symbol}")
