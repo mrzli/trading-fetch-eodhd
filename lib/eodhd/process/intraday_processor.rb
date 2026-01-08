@@ -3,8 +3,6 @@
 require "csv"
 require "date"
 
-require_relative "shared/price_adjuster"
-
 module Eodhd
   class IntradayProcessor
     OUTPUT_HEADERS = ["Timestamp", "Datetime", "Open", "High", "Low", "Close", "Volume"].freeze
