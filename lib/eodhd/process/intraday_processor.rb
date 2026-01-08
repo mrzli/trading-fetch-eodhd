@@ -3,6 +3,8 @@
 require "csv"
 require "date"
 
+require_relative "../parsing/csv_parser"
+
 module Eodhd
   class IntradayProcessor
     OUTPUT_HEADERS = ["Timestamp", "Datetime", "Open", "High", "Low", "Close", "Volume"].freeze
@@ -26,7 +28,7 @@ module Eodhd
       end
 
       inputs = raw_csv_files.drop(70).map.with_index do |raw_csv, index|
-        parsed = parse_csv(raw_csv)
+        parsed = CsvParser.parse_intraday!(raw_csv)
         if parsed.empty?
           @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")
           next
@@ -91,56 +93,13 @@ module Eodhd
       # 
       
       []
+    rescue CsvParser::Error => e
+      raise Error, e.message
     rescue ArgumentError => e
       raise Error, e.message
     end
 
     private
-
-    def parse_csv(raw_csv)
-      csv = CSV.parse(raw_csv, headers: true)
-      validate_raw_csv_headers!(csv.headers)
-
-      csv.map do |row|
-        begin
-          timestamp = Integer(row["Timestamp"])
-          gmtoffset = Integer(row["Gmtoffset"])
-          datetime = row["Datetime"]
-          open = BigDecimal(row["Open"])
-          high = BigDecimal(row["High"])
-          low = BigDecimal(row["Low"])
-          close = BigDecimal(row["Close"])
-          volume_str = row["Volume"].to_s
-          volume = volume_str != "" ? Integer(volume_str) : 0
-        rescue TypeError => e
-          raise Error, "Invalid data in row '#{row["Datetime"]}': #{e.message}"
-        end
-
-        if gmtoffset != 0
-          raise Error, "Only Gmtoffset=0 is supported for now (got #{gmtoffset})"
-        end
-
-        {
-          timestamp: timestamp,
-          datetime: datetime,
-          open: open,
-          high: high,
-          low: low,
-          close: close,
-          volume: volume,
-        }
-      end
-    end
-
-    def validate_raw_csv_headers!(headers)
-      headers = headers.compact.map(&:to_s)
-      required = ["Timestamp", "Gmtoffset", "Datetime", "Open", "High", "Low", "Close", "Volume"]
-
-      missing = required.reject { |h| headers.include?(h) }
-      return if missing.empty?
-
-      raise Error, "Missing required columns: #{missing.join(", ")}" 
-    end
 
     def merge_in_place!(merged_rows, next_rows)
       return if next_rows.empty?
