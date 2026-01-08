@@ -24,7 +24,7 @@ parser = OptionParser.new do |opts|
 end
 
 begin
-	parser.parse(ARGV)
+	parser.parse!(ARGV)
 rescue OptionParser::ParseError => e
 	warn e.message
 	warn parser
