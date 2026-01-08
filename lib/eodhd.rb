@@ -16,6 +16,7 @@ require_relative "eodhd/process/process"
 require_relative "eodhd/process/eod_processor"
 require_relative "eodhd/process/shared/split_processor"
 require_relative "eodhd/process/shared/price_adjuster"
+require_relative "eodhd/process/shared/data_splitter"
 require_relative "eodhd/process/intraday_processor"
 require_relative "eodhd/process/process_strategy"
 
