@@ -19,8 +19,16 @@ module Eodhd
 
     def process_csv(raw_csv, splits)
       parsed_rows = EodCsvParser.parse(raw_csv)
+      rows = build_output_rows(parsed_rows, splits)
+      generate_csv(rows)
+    rescue EodCsvParser::Error => e
+      raise Error, e.message
+    end
 
-      results = parsed_rows.map do |row|
+    private
+
+    def build_output_rows(parsed_rows, splits)
+      parsed_rows.map do |row|
         factor = PriceAdjuster.cumulative_split_factor_for_date(row[:date], splits)
 
         {
@@ -32,11 +40,13 @@ module Eodhd
           volume: PriceAdjuster.adjust_volume(row[:volume].to_s, factor)
         }
       end
+    end
 
+    def generate_csv(rows)
       CSV.generate do |out_csv|
         out_csv << OUTPUT_HEADERS
 
-        results.each do |row|
+        rows.each do |row|
           out_csv << [
             row[:date],
             row[:open],
@@ -47,9 +57,6 @@ module Eodhd
           ]
         end
       end
-    rescue EodCsvParser::Error => e
-      raise Error, e.message
     end
-
   end
 end
