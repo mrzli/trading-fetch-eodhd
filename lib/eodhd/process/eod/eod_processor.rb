@@ -20,7 +20,7 @@ module Eodhd
 
     def process_csv(raw_csv, splits)
       data = EodCsvParser.parse(raw_csv)
-      # splits = SplitProcessor.process(splits)
+      splits = SplitProcessor.process(splits)
       data = adjust(data, splits)
       data = to_output(data)
       to_csv(data)
@@ -35,10 +35,20 @@ module Eodhd
         return data
       end
 
+      curr_split_idx = 0
+
       data.map do |row|
-        factor = PriceAdjuster.cumulative_split_factor_for_date(row[:date], splits)
+        timestamp = row[:timestamp]
+        while curr_split_idx < splits.size && timestamp >= splits[curr_split_idx][:timestamp]
+          curr_split_idx += 1
+        end
+
+        next row if curr_split_idx >= splits.size
+
+        factor = splits[curr_split_idx][:factor]
 
         {
+          timestamp: timestamp,
           date: row[:date],
           open: PriceAdjuster.adjust_price(row[:open], factor),
           high: PriceAdjuster.adjust_price(row[:high], factor),

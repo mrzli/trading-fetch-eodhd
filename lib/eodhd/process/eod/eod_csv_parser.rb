@@ -20,6 +20,7 @@ module Eodhd
 
           begin
             date = Date.iso8601(date_str)
+            timestamp = date.to_time.to_i
             open = BigDecimal(row["Open"])
             high = BigDecimal(row["High"])
             low = BigDecimal(row["Low"])
@@ -30,6 +31,7 @@ module Eodhd
           end
 
           rows << {
+            timestamp: timestamp,
             date: date,
             open: open,
             high: high,

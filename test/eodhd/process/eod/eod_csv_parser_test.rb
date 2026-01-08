@@ -19,6 +19,7 @@ describe Eodhd::EodCsvParser do
 
     expected = [
       {
+        timestamp: Date.new(2024, 1, 10).to_time.to_i,
         date: Date.new(2024, 1, 10),
         open: BigDecimal("10"),
         high: BigDecimal("11"),
@@ -27,6 +28,7 @@ describe Eodhd::EodCsvParser do
         volume: 1000
       },
       {
+        timestamp: Date.new(2024, 1, 11).to_time.to_i,
         date: Date.new(2024, 1, 11),
         open: BigDecimal("20.1"),
         high: BigDecimal("21.2"),
