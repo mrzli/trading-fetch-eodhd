@@ -2,7 +2,7 @@
 
 require_relative "../test_helper"
 
-require_relative "../../lib/util/validate"
+require_relative "../../lib/util"
 
 describe Eodhd::Validate do
   test_equals(

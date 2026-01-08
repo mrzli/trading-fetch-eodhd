@@ -4,6 +4,8 @@ require "fileutils"
 require "json"
 require "pathname"
 
+require_relative "../../util"
+
 module Eodhd
   class Io
     def initialize(output_dir:)

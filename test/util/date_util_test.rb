@@ -2,7 +2,7 @@
 
 require_relative "../test_helper"
 
-require_relative "../../lib/util/date_util"
+require_relative "../../lib/util"
 
 describe Eodhd::DateUtil do
   test_equals(

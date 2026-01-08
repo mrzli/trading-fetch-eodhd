@@ -3,6 +3,8 @@
 require "date"
 require "json"
 
+require_relative "../../util"
+
 module Eodhd
   class SplitsParser
     class Error < StandardError; end

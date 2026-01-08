@@ -2,7 +2,7 @@
 
 require_relative "../test_helper"
 
-require_relative "../../lib/util/string_util"
+require_relative "../../lib/util"
 
 describe Eodhd::StringUtil do
   test_equals(

@@ -4,6 +4,9 @@ require "json"
 require "set"
 require "time"
 
+require_relative "../../util"
+require_relative "../shared/path"
+
 module Eodhd
   class FetchStrategy
     UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze

@@ -3,6 +3,8 @@
 require "net/http"
 require "uri"
 
+require_relative "../../util"
+
 module Eodhd
   class Api
     def initialize(base_url:, api_token:)

@@ -2,7 +2,7 @@
 
 require "json"
 
-require_relative "../../util/logger"
+require_relative "../../util"
 require_relative "../shared/config"
 require_relative "../shared/api"
 require_relative "../shared/io"

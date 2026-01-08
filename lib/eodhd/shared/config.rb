@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../util"
+
 module Eodhd
   module Config
     class Error < StandardError; end

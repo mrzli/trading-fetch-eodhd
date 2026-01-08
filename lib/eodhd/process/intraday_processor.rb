@@ -4,6 +4,7 @@ require "csv"
 require "date"
 
 require_relative "../parsing/csv_parser"
+require_relative "shared/split_processor"
 
 module Eodhd
   class IntradayProcessor
@@ -53,7 +54,7 @@ module Eodhd
         merge_in_place!(merged_rows, input)
       end
 
-      splits = Eodhd::SplitProcessor.process(splits)
+      splits = SplitProcessor.process(splits)
 
       puts splits.inspect
 

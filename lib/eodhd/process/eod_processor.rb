@@ -5,6 +5,7 @@ require "bigdecimal/util"
 require "csv"
 require "date"
 
+require_relative "../../util"
 require_relative "shared/price_adjuster"
 
 module Eodhd
