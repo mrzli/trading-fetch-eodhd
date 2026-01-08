@@ -3,7 +3,7 @@
 require_relative "../../../test_helper"
 
 require "bigdecimal"
-require_relative "../../../../lib/eodhd/process/shared/data_splitter"
+require_relative "../../../../lib/eodhd/process/intraday/data_splitter"
 
 describe Eodhd::DataSplitter do
   describe "YearMonth" do
