@@ -16,13 +16,6 @@ module Eodhd
       @log = log
     end
 
-    # Input: array of intraday 1min CSV strings.
-    # Output: hash of year(Integer) => processed CSV string.
-    #
-    # Overlaps are resolved by Timestamp using crop-and-append semantics:
-    # when a later input file starts at (or before) an existing timestamp,
-    # all existing rows from that insertion point onward are discarded and
-    # replaced by the later file's rows.
     def process_csv_files!(raw_csv_files, splits)
       unless raw_csv_files.is_a?(Array)
         raise ArgumentError, "raw_csv_files must be an Array"
