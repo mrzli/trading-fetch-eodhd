@@ -6,7 +6,7 @@ require "time"
 
 require_relative "../parsing/splits_parser"
 require_relative "eod/eod_csv_processor"
-require_relative "intraday/intraday_processor"
+require_relative "intraday/intraday_csv_processor"
 
 module Eodhd
   class ProcessStrategy
@@ -15,7 +15,7 @@ module Eodhd
       @cfg = cfg
       @io = io
       @eod_processor = EodCsvProcessor.new(log: log)
-      @intraday_processor = IntradayProcessor.new(log: log)
+      @intraday_processor = IntradayCsvProcessor.new(log: log)
     end
 
     def process_eod

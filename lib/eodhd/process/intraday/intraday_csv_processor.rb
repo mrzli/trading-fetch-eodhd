@@ -7,7 +7,7 @@ require_relative "../shared/split_processor"
 require_relative "intraday_csv_parser"
 
 module Eodhd
-  class IntradayProcessor
+  class IntradayCsvProcessor
     OUTPUT_HEADERS = ["Timestamp", "Datetime", "Open", "High", "Low", "Close", "Volume"].freeze
 
     class Error < StandardError; end

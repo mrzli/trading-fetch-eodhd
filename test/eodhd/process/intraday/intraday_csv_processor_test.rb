@@ -3,9 +3,9 @@
 require_relative "../../../test_helper"
 
 require_relative "../../../../lib/eodhd/parsing/splits_parser"
-require_relative "../../../../lib/eodhd/process/intraday/intraday_processor"
+require_relative "../../../../lib/eodhd/process/intraday/intraday_csv_processor"
 
-describe Eodhd::IntradayProcessor do
+describe Eodhd::IntradayCsvProcessor do
   # it "merges overlaps, splits by year, and split-adjusts prices" do
   #   csv1 = <<~CSV
   #     Timestamp,Gmtoffset,Datetime,Open,High,Low,Close,Volume
@@ -31,7 +31,7 @@ describe Eodhd::IntradayProcessor do
   #   JSON
 
   #   splits = Eodhd::SplitsParser.parse_splits(splits_json)
-  #   processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
+  #   processor = Eodhd::IntradayCsvProcessor.new(log: Eodhd::NullLogger.new)
   #   out = processor.process_csv_files([csv1, csv2], splits)
 
   #   expected_2003 = <<~CSV
@@ -58,8 +58,8 @@ describe Eodhd::IntradayProcessor do
   #     1070236800,3600,"2003-12-01 01:00:00",1,2,0.5,1.5,10
   #   CSV
 
-  #   processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
-  #   err = _(-> { processor.process_csv_files([raw], []) }).must_raise(Eodhd::IntradayProcessor::Error)
+  #   processor = Eodhd::IntradayCsvProcessor.new(log: Eodhd::NullLogger.new)
+  #   err = _(-> { processor.process_csv_files([raw], []) }).must_raise(Eodhd::IntradayCsvProcessor::Error)
   #   _(err.message).must_match(/Gmtoffset=0/i)
   # end
 
@@ -78,7 +78,7 @@ describe Eodhd::IntradayProcessor do
   #     250,0,"2003-12-01 00:01:30",25,25,25,25,250
   #   CSV
 
-  #   processor = Eodhd::IntradayProcessor.new(log: Eodhd::NullLogger.new)
+  #   processor = Eodhd::IntradayCsvProcessor.new(log: Eodhd::NullLogger.new)
   #   out = processor.process_csv_files([csv1, csv2], [])
 
   #   expected = <<~CSV
