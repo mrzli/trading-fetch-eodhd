@@ -3,8 +3,8 @@
 require "csv"
 require "date"
 
+require_relative "../shared/split_processor"
 require_relative "intraday_csv_parser"
-require_relative "split_processor"
 
 module Eodhd
   class IntradayProcessor
