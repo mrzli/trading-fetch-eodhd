@@ -6,7 +6,7 @@ require "time"
 
 require_relative "../parsing/splits_parser"
 require_relative "eod/eod_processor"
-require_relative "intraday_processor"
+require_relative "intraday/intraday_processor"
 
 module Eodhd
   class ProcessStrategy

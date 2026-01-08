@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "../../test_helper"
+require_relative "../../../test_helper"
 
-require_relative "../../../lib/eodhd/parsing/splits_parser"
-require_relative "../../../lib/eodhd/process/intraday_processor"
+require_relative "../../../../lib/eodhd/parsing/splits_parser"
+require_relative "../../../../lib/eodhd/process/intraday/intraday_processor"
 
 describe Eodhd::IntradayProcessor do
   # it "merges overlaps, splits by year, and split-adjusts prices" do
