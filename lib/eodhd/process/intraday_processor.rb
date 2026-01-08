@@ -53,7 +53,9 @@ module Eodhd
         merge_in_place!(merged_rows, input)
       end
 
-      puts "Merged rows count: #{merged_rows.length}"
+      splits = Eodhd::SplitProcessor.process(splits)
+
+      puts splits.inspect
 
       # return {} if merged_rows.empty?
 
