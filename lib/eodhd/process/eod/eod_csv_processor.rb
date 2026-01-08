@@ -9,7 +9,7 @@ require_relative "../shared/price_adjuster"
 require_relative "../shared/split_processor"
 
 module Eodhd
-  class EodProcessor
+  class EodCsvProcessor
     OUTPUT_HEADERS = ["Date", "Open", "High", "Low", "Close", "Volume"].freeze
 
     class Error < StandardError; end
@@ -31,9 +31,7 @@ module Eodhd
     private
 
     def adjust(data, splits)
-      if splits.empty?
-        return data
-      end
+      return data if splits.empty?
 
       curr_split_idx = 0
 
@@ -67,7 +65,7 @@ module Eodhd
           high: row[:high].to_s("F"),
           low: row[:low].to_s("F"),
           close: row[:close].to_s("F"),
-          volume: row[:volume].to_s,
+          volume: row[:volume].to_s
         }
       end
     end

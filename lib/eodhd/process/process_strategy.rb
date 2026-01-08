@@ -5,7 +5,7 @@ require "set"
 require "time"
 
 require_relative "../parsing/splits_parser"
-require_relative "eod/eod_processor"
+require_relative "eod/eod_csv_processor"
 require_relative "intraday/intraday_processor"
 
 module Eodhd
@@ -14,7 +14,7 @@ module Eodhd
       @log = log
       @cfg = cfg
       @io = io
-      @eod_processor = EodProcessor.new(log: log)
+      @eod_processor = EodCsvProcessor.new(log: log)
       @intraday_processor = IntradayProcessor.new(log: log)
     end
 
