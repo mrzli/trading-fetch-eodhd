@@ -53,4 +53,14 @@ module Eodhd
       "#{time} #{severity} #{progname}: #{message}\n"
     end
   end
+
+  class NullLogger
+    def debug(message = nil, &block); end
+
+    def info(message = nil, &block); end
+
+    def warn(message = nil, &block); end
+
+    def error(message = nil, &block); end
+  end
 end
