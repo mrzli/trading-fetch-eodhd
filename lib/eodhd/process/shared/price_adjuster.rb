@@ -32,24 +32,11 @@ module Eodhd
       end
 
       def adjust_price(value, factor)
-        value = Validate.required_string("price", value)
-        bd = BigDecimal(value)
-        factor_bd = rational_to_bigdecimal(factor)
-        (bd / factor_bd).to_s("F")
+        value / factor
       end
 
       def adjust_volume(value, factor)
-        value = Validate.required_string("volume", value)
-        vol = Integer(value)
-
-        adjusted = Rational(vol, 1) * factor
-        if adjusted.denominator == 1
-          adjusted.numerator.to_s
-        else
-          rational_to_bigdecimal(adjusted).to_s("F")
-        end
-      rescue ArgumentError
-        raise Error, "Invalid volume: #{value.inspect}"
+        (value * factor).to_i
       end
 
       private

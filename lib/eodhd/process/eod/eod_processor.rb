@@ -19,32 +19,50 @@ module Eodhd
     end
 
     def process_csv(raw_csv, splits)
-      parsed_rows = EodCsvParser.parse(raw_csv)
+      data = EodCsvParser.parse(raw_csv)
       # splits = SplitProcessor.process(splits)
-      rows = build_output_rows(parsed_rows, splits)
-      generate_csv(rows)
+      data = adjust(data, splits)
+      data = to_output(data)
+      to_csv(data)
     rescue EodCsvParser::Error => e
       raise Error, e.message
     end
 
     private
 
-    def build_output_rows(parsed_rows, splits)
-      parsed_rows.map do |row|
+    def adjust(data, splits)
+      if splits.empty?
+        return data
+      end
+
+      data.map do |row|
         factor = PriceAdjuster.cumulative_split_factor_for_date(row[:date], splits)
 
         {
-          date: row[:date].iso8601,
-          open: PriceAdjuster.adjust_price(row[:open].to_s("F"), factor),
-          high: PriceAdjuster.adjust_price(row[:high].to_s("F"), factor),
-          low: PriceAdjuster.adjust_price(row[:low].to_s("F"), factor),
-          close: PriceAdjuster.adjust_price(row[:close].to_s("F"), factor),
-          volume: PriceAdjuster.adjust_volume(row[:volume].to_s, factor)
+          date: row[:date],
+          open: PriceAdjuster.adjust_price(row[:open], factor),
+          high: PriceAdjuster.adjust_price(row[:high], factor),
+          low: PriceAdjuster.adjust_price(row[:low], factor),
+          close: PriceAdjuster.adjust_price(row[:close], factor),
+          volume: PriceAdjuster.adjust_volume(row[:volume], factor)
         }
       end
     end
 
-    def generate_csv(rows)
+    def to_output(data)
+      data.map do |row|
+        {
+          date: row[:date].iso8601,
+          open: row[:open].to_s("F"),
+          high: row[:high].to_s("F"),
+          low: row[:low].to_s("F"),
+          close: row[:close].to_s("F"),
+          volume: row[:volume].to_s,
+        }
+      end
+    end
+
+    def to_csv(rows)
       CSV.generate do |out_csv|
         out_csv << OUTPUT_HEADERS
 

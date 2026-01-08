@@ -35,15 +35,9 @@ describe Eodhd::PriceAdjuster do
   it "adjusts prices by dividing and volume by multiplying" do
     factor = Rational(56, 1)
 
-    _(Eodhd::PriceAdjuster.adjust_price("56", factor)).must_equal "1.0"
-    _(Eodhd::PriceAdjuster.adjust_price("112", factor)).must_equal "2.0"
-
-    _(Eodhd::PriceAdjuster.adjust_volume("10", factor)).must_equal "560"
-    _(Eodhd::PriceAdjuster.adjust_volume("20", factor)).must_equal "1120"
-  end
-
-  it "raises on invalid volume" do
-    err = _(-> { Eodhd::PriceAdjuster.adjust_volume("not-an-int", Rational(2, 1)) }).must_raise(Eodhd::PriceAdjuster::Error)
-    _(err.message).must_match(/Invalid volume/i)
+    _(Eodhd::PriceAdjuster.adjust_price(BigDecimal(56), factor)).must_equal BigDecimal(1)
+    _(Eodhd::PriceAdjuster.adjust_price(BigDecimal(112), factor)).must_equal BigDecimal(2)
+    _(Eodhd::PriceAdjuster.adjust_volume(10, factor)).must_equal 560
+    _(Eodhd::PriceAdjuster.adjust_volume(20, factor)).must_equal 1120
   end
 end
