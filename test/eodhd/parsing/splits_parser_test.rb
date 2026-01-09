@@ -17,7 +17,7 @@ describe Eodhd::SplitsParser do
       ]
     JSON
 
-    splits = Eodhd::SplitsParser.parse_splits(json)
+    splits = Eodhd::SplitsParser.parse_splits(json, sorted: false)
 
     expected = [
       Eodhd::SplitsParser::Split.new(

@@ -35,7 +35,7 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    dividends = Eodhd::DividendsParser.parse_dividends(json)
+    dividends = Eodhd::DividendsParser.parse_dividends(json, sorted: false)
 
     expected = [
       Eodhd::DividendsParser::Dividend.new(

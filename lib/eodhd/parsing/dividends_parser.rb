@@ -21,7 +21,7 @@ module Eodhd
     )
 
     class << self
-      def parse_dividends(dividends_json)
+      def parse_dividends(dividends_json, sorted: true)
         dividends_json = dividends_json.to_s
         return [] if dividends_json.strip.empty?
 
@@ -51,7 +51,7 @@ module Eodhd
           raise Error, e.message
         end
 
-        dividends.sort_by!(&:date)
+        dividends.sort_by!(&:date) unless sorted
         dividends
       rescue JSON::ParserError => e
         raise Error, "Invalid dividends_json: #{e.message}"
