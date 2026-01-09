@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Eodhd
-  class EodAdjust
+  class PriceAdjust
     class << self
       def apply(rows, segments)
         segments ||= []
@@ -21,15 +21,13 @@ module Eodhd
           else
             factor = segments[idx][:factor]
 
-            {
-              timestamp: ts,
-              date: row[:date],
+            row.merge(
               open: adjust_price(row[:open], factor),
               high: adjust_price(row[:high], factor),
               low: adjust_price(row[:low], factor),
               close: adjust_price(row[:close], factor),
               volume: adjust_volume(row[:volume], factor)
-            }
+            )
           end
         end
       end

@@ -1,3 +1,4 @@
+
 # frozen_string_literal: true
 
 require_relative "../../../test_helper"
@@ -7,15 +8,15 @@ require "date"
 
 require_relative "../../../../lib/eodhd/parsing/splits_parser"
 require_relative "../../../../lib/eodhd/process/shared/split_processor"
-require_relative "../../../../lib/eodhd/process/eod/eod_adjust"
+require_relative "../../../../lib/eodhd/process/shared/price_adjust"
 
-describe Eodhd::EodAdjust do
+describe Eodhd::PriceAdjust do
   it "returns rows unchanged when no splits" do
     rows = [
       { timestamp: Time.utc(2024, 1, 10).to_i, date: Date.new(2024, 1, 10), open: BigDecimal("10"), high: BigDecimal("11"), low: BigDecimal("9"), close: BigDecimal("10.5"), volume: 100 }
     ]
 
-    adjusted = Eodhd::EodAdjust.apply(rows, [])
+    adjusted = Eodhd::PriceAdjust.apply(rows, [])
 
     _(adjusted).must_equal rows
   end
@@ -43,7 +44,7 @@ describe Eodhd::EodAdjust do
     raw_splits = Eodhd::SplitsParser.parse_splits(splits_json)
     segments = Eodhd::SplitProcessor.process(raw_splits)
 
-    adjusted = Eodhd::EodAdjust.apply(rows, segments)
+    adjusted = Eodhd::PriceAdjust.apply(rows, segments)
 
     expected = [
       drow("1999-11-18", "1.0", "1.0", "1.0", "1.0", 560),

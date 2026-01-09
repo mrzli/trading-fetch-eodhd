@@ -5,7 +5,7 @@ require "csv"
 require "date"
 
 require_relative "eod_csv_parser"
-require_relative "eod_adjust"
+require_relative "../shared/price_adjust"
 require_relative "../shared/split_processor"
 
 module Eodhd
@@ -21,7 +21,7 @@ module Eodhd
     def process_csv(raw_csv, splits)
       data = EodCsvParser.parse(raw_csv)
       splits = SplitProcessor.process(splits)
-      data = EodAdjust.apply(data, splits)
+      data = PriceAdjust.apply(data, splits)
       data = to_output(data)
       to_csv(data)
     rescue EodCsvParser::Error => e
