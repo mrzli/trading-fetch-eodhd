@@ -30,7 +30,7 @@ describe Eodhd::EodCsvProcessor do
 
     dividends_json = <<~JSON
       [
-        {"date":"2024-01-11","value":1.0}
+        {"date":"2024-01-11","value":1.4,"unadjustedValue":1.4,"currency":"USD"}
       ]
     JSON
 
@@ -39,15 +39,18 @@ describe Eodhd::EodCsvProcessor do
     processor = Eodhd::EodCsvProcessor.new(log: Eodhd::NullLogger.new)
     out = processor.process_csv(raw_csv, splits, dividends)
 
+    # Dividend on 2024-01-11 uses previous close (2024-01-10 close=7)
+    # Multiplier = (7 - 1.4) / 7 = 0.8
+    # Rows before 2024-01-11 get multiplied by 0.8
     expected = <<~CSV
       Date,Open,High,Low,Close,Volume
-      1999-11-18,1.0,1.0,1.0,1.0,560
-      1999-11-19,2.0,2.0,2.0,2.0,1120
-      2000-06-21,1.0,1.0,1.0,1.0,840
-      2000-06-22,2.0,2.0,2.0,2.0,1120
-      2014-06-09,10.0,10.0,10.0,10.0,200
-      2014-06-10,5.0,5.0,5.0,5.0,240
-      2024-01-10,7.0,7.0,7.0,7.0,1
+      1999-11-18,0.8,0.8,0.8,0.8,560
+      1999-11-19,1.6,1.6,1.6,1.6,1120
+      2000-06-21,0.8,0.8,0.8,0.8,840
+      2000-06-22,1.6,1.6,1.6,1.6,1120
+      2014-06-09,8.0,8.0,8.0,8.0,200
+      2014-06-10,4.0,4.0,4.0,4.0,240
+      2024-01-10,5.6,5.6,5.6,5.6,1
       2024-01-11,8.0,8.0,8.0,8.0,2
     CSV
 
