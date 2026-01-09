@@ -39,6 +39,7 @@ module Eodhd
       data = InputMerger.merge(inputs)
 
       splits = SplitProcessor.process(splits)
+      data = PriceAdjust.apply(data, splits)
 
       puts splits.inspect
 
@@ -80,7 +81,7 @@ module Eodhd
       # 
       
       []
-    rescue CsvParser::Error => e
+    rescue IntradayCsvParser::Error => e
       raise Error, e.message
     rescue ArgumentError => e
       raise Error, e.message
