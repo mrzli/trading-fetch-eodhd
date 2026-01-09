@@ -11,14 +11,18 @@ module Eodhd
       @processor = IntradayCsvProcessor.new(log: log)
     end
 
-    def process
+    def process(exchange_filters:, symbol_filters:)
+      exchange_filters = normalize_filters(exchange_filters)
+      symbol_filters = normalize_filters(symbol_filters)
       raw_root = @io.output_path(Path.raw_intraday_dir)
       unless Dir.exist?(raw_root)
         @log.info("No raw intraday directory found: #{raw_root}")
         return
       end
 
-      exchanges = Dir.children(raw_root).select { |name| Dir.exist?(File.join(raw_root, name)) }.sort
+      exchanges = Dir.children(raw_root).select { |name| Dir.exist?(File.join(raw_root, name)) }
+      exchanges.select! { |ex| matches_filter?(ex, exchange_filters) }
+      exchanges.sort!
       if exchanges.empty?
         @log.info("No exchange directories found under: #{raw_root}")
         return
@@ -26,14 +30,16 @@ module Eodhd
 
       exchanges.each do |exchange|
         exchange_dir = File.join(raw_root, exchange)
-        process_exchange(exchange, exchange_dir)
+        process_exchange(exchange, exchange_dir, symbol_filters)
       end
     end
 
     private
 
-    def process_exchange(exchange, exchange_dir)
-      symbols = Dir.children(exchange_dir).select { |name| Dir.exist?(File.join(exchange_dir, name)) }.sort
+    def process_exchange(exchange, exchange_dir, symbol_filters)
+      symbols = Dir.children(exchange_dir).select { |name| Dir.exist?(File.join(exchange_dir, name)) }
+      symbols.select! { |sym| matches_filter?(sym, symbol_filters) }
+      symbols.sort!
       return if symbols.empty?
 
       symbols.each do |symbol|
@@ -89,6 +95,17 @@ module Eodhd
       return true if splits_mtime && splits_mtime > processed_mtime
 
       false
+    end
+
+    def matches_filter?(name, filters)
+      return true if filters.nil? || filters.empty?
+
+      down = name.to_s.downcase
+      filters.any? { |f| down.include?(f) }
+    end
+
+    def normalize_filters(filters)
+      (filters || []).map { |f| f.to_s.strip.downcase }.reject(&:empty?)
     end
   end
 end

@@ -11,7 +11,7 @@ module Eodhd
   module Process
     module_function
 
-    def run(mode: "eod")
+    def run(mode: "eod", exchange_filters: [], symbol_filters: [])
       log = Logger.new
 
       begin
@@ -22,14 +22,18 @@ module Eodhd
 
       io = Io.new(output_dir: cfg.output_dir)
 
-      strategy = ProcessStrategy.new(log: log, cfg: cfg, io: io)
+      strategy = ProcessStrategy.new(
+        log: log,
+        cfg: cfg,
+        io: io
+      )
 
       mode = mode.to_s.strip.downcase
       case mode
       when "eod"
-        strategy.process_eod
+        strategy.process_eod(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
       when "intraday"
-        strategy.process_intraday
+        strategy.process_intraday(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
       else
         raise ArgumentError, "Unknown mode: #{mode.inspect}. Expected 'eod' or 'intraday'."
       end
