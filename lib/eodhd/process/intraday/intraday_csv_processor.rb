@@ -3,6 +3,7 @@
 require "csv"
 require "date"
 
+require_relative "../shared/constants"
 require_relative "../shared/price_adjust"
 require_relative "../shared/split_processor"
 require_relative "data_splitter"
@@ -80,13 +81,17 @@ module Eodhd
         {
           timestamp: row[:timestamp].to_s,
           datetime: row[:datetime],
-          open: row[:open].to_s("F"),
-          high: row[:high].to_s("F"),
-          low: row[:low].to_s("F"),
-          close: row[:close].to_s("F"),
+          open: format_price(row[:open]),
+          high: format_price(row[:high]),
+          low: format_price(row[:low]),
+          close: format_price(row[:close]),
           volume: row[:volume].to_s
         }
       end
+    end
+
+    def format_price(price)
+      price.round(Constants::OUTPUT_DECIMALS).to_s("F")
     end
 
     def to_csv(rows)
