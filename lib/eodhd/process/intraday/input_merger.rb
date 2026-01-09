@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "../../../util"
+
 module Eodhd
   class InputMerger
     class << self
@@ -32,25 +34,9 @@ module Eodhd
           return
         end
 
-        idx = lower_bound_timestamp(merged_rows, next_first)
+        idx = BinarySearch.lower_bound(merged_rows, next_first) { |row| row[:timestamp] }
         merged_rows.slice!(idx, merged_rows.length - idx)
         merged_rows.concat(next_rows)
-      end
-
-      def lower_bound_timestamp(rows, timestamp)
-        lo = 0
-        hi = rows.length
-
-        while lo < hi
-          mid = (lo + hi) / 2
-          if rows[mid][:timestamp] < timestamp
-            lo = mid + 1
-          else
-            hi = mid
-          end
-        end
-
-        lo
       end
     end
   end
