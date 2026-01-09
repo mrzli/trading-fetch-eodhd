@@ -36,7 +36,7 @@ module Eodhd
         parsed
       end
 
-      merged_rows = InputMerger.merge(inputs)
+      data = InputMerger.merge(inputs)
 
       splits = SplitProcessor.process(splits)
 
