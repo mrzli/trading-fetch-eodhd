@@ -3,23 +3,23 @@
 module Eodhd
   class PriceAdjust
     class << self
-      def apply(rows, segments)
-        segments ||= []
-        return rows if segments.empty?
+      def apply(rows, splits)
+        splits ||= []
+        return rows if splits.empty?
 
         idx = 0
 
         rows.map do |row|
           ts = row.fetch(:timestamp)
 
-          while idx < segments.length && ts >= segments[idx][:timestamp]
+          while idx < splits.length && ts >= splits[idx][:timestamp]
             idx += 1
           end
 
-          if idx >= segments.length
+          if idx >= splits.length
             row
           else
-            factor = segments[idx][:factor]
+            factor = splits[idx][:factor]
 
             row.merge(
               open: adjust_price(row[:open], factor),
