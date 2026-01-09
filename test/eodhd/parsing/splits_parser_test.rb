@@ -19,12 +19,18 @@ describe Eodhd::SplitsParser do
 
     splits = Eodhd::SplitsParser.parse_splits(json)
 
-    _(splits.length).must_equal 2
-    _(splits[0].date).must_equal Date.iso8601("2000-06-21")
-    _(splits[0].factor).must_equal Rational(2, 1)
+    expected = [
+      Eodhd::SplitsParser::Split.new(
+        date: Date.iso8601("2000-06-21"),
+        factor: 2.0
+      ),
+      Eodhd::SplitsParser::Split.new(
+        date: Date.iso8601("2024-01-10"),
+        factor: 4.0
+      )
+    ]
 
-    _(splits[1].date).must_equal Date.iso8601("2024-01-10")
-    _(splits[1].factor).must_equal Rational(4, 1)
+    _(splits).must_equal expected
   end
 
   it "raises for invalid JSON" do
