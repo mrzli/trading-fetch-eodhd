@@ -25,7 +25,9 @@ module Eodhd
           YearMonth.new(date.year, date.month)
         end
 
-        grouped.sort_by { |year_month, _| [year_month.year, year_month.month] }
+        grouped
+          .sort_by { |year_month, _| [year_month.year, year_month.month] }
+          .map { |year_month, rows| { key: year_month, value: rows } }
       end
     end
   end

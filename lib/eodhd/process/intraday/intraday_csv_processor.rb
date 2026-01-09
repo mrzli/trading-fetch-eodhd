@@ -3,7 +3,9 @@
 require "csv"
 require "date"
 
+require_relative "../shared/price_adjust"
 require_relative "../shared/split_processor"
+require_relative "data_splitter"
 require_relative "intraday_csv_parser"
 require_relative "input_merger"
 
@@ -41,51 +43,51 @@ module Eodhd
       splits = SplitProcessor.process(splits)
       data = PriceAdjust.apply(data, splits)
 
-      puts splits.inspect
+      data_items = DataSplitter.by_month(data)
 
-      # return {} if merged_rows.empty?
+      puts data_items.class, data_items.size, data_items[0].class
+      puts data_items[0].inspect.to_s[0..500]
 
-      # factor_cache = {}
-      # grouped = merged_rows.map do |r|
-      #   factor = (factor_cache[r[:date]] ||= PriceAdjuster.cumulative_split_factor_for_date(r[:date], splits))
-
-      #   {
-      #     timestamp: r[:timestamp],
-      #     datetime: r[:datetime],
-      #     year: r[:year],
-      #     open: PriceAdjuster.adjust_price(r[:open], factor),
-      #     high: PriceAdjuster.adjust_price(r[:high], factor),
-      #     low: PriceAdjuster.adjust_price(r[:low], factor),
-      #     close: PriceAdjuster.adjust_price(r[:close], factor),
-      #     volume: PriceAdjuster.adjust_volume(r[:volume], factor)
-      #   }
-      # end.group_by { |r| r[:year] }
-
-      # grouped.transform_values do |rows|
-      #   CSV.generate do |out|
-      #     out << OUTPUT_HEADERS
-
-      #     rows.sort_by { |r| r[:timestamp] }.each do |r|
-      #       out << [
-      #         r[:timestamp].to_s,
-      #         r[:datetime],
-      #         r[:open],
-      #         r[:high],
-      #         r[:low],
-      #         r[:close],
-      #         r[:volume]
-      #       ]
-      #     end
-      #   end
-      # end
-      # 
-      
-      []
+      data = to_output(data)
+      to_csv(data)
     rescue IntradayCsvParser::Error => e
       raise Error, e.message
     rescue ArgumentError => e
       raise Error, e.message
     end
 
+    private
+
+    def to_output(data)
+      data.map do |row|
+        {
+          timestamp: row[:timestamp].to_s,
+          datetime: row[:datetime],
+          open: row[:open].to_s("F"),
+          high: row[:high].to_s("F"),
+          low: row[:low].to_s("F"),
+          close: row[:close].to_s("F"),
+          volume: row[:volume].to_s
+        }
+      end
+    end
+
+    def to_csv(rows)
+      CSV.generate do |out_csv|
+        out_csv << OUTPUT_HEADERS
+
+        rows.each do |row|
+          out_csv << [
+            row[:timestamp],
+            row[:datetime],
+            row[:open],
+            row[:high],
+            row[:low],
+            row[:close],
+            row[:volume]
+          ]
+        end
+      end
+    end
   end
 end
