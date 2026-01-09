@@ -3,8 +3,7 @@
 module Eodhd
   class PriceAdjust
     class << self
-      def apply(rows, splits)
-        splits ||= []
+      def apply(rows, splits = [])
         return rows if splits.empty?
 
         idx = 0
