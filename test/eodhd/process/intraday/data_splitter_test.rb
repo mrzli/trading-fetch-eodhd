@@ -71,10 +71,28 @@ describe Eodhd::DataSplitter do
 
       result = Eodhd::DataSplitter.by_month(data)
 
-      assert_equal 3, result.length
-      assert_equal Eodhd::DataSplitter::YearMonth.new(2020, 1), result[0][0]
-      assert_equal Eodhd::DataSplitter::YearMonth.new(2020, 2), result[1][0]
-      assert_equal Eodhd::DataSplitter::YearMonth.new(2021, 1), result[2][0]
+      expected = [
+        [
+          Eodhd::DataSplitter::YearMonth.new(2020, 1),
+          [
+            { timestamp: 100, datetime: "2020-01-15 10:00:00", open: BigDecimal("1"), high: BigDecimal("1"), low: BigDecimal("1"), close: BigDecimal("1"), volume: 10 }
+          ]
+        ],
+        [
+          Eodhd::DataSplitter::YearMonth.new(2020, 2),
+          [
+            { timestamp: 300, datetime: "2020-02-05 12:00:00", open: BigDecimal("3"), high: BigDecimal("3"), low: BigDecimal("3"), close: BigDecimal("3"), volume: 30 }
+          ]
+        ],
+        [
+          Eodhd::DataSplitter::YearMonth.new(2021, 1),
+          [
+            { timestamp: 400, datetime: "2021-01-10 13:00:00", open: BigDecimal("4"), high: BigDecimal("4"), low: BigDecimal("4"), close: BigDecimal("4"), volume: 40 }
+          ]
+        ]
+      ]
+
+      assert_equal expected, result
     end
   end
 end
