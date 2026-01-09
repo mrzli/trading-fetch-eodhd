@@ -5,6 +5,7 @@ require "csv"
 require "date"
 
 require_relative "eod_csv_parser"
+require_relative "eod_adjust"
 require_relative "../shared/split_processor"
 
 module Eodhd
@@ -20,7 +21,7 @@ module Eodhd
     def process_csv(raw_csv, splits)
       data = EodCsvParser.parse(raw_csv)
       splits = SplitProcessor.process(splits)
-      data = adjust(data, splits)
+      data = EodAdjust.apply(data, splits)
       data = to_output(data)
       to_csv(data)
     rescue EodCsvParser::Error => e
@@ -28,41 +29,6 @@ module Eodhd
     end
 
     private
-
-    def adjust(data, splits)
-      return data if splits.empty?
-
-      curr_split_idx = 0
-
-      data.map do |row|
-        timestamp = row[:timestamp]
-        while curr_split_idx < splits.size && timestamp >= splits[curr_split_idx][:timestamp]
-          curr_split_idx += 1
-        end
-
-        next row if curr_split_idx >= splits.size
-
-        factor = splits[curr_split_idx][:factor]
-
-        {
-          timestamp: timestamp,
-          date: row[:date],
-          open: adjust_price(row[:open], factor),
-          high: adjust_price(row[:high], factor),
-          low: adjust_price(row[:low], factor),
-          close: adjust_price(row[:close], factor),
-          volume: adjust_volume(row[:volume], factor)
-        }
-      end
-    end
-
-    def adjust_price(value, factor)
-      value / factor
-    end
-
-    def adjust_volume(value, factor)
-      (value * factor).to_i
-    end
 
     def to_output(data)
       data.map do |row|
