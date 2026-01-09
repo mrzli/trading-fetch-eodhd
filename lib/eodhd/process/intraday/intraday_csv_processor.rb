@@ -5,7 +5,7 @@ require "date"
 
 require_relative "../shared/constants"
 require_relative "../shared/price_adjust"
-require_relative "../shared/split_processor"
+require_relative "../shared/splits_processor"
 require_relative "data_splitter"
 require_relative "intraday_csv_parser"
 require_relative "input_merger"
@@ -43,7 +43,7 @@ module Eodhd
 
       @log.info("Merged intraday rows. Total rows: #{data.size}.")
 
-      splits = SplitProcessor.process(splits)
+      splits = SplitsProcessor.process(splits)
 
       @log.info("Processed splits.")
 

@@ -3,16 +3,16 @@
 require_relative "../../../test_helper"
 
 require_relative "../../../../lib/eodhd/parsing/splits_parser"
-require_relative "../../../../lib/eodhd/process/shared/split_processor"
+require_relative "../../../../lib/eodhd/process/shared/splits_processor"
 
-describe Eodhd::SplitProcessor do
+describe Eodhd::SplitsProcessor do
   it "returns empty array for nil splits" do
-    result = Eodhd::SplitProcessor.process(nil)
+    result = Eodhd::SplitsProcessor.process(nil)
     assert_equal [], result
   end
 
   it "returns empty array for empty splits" do
-    result = Eodhd::SplitProcessor.process([])
+    result = Eodhd::SplitsProcessor.process([])
     assert_equal [], result
   end
 
@@ -24,7 +24,7 @@ describe Eodhd::SplitProcessor do
     JSON
 
     splits = Eodhd::SplitsParser.parse_splits(splits_json)
-    result = Eodhd::SplitProcessor.process(splits)
+    result = Eodhd::SplitsProcessor.process(splits)
 
     expected = [
       {
@@ -46,7 +46,7 @@ describe Eodhd::SplitProcessor do
     JSON
 
     splits = Eodhd::SplitsParser.parse_splits(splits_json)
-    result = Eodhd::SplitProcessor.process(splits)
+    result = Eodhd::SplitsProcessor.process(splits)
 
     expected = [
       { timestamp: Date.new(2000, 6, 21).to_time.to_i, factor: Rational(56, 1) },
@@ -66,7 +66,7 @@ describe Eodhd::SplitProcessor do
     JSON
 
     splits = Eodhd::SplitsParser.parse_splits(splits_json)
-    result = Eodhd::SplitProcessor.process(splits)
+    result = Eodhd::SplitsProcessor.process(splits)
 
     expected = [
       { timestamp: Date.new(2020, 1, 1).to_time.to_i, factor: Rational(15, 8) },

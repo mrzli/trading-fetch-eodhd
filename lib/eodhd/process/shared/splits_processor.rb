@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Eodhd
-  class SplitProcessor
+  class SplitsProcessor
     class << self
       # Converts splits (with date and factor) to timestamp-based segments with cumulative factors.
       #

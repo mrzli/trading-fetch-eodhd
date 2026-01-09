@@ -6,8 +6,8 @@ require_relative "../../../test_helper"
 require "date"
 
 require_relative "../../../../lib/eodhd/parsing/splits_parser"
-require_relative "../../../../lib/eodhd/process/shared/split_processor"
 require_relative "../../../../lib/eodhd/process/shared/price_adjust"
+require_relative "../../../../lib/eodhd/process/shared/splits_processor"
 
 describe Eodhd::PriceAdjust do
   it "returns rows unchanged when no splits" do
@@ -41,7 +41,7 @@ describe Eodhd::PriceAdjust do
     JSON
 
     raw_splits = Eodhd::SplitsParser.parse_splits(splits_json)
-    segments = Eodhd::SplitProcessor.process(raw_splits)
+    segments = Eodhd::SplitsProcessor.process(raw_splits)
 
     adjusted = Eodhd::PriceAdjust.apply(rows, segments)
 
