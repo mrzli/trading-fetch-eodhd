@@ -5,6 +5,7 @@ require "date"
 
 require_relative "../shared/split_processor"
 require_relative "intraday_csv_parser"
+require_relative "input_merger"
 
 module Eodhd
   class IntradayCsvProcessor
@@ -35,17 +36,7 @@ module Eodhd
         parsed
       end
 
-      merged_rows = []
-      inputs.each do |input|
-        next if input.empty?
-
-        if merged_rows.empty?
-          merged_rows = input
-          next
-        end
-
-        merge_in_place(merged_rows, input)
-      end
+      merged_rows = InputMerger.merge(inputs)
 
       splits = SplitProcessor.process(splits)
 
@@ -95,39 +86,5 @@ module Eodhd
       raise Error, e.message
     end
 
-    private
-
-    def merge_in_place(merged_rows, next_rows)
-      return if next_rows.empty?
-      return merged_rows.concat(next_rows) if merged_rows.empty?
-
-      next_first = next_rows.first[:timestamp]
-      merged_last = merged_rows.last[:timestamp]
-
-      if next_first > merged_last
-        merged_rows.concat(next_rows)
-        return
-      end
-
-      idx = lower_bound_timestamp(merged_rows, next_first)
-      merged_rows.slice!(idx, merged_rows.length - idx)
-      merged_rows.concat(next_rows)
-    end
-
-    def lower_bound_timestamp(rows, timestamp)
-      lo = 0
-      hi = rows.length
-
-      while lo < hi
-        mid = (lo + hi) / 2
-        if rows[mid][:timestamp] < timestamp
-          lo = mid + 1
-        else
-          hi = mid
-        end
-      end
-
-      lo
-    end
   end
 end
