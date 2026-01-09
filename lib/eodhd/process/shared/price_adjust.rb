@@ -6,19 +6,19 @@ module Eodhd
       def apply(rows, splits, dividends)
         return rows if splits.empty? && dividends.empty?
 
-        idx = 0
+        splits_idx = 0
 
         rows.map do |row|
           ts = row.fetch(:timestamp)
 
-          while idx < splits.length && ts >= splits[idx][:timestamp]
-            idx += 1
+          while splits_idx < splits.length && ts >= splits[splits_idx][:timestamp]
+            splits_idx += 1
           end
 
-          if idx >= splits.length
+          if splits_idx >= splits.length
             row
           else
-            factor = splits[idx][:factor]
+            factor = splits[splits_idx][:factor]
 
             row.merge(
               open: adjust_price_for_split(row[:open], factor),
