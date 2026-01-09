@@ -38,11 +38,11 @@ describe Eodhd::DividendsProcessor do
     ]
 
     data = [
-      row("2024-01-11", 120),
-      row("2024-01-09", 100),
       row("2024-01-08", 90),
-      row("2024-01-12", 130),
-      row("2024-01-10", 110)
+      row("2024-01-09", 100),
+      row("2024-01-10", 110),
+      row("2024-01-11", 120),
+      row("2024-01-12", 130)
     ]
 
     result = Eodhd::DividendsProcessor.process(dividends, data)
