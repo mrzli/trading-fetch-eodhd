@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
+require "ostruct"
+
 require_relative "../../../test_helper"
 
-require_relative "../../../../lib/eodhd/parsing/dividends_parser"
-require_relative "../../../../lib/eodhd/parsing/splits_parser"
 require_relative "../../../../lib/eodhd/process/eod/eod_csv_processor"
 
 describe Eodhd::EodCsvProcessor do
@@ -20,22 +20,18 @@ describe Eodhd::EodCsvProcessor do
       2024-01-11,8,8,8,8,0,2
     CSV
 
-    splits_json = <<~JSON
-      [
-        {"date":"2000-06-21","split":"2.000000/1.000000"},
-        {"date":"2014-06-09","split":"7.000000/1.000000"},
-        {"date":"2024-01-10","split":"4.000000/1.000000"}
-      ]
-    JSON
+    # Raw split objects with date and factor fields
+    splits = [
+      OpenStruct.new(date: Date.new(2000, 6, 21), factor: 2.0),
+      OpenStruct.new(date: Date.new(2014, 6, 9), factor: 7.0),
+      OpenStruct.new(date: Date.new(2024, 1, 10), factor: 4.0 )
+    ]
 
-    dividends_json = <<~JSON
-      [
-        {"date":"2024-01-11","value":1.4,"unadjustedValue":1.4,"currency":"USD"}
-      ]
-    JSON
+    # Raw dividend objects with date and unadjusted_value fields
+    dividends = [
+      OpenStruct.new(date: Date.new(2024, 1, 11), unadjusted_value: 1.4)
+    ]
 
-    splits = Eodhd::SplitsParser.parse_splits(splits_json)
-    dividends = Eodhd::DividendsParser.parse_dividends(dividends_json)
     processor = Eodhd::EodCsvProcessor.new(log: Eodhd::NullLogger.new)
     out = processor.process_csv(raw_csv, splits, dividends)
 
