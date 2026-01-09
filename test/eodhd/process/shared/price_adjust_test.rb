@@ -83,27 +83,25 @@ describe Eodhd::PriceAdjust do
 
   it "combines splits and dividends adjustments" do
     rows = [
-      drow("2024-01-08", "90", "90", "90", "90", 10),
-      drow("2024-01-09", "100", "100", "100", "100", 20),
-      drow("2024-01-10", "110", "110", "110", "110", 30),
-      drow("2024-01-11", "120", "120", "120", "120", 40)
+      drow("2024-01-08", "100", "100", "100", "100", 10),
+      drow("2024-01-09", "110", "110", "110", "110", 20),
+      drow("2024-01-10", "120", "120", "120", "120", 30),
+      drow("2024-01-11", "130", "130", "130", "130", 40)
     ]
 
     # One split on 2024-01-10: factor=2 (affects rows before 2024-01-10)
-    factor = 2.0
-    splits = [ { timestamp: Date.parse("2024-01-10").to_time.to_i, factor: factor } ]
+    splits = [ { timestamp: Date.parse("2024-01-10").to_time.to_i, factor: 2.0 } ]
 
-    # One dividend on 2024-01-11 with prev close 110 and value 1.0 -> multiplier
-    multiplier = (110.0 - 1.0) / 110.0
-    dividends = [ { timestamp: Date.parse("2024-01-11").to_time.to_i, multiplier: multiplier } ]
+    # One dividend on 2024-01-11 with prev close 120 and value 10 -> multiplier = (120-10)/120 = 0.9166...
+    dividends = [ { timestamp: Date.parse("2024-01-11").to_time.to_i, multiplier: (120.0 - 10.0) / 120.0 } ]
 
     adjusted = Eodhd::PriceAdjust.apply(rows, splits, dividends)
 
     expected = [
-      drow("2024-01-08", (90.0 / factor * multiplier).to_s, (90.0 / factor * multiplier).to_s, (90.0 / factor * multiplier).to_s, (90.0 / factor * multiplier).to_s, 20),
-      drow("2024-01-09", (100.0 / factor * multiplier).to_s, (100.0 / factor * multiplier).to_s, (100.0 / factor * multiplier).to_s, (100.0 / factor * multiplier).to_s, 40),
-      drow("2024-01-10", (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, 30),
-      drow("2024-01-11", "120.0", "120.0", "120.0", "120.0", 40)
+      drow("2024-01-08", "45.83333333333333", "45.83333333333333", "45.83333333333333", "45.83333333333333", 20),
+      drow("2024-01-09", "50.416666666666664", "50.416666666666664", "50.416666666666664", "50.416666666666664", 40),
+      drow("2024-01-10", "110.0", "110.0", "110.0", "110.0", 30),
+      drow("2024-01-11", "130.0", "130.0", "130.0", "130.0", 40)
     ]
 
     _(adjusted).must_equal expected
