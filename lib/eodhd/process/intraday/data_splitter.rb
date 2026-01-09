@@ -11,10 +11,6 @@ module Eodhd
     end
 
     class << self
-      # Splits data by year-month.
-      #
-      # Input: array of hashes with :timestamp and :datetime fields
-      # Output: array of [YearMonth, data_rows] pairs
       def by_month(data)
         return [] if data.nil? || data.empty?
 
