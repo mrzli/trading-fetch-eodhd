@@ -2,7 +2,6 @@
 
 require_relative "../../../test_helper"
 
-require "bigdecimal"
 require_relative "../../../../lib/eodhd/process/intraday/intraday_csv_parser"
 
 describe Eodhd::IntradayCsvParser do
@@ -19,19 +18,19 @@ describe Eodhd::IntradayCsvParser do
       {
         timestamp: 100,
         datetime: "2000-01-01 00:00:00",
-        open: BigDecimal("1"),
-        high: BigDecimal("2"),
-        low: BigDecimal("3"),
-        close: BigDecimal("4"),
+        open: 1.0,
+        high: 2.0,
+        low: 3.0,
+        close: 4.0,
         volume: 10
       },
       {
         timestamp: 200,
         datetime: "2000-01-01 00:01:00",
-        open: BigDecimal("5.5"),
-        high: BigDecimal("6.5"),
-        low: BigDecimal("4.5"),
-        close: BigDecimal("5.0"),
+        open: 5.5,
+        high: 6.5,
+        low: 4.5,
+        close: 5.0,
         volume: 20
       }
     ]

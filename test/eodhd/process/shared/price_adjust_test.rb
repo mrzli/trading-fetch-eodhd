@@ -3,7 +3,6 @@
 
 require_relative "../../../test_helper"
 
-require "bigdecimal"
 require "date"
 
 require_relative "../../../../lib/eodhd/parsing/splits_parser"
@@ -13,7 +12,7 @@ require_relative "../../../../lib/eodhd/process/shared/price_adjust"
 describe Eodhd::PriceAdjust do
   it "returns rows unchanged when no splits" do
     rows = [
-      { timestamp: Time.utc(2024, 1, 10).to_i, date: Date.new(2024, 1, 10), open: BigDecimal("10"), high: BigDecimal("11"), low: BigDecimal("9"), close: BigDecimal("10.5"), volume: 100 }
+      { timestamp: Time.utc(2024, 1, 10).to_i, date: Date.new(2024, 1, 10), open: 10.0, high: 11.0, low: 9.0, close: 10.5, volume: 100 }
     ]
 
     adjusted = Eodhd::PriceAdjust.apply(rows, [])
@@ -65,10 +64,10 @@ describe Eodhd::PriceAdjust do
     {
       timestamp: date.to_time.to_i,
       date: date,
-      open: BigDecimal(open),
-      high: BigDecimal(high),
-      low: BigDecimal(low),
-      close: BigDecimal(close),
+      open: Float(open),
+      high: Float(high),
+      low: Float(low),
+      close: Float(close),
       volume: volume
     }
   end

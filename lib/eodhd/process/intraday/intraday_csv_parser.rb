@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "csv"
-require "bigdecimal"
 
 module Eodhd
   class IntradayCsvParser
@@ -17,10 +16,10 @@ module Eodhd
             timestamp = Integer(row["Timestamp"])
             gmtoffset = Integer(row["Gmtoffset"])
             datetime = row["Datetime"]
-            open = BigDecimal(row["Open"])
-            high = BigDecimal(row["High"])
-            low = BigDecimal(row["Low"])
-            close = BigDecimal(row["Close"])
+            open = Float(row["Open"])
+            high = Float(row["High"])
+            low = Float(row["Low"])
+            close = Float(row["Close"])
             volume_str = row["Volume"].to_s
             volume = volume_str != "" ? Integer(volume_str) : 0
           rescue TypeError => e

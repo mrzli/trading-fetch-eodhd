@@ -2,7 +2,6 @@
 
 require_relative "../../../test_helper"
 
-require "bigdecimal"
 require "date"
 require_relative "../../../../lib/eodhd/process/eod/eod_csv_parser"
 
@@ -21,19 +20,19 @@ describe Eodhd::EodCsvParser do
       {
         timestamp: Date.new(2024, 1, 10).to_time.to_i,
         date: Date.new(2024, 1, 10),
-        open: BigDecimal("10"),
-        high: BigDecimal("11"),
-        low: BigDecimal("9"),
-        close: BigDecimal("10.5"),
+        open: 10.0,
+        high: 11.0,
+        low: 9.0,
+        close: 10.5,
         volume: 1000
       },
       {
         timestamp: Date.new(2024, 1, 11).to_time.to_i,
         date: Date.new(2024, 1, 11),
-        open: BigDecimal("20.1"),
-        high: BigDecimal("21.2"),
-        low: BigDecimal("19.9"),
-        close: BigDecimal("20.5"),
+        open: 20.1,
+        high: 21.2,
+        low: 19.9,
+        close: 20.5,
         volume: 2000
       }
     ]

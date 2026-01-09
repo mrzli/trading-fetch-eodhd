@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "bigdecimal"
 require "csv"
 require "date"
 
@@ -45,7 +44,7 @@ module Eodhd
     end
 
     def format_price(price)
-      price.round(Constants::OUTPUT_DECIMALS).to_s("F")
+      price.round(Constants::OUTPUT_DECIMALS).to_s
     end
 
     def to_csv(rows)

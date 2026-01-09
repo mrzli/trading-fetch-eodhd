@@ -2,7 +2,6 @@
 
 require_relative "../../../test_helper"
 
-require "bigdecimal"
 require_relative "../../../../lib/eodhd/process/intraday/data_splitter"
 
 describe Eodhd::DataSplitter do
@@ -29,10 +28,10 @@ describe Eodhd::DataSplitter do
 
     it "groups data by year-month" do
       data = [
-        { timestamp: 100, datetime: "2020-01-15 10:00:00", open: BigDecimal("1"), high: BigDecimal("2"), low: BigDecimal("1"), close: BigDecimal("1.5"), volume: 10 },
-        { timestamp: 200, datetime: "2020-01-20 11:00:00", open: BigDecimal("2"), high: BigDecimal("3"), low: BigDecimal("2"), close: BigDecimal("2.5"), volume: 20 },
-        { timestamp: 300, datetime: "2020-02-05 12:00:00", open: BigDecimal("3"), high: BigDecimal("4"), low: BigDecimal("3"), close: BigDecimal("3.5"), volume: 30 },
-        { timestamp: 400, datetime: "2021-01-10 13:00:00", open: BigDecimal("4"), high: BigDecimal("5"), low: BigDecimal("4"), close: BigDecimal("4.5"), volume: 40 }
+        { timestamp: 100, datetime: "2020-01-15 10:00:00", open: 1.0, high: 2.0, low: 1.0, close: 1.5, volume: 10 },
+        { timestamp: 200, datetime: "2020-01-20 11:00:00", open: 2.0, high: 3.0, low: 2.0, close: 2.5, volume: 20 },
+        { timestamp: 300, datetime: "2020-02-05 12:00:00", open: 3.0, high: 4.0, low: 3.0, close: 3.5, volume: 30 },
+        { timestamp: 400, datetime: "2021-01-10 13:00:00", open: 4.0, high: 5.0, low: 4.0, close: 4.5, volume: 40 }
       ]
 
       result = Eodhd::DataSplitter.by_month(data)
@@ -41,20 +40,20 @@ describe Eodhd::DataSplitter do
         {
           key: Eodhd::DataSplitter::YearMonth.new(2020, 1),
           value: [
-            { timestamp: 100, datetime: "2020-01-15 10:00:00", open: BigDecimal("1"), high: BigDecimal("2"), low: BigDecimal("1"), close: BigDecimal("1.5"), volume: 10 },
-            { timestamp: 200, datetime: "2020-01-20 11:00:00", open: BigDecimal("2"), high: BigDecimal("3"), low: BigDecimal("2"), close: BigDecimal("2.5"), volume: 20 }
+            { timestamp: 100, datetime: "2020-01-15 10:00:00", open: 1.0, high: 2.0, low: 1.0, close: 1.5, volume: 10 },
+            { timestamp: 200, datetime: "2020-01-20 11:00:00", open: 2.0, high: 3.0, low: 2.0, close: 2.5, volume: 20 }
           ]
         },
         {
           key: Eodhd::DataSplitter::YearMonth.new(2020, 2),
           value: [
-            { timestamp: 300, datetime: "2020-02-05 12:00:00", open: BigDecimal("3"), high: BigDecimal("4"), low: BigDecimal("3"), close: BigDecimal("3.5"), volume: 30 }
+            { timestamp: 300, datetime: "2020-02-05 12:00:00", open: 3.0, high: 4.0, low: 3.0, close: 3.5, volume: 30 }
           ]
         },
         {
           key: Eodhd::DataSplitter::YearMonth.new(2021, 1),
           value: [
-            { timestamp: 400, datetime: "2021-01-10 13:00:00", open: BigDecimal("4"), high: BigDecimal("5"), low: BigDecimal("4"), close: BigDecimal("4.5"), volume: 40 }
+            { timestamp: 400, datetime: "2021-01-10 13:00:00", open: 4.0, high: 5.0, low: 4.0, close: 4.5, volume: 40 }
           ]
         }
       ]
@@ -64,9 +63,9 @@ describe Eodhd::DataSplitter do
 
     it "sorts output by year and month" do
       data = [
-        { timestamp: 400, datetime: "2021-01-10 13:00:00", open: BigDecimal("4"), high: BigDecimal("4"), low: BigDecimal("4"), close: BigDecimal("4"), volume: 40 },
-        { timestamp: 100, datetime: "2020-01-15 10:00:00", open: BigDecimal("1"), high: BigDecimal("1"), low: BigDecimal("1"), close: BigDecimal("1"), volume: 10 },
-        { timestamp: 300, datetime: "2020-02-05 12:00:00", open: BigDecimal("3"), high: BigDecimal("3"), low: BigDecimal("3"), close: BigDecimal("3"), volume: 30 }
+        { timestamp: 400, datetime: "2021-01-10 13:00:00", open: 4.0, high: 4.0, low: 4.0, close: 4.0, volume: 40 },
+        { timestamp: 100, datetime: "2020-01-15 10:00:00", open: 1.0, high: 1.0, low: 1.0, close: 1.0, volume: 10 },
+        { timestamp: 300, datetime: "2020-02-05 12:00:00", open: 3.0, high: 3.0, low: 3.0, close: 3.0, volume: 30 }
       ]
 
       result = Eodhd::DataSplitter.by_month(data)
@@ -75,19 +74,19 @@ describe Eodhd::DataSplitter do
         {
           key: Eodhd::DataSplitter::YearMonth.new(2020, 1),
           value: [
-            { timestamp: 100, datetime: "2020-01-15 10:00:00", open: BigDecimal("1"), high: BigDecimal("1"), low: BigDecimal("1"), close: BigDecimal("1"), volume: 10 }
+            { timestamp: 100, datetime: "2020-01-15 10:00:00", open: 1.0, high: 1.0, low: 1.0, close: 1.0, volume: 10 }
           ]
         },
         {
           key: Eodhd::DataSplitter::YearMonth.new(2020, 2),
           value: [
-            { timestamp: 300, datetime: "2020-02-05 12:00:00", open: BigDecimal("3"), high: BigDecimal("3"), low: BigDecimal("3"), close: BigDecimal("3"), volume: 30 }
+            { timestamp: 300, datetime: "2020-02-05 12:00:00", open: 3.0, high: 3.0, low: 3.0, close: 3.0, volume: 30 }
           ]
         },
         {
           key: Eodhd::DataSplitter::YearMonth.new(2021, 1),
           value: [
-            { timestamp: 400, datetime: "2021-01-10 13:00:00", open: BigDecimal("4"), high: BigDecimal("4"), low: BigDecimal("4"), close: BigDecimal("4"), volume: 40 }
+            { timestamp: 400, datetime: "2021-01-10 13:00:00", open: 4.0, high: 4.0, low: 4.0, close: 4.0, volume: 40 }
           ]
         }
       ]

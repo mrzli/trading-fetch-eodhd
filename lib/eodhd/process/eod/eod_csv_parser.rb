@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "bigdecimal"
 require "csv"
 require "date"
 
@@ -21,10 +20,10 @@ module Eodhd
           begin
             date = Date.iso8601(date_str)
             timestamp = date.to_time.to_i
-            open = BigDecimal(row["Open"])
-            high = BigDecimal(row["High"])
-            low = BigDecimal(row["Low"])
-            close = BigDecimal(row["Close"])
+            open = Float(row["Open"])
+            high = Float(row["High"])
+            low = Float(row["Low"])
+            close = Float(row["Close"])
             volume = Integer(row["Volume"])
           rescue StandardError => e
             raise Error, "Invalid data in row '#{date_str}': #{e.message}"
