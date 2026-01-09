@@ -22,11 +22,11 @@ module Eodhd
             factor = splits[idx][:factor]
 
             row.merge(
-              open: adjust_price(row[:open], factor),
-              high: adjust_price(row[:high], factor),
-              low: adjust_price(row[:low], factor),
-              close: adjust_price(row[:close], factor),
-              volume: adjust_volume(row[:volume], factor)
+              open: adjust_price_for_split(row[:open], factor),
+              high: adjust_price_for_split(row[:high], factor),
+              low: adjust_price_for_split(row[:low], factor),
+              close: adjust_price_for_split(row[:close], factor),
+              volume: adjust_volume_for_split(row[:volume], factor)
             )
           end
         end
@@ -34,11 +34,11 @@ module Eodhd
 
       private
 
-      def adjust_price(value, factor)
+      def adjust_price_for_split(value, factor)
         value / factor
       end
 
-      def adjust_volume(value, factor)
+      def adjust_volume_for_split(value, factor)
         (value * factor).to_i
       end
     end
