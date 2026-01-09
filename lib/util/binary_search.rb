@@ -62,29 +62,22 @@ module BinarySearch
     # Finds the greatest index i where array[i] < value
     # If block given, uses block to extract comparable value: block.call(array[i]) < value
     # Returns nil if all elements are >= value
-    def greatest_lt(array, value, &block)
+    def last_lt(array, value, &block)
       idx = lower_bound(array, value, &block)
       idx > 0 ? idx - 1 : nil
     end
 
-    # Finds the greatest index i where array[i] <= value
-    # If block given, uses block to extract comparable value: block.call(array[i]) <= value
-    # Returns nil if all elements are > value
-    def greatest_lte(array, value, &block)
+    def last_lte(array, value, &block)
       idx = upper_bound(array, value, &block)
       idx > 0 ? idx - 1 : nil
     end
 
-    # Finds the smallest index i where array[i] >= value
-    # Alias for lower_bound for clarity
-    def smallest_gte(array, value, &block)
+    def first_gte(array, value, &block)
       idx = lower_bound(array, value, &block)
       idx < array.length ? idx : nil
     end
 
-    # Finds the smallest index i where array[i] > value
-    # Alias for upper_bound for clarity
-    def smallest_gt(array, value, &block)
+    def first_gt(array, value, &block)
       idx = upper_bound(array, value, &block)
       idx < array.length ? idx : nil
     end

@@ -110,21 +110,21 @@ describe BinarySearch do
     end
   end
 
-  describe ".greatest_lt" do
+  describe ".last_lt" do
     it "returns nil for empty array" do
-      result = BinarySearch.greatest_lt([], 5)
+      result = BinarySearch.last_lt([], 5)
       assert_nil result
     end
 
     it "finds greatest index where element < value" do
       arr = [1, 3, 5, 7, 9]
       
-      assert_nil BinarySearch.greatest_lt(arr, 0)
-      assert_nil BinarySearch.greatest_lt(arr, 1)
-      assert_equal 0, BinarySearch.greatest_lt(arr, 2)
-      assert_equal 1, BinarySearch.greatest_lt(arr, 4)
-      assert_equal 2, BinarySearch.greatest_lt(arr, 6)
-      assert_equal 4, BinarySearch.greatest_lt(arr, 10)
+      assert_nil BinarySearch.last_lt(arr, 0)
+      assert_nil BinarySearch.last_lt(arr, 1)
+      assert_equal 0, BinarySearch.last_lt(arr, 2)
+      assert_equal 1, BinarySearch.last_lt(arr, 4)
+      assert_equal 2, BinarySearch.last_lt(arr, 6)
+      assert_equal 4, BinarySearch.last_lt(arr, 10)
     end
 
     it "works with block to extract value" do
@@ -135,27 +135,27 @@ describe BinarySearch do
         { timestamp: 500 }
       ]
 
-      result = BinarySearch.greatest_lt(arr, 250) { |item| item[:timestamp] }
+      result = BinarySearch.last_lt(arr, 250) { |item| item[:timestamp] }
       assert_equal 1, result
     end
   end
 
-  describe ".greatest_lte" do
+  describe ".last_lte" do
     it "returns nil for empty array" do
-      result = BinarySearch.greatest_lte([], 5)
+      result = BinarySearch.last_lte([], 5)
       assert_nil result
     end
 
     it "finds greatest index where element <= value" do
       arr = [1, 3, 5, 7, 9]
       
-      assert_nil BinarySearch.greatest_lte(arr, 0)
-      assert_equal 0, BinarySearch.greatest_lte(arr, 1)
-      assert_equal 0, BinarySearch.greatest_lte(arr, 2)
-      assert_equal 1, BinarySearch.greatest_lte(arr, 3)
-      assert_equal 2, BinarySearch.greatest_lte(arr, 5)
-      assert_equal 2, BinarySearch.greatest_lte(arr, 6)
-      assert_equal 4, BinarySearch.greatest_lte(arr, 10)
+      assert_nil BinarySearch.last_lte(arr, 0)
+      assert_equal 0, BinarySearch.last_lte(arr, 1)
+      assert_equal 0, BinarySearch.last_lte(arr, 2)
+      assert_equal 1, BinarySearch.last_lte(arr, 3)
+      assert_equal 2, BinarySearch.last_lte(arr, 5)
+      assert_equal 2, BinarySearch.last_lte(arr, 6)
+      assert_equal 4, BinarySearch.last_lte(arr, 10)
     end
 
     it "works with block to extract value" do
@@ -166,29 +166,29 @@ describe BinarySearch do
         { timestamp: 500 }
       ]
 
-      result = BinarySearch.greatest_lte(arr, 200) { |item| item[:timestamp] }
+      result = BinarySearch.last_lte(arr, 200) { |item| item[:timestamp] }
       assert_equal 1, result
 
-      result = BinarySearch.greatest_lte(arr, 250) { |item| item[:timestamp] }
+      result = BinarySearch.last_lte(arr, 250) { |item| item[:timestamp] }
       assert_equal 1, result
     end
   end
 
-  describe ".smallest_gte" do
+  describe ".first_gte" do
     it "returns nil for empty array" do
-      result = BinarySearch.smallest_gte([], 5)
+      result = BinarySearch.first_gte([], 5)
       assert_nil result
     end
 
     it "finds smallest index where element >= value" do
       arr = [1, 3, 5, 7, 9]
       
-      assert_equal 0, BinarySearch.smallest_gte(arr, 0)
-      assert_equal 0, BinarySearch.smallest_gte(arr, 1)
-      assert_equal 1, BinarySearch.smallest_gte(arr, 2)
-      assert_equal 2, BinarySearch.smallest_gte(arr, 5)
-      assert_equal 4, BinarySearch.smallest_gte(arr, 8)
-      assert_nil BinarySearch.smallest_gte(arr, 10)
+      assert_equal 0, BinarySearch.first_gte(arr, 0)
+      assert_equal 0, BinarySearch.first_gte(arr, 1)
+      assert_equal 1, BinarySearch.first_gte(arr, 2)
+      assert_equal 2, BinarySearch.first_gte(arr, 5)
+      assert_equal 4, BinarySearch.first_gte(arr, 8)
+      assert_nil BinarySearch.first_gte(arr, 10)
     end
 
     it "works with block to extract value" do
@@ -199,26 +199,26 @@ describe BinarySearch do
         { timestamp: 500 }
       ]
 
-      result = BinarySearch.smallest_gte(arr, 250) { |item| item[:timestamp] }
+      result = BinarySearch.first_gte(arr, 250) { |item| item[:timestamp] }
       assert_equal 2, result
     end
   end
 
-  describe ".smallest_gt" do
+  describe ".first_gt" do
     it "returns nil for empty array" do
-      result = BinarySearch.smallest_gt([], 5)
+      result = BinarySearch.first_gt([], 5)
       assert_nil result
     end
 
     it "finds smallest index where element > value" do
       arr = [1, 3, 5, 7, 9]
       
-      assert_equal 0, BinarySearch.smallest_gt(arr, 0)
-      assert_equal 1, BinarySearch.smallest_gt(arr, 1)
-      assert_equal 1, BinarySearch.smallest_gt(arr, 2)
-      assert_equal 2, BinarySearch.smallest_gt(arr, 3)
-      assert_equal 3, BinarySearch.smallest_gt(arr, 5)
-      assert_nil BinarySearch.smallest_gt(arr, 10)
+      assert_equal 0, BinarySearch.first_gt(arr, 0)
+      assert_equal 1, BinarySearch.first_gt(arr, 1)
+      assert_equal 1, BinarySearch.first_gt(arr, 2)
+      assert_equal 2, BinarySearch.first_gt(arr, 3)
+      assert_equal 3, BinarySearch.first_gt(arr, 5)
+      assert_nil BinarySearch.first_gt(arr, 10)
     end
 
     it "works with block to extract value" do
@@ -229,7 +229,7 @@ describe BinarySearch do
         { timestamp: 500 }
       ]
 
-      result = BinarySearch.smallest_gt(arr, 200) { |item| item[:timestamp] }
+      result = BinarySearch.first_gt(arr, 200) { |item| item[:timestamp] }
       assert_equal 2, result
     end
   end
