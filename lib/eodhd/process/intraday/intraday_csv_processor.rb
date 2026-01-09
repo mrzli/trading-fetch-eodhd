@@ -16,12 +16,12 @@ module Eodhd
       @log = log
     end
 
-    def process_csv_files(raw_csv_files, splits)
-      unless raw_csv_files.is_a?(Array)
-        raise ArgumentError, "raw_csv_files must be an Array"
+    def process_csv_list(raw_csv_list, splits)
+      unless raw_csv_list.is_a?(Array)
+        raise ArgumentError, "raw_csv_list must be an Array"
       end
 
-      inputs = raw_csv_files.drop(70).map.with_index do |raw_csv, index|
+      inputs = raw_csv_list.drop(70).map.with_index do |raw_csv, index|
         parsed = IntradayCsvParser.parse(raw_csv)
         if parsed.empty?
           @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")

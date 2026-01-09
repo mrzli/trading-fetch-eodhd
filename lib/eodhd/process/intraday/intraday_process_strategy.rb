@@ -67,7 +67,7 @@ module Eodhd
 
       raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
 
-      outputs = @processor.process_csv_files(raw_csv_files, splits)
+      outputs = @processor.process_csv_list(raw_csv_files, splits)
 
       if outputs.empty?
         @log.info("No intraday rows produced for #{exchange}/#{symbol}")
