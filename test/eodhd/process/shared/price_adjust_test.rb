@@ -10,12 +10,12 @@ require_relative "../../../../lib/eodhd/process/shared/price_adjust"
 require_relative "../../../../lib/eodhd/process/shared/splits_processor"
 
 describe Eodhd::PriceAdjust do
-  it "returns rows unchanged when no splits" do
+  it "returns rows unchanged when no splits and no dividends" do
     rows = [
       { timestamp: Time.utc(2024, 1, 10).to_i, date: Date.new(2024, 1, 10), open: 10.0, high: 11.0, low: 9.0, close: 10.5, volume: 100 }
     ]
 
-    adjusted = Eodhd::PriceAdjust.apply(rows, [])
+    adjusted = Eodhd::PriceAdjust.apply(rows, [], [])
 
     _(adjusted).must_equal rows
   end
@@ -43,7 +43,7 @@ describe Eodhd::PriceAdjust do
     raw_splits = Eodhd::SplitsParser.parse_splits(splits_json)
     segments = Eodhd::SplitsProcessor.process(raw_splits)
 
-    adjusted = Eodhd::PriceAdjust.apply(rows, segments)
+    adjusted = Eodhd::PriceAdjust.apply(rows, segments, [])
 
     expected = [
       drow("1999-11-18", "1.0", "1.0", "1.0", "1.0", 560),

@@ -47,7 +47,7 @@ module Eodhd
 
       @log.info("Processed splits.")
 
-      data = PriceAdjust.apply(data, splits)
+      data = PriceAdjust.apply(data, splits, [])
 
       @log.info("Applied price adjustments.")
 

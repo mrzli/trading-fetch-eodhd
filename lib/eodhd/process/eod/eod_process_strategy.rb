@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "../../parsing/dividends_parser"
 require_relative "../../parsing/splits_parser"
 require_relative "eod_csv_processor"
 
@@ -65,6 +66,7 @@ module Eodhd
     def process_symbol(exchange, symbol, raw_rel)
       processed_rel = Path.processed_eod_data(exchange, symbol)
       splits_rel = Path.splits(exchange, symbol)
+      dividends_rel = Path.dividends(exchange, symbol)
 
       unless should_process?(raw_rel: raw_rel, splits_rel: splits_rel, processed_rel: processed_rel)
         @log.info("Skipping processed EOD (fresh): #{processed_rel}")
@@ -74,8 +76,10 @@ module Eodhd
       raw_csv = @io.read_text(raw_rel)
       splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
       splits = SplitsParser.parse_splits(splits_json)
+      dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
+      dividends = DividendsParser.parse_dividends(dividends_json)
 
-      processed_csv = @processor.process_csv(raw_csv, splits)
+      processed_csv = @processor.process_csv(raw_csv, splits, dividends)
       saved_path = @io.save_csv(processed_rel, processed_csv)
       @log.info("Wrote #{saved_path}")
     rescue StandardError => e
