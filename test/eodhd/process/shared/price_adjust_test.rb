@@ -59,6 +59,56 @@ describe Eodhd::PriceAdjust do
     _(adjusted).must_equal expected
   end
 
+  it "applies dividend multipliers to prior rows (prices only)" do
+    rows = [
+      drow("2024-01-09", "100", "100", "100", "100", 10),
+      drow("2024-01-10", "110", "110", "110", "110", 20),
+      drow("2024-01-11", "120", "120", "120", "120", 30)
+    ]
+
+    # dividend on 2024-01-11 uses previous close (2024-01-10 close=110)
+    multiplier = (110.0 - 2.0) / 110.0
+    dividends = [ { timestamp: Date.parse("2024-01-11").to_time.to_i, multiplier: multiplier } ]
+
+    adjusted = Eodhd::PriceAdjust.apply(rows, [], dividends)
+
+    expected = [
+      drow("2024-01-09", (100.0 * multiplier).to_s, (100.0 * multiplier).to_s, (100.0 * multiplier).to_s, (100.0 * multiplier).to_s, 10),
+      drow("2024-01-10", (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, 20),
+      drow("2024-01-11", "120.0", "120.0", "120.0", "120.0", 30)
+    ]
+
+    _(adjusted).must_equal expected
+  end
+
+  it "combines splits and dividends adjustments" do
+    rows = [
+      drow("2024-01-08", "90", "90", "90", "90", 10),
+      drow("2024-01-09", "100", "100", "100", "100", 20),
+      drow("2024-01-10", "110", "110", "110", "110", 30),
+      drow("2024-01-11", "120", "120", "120", "120", 40)
+    ]
+
+    # One split on 2024-01-10: factor=2 (affects rows before 2024-01-10)
+    factor = 2.0
+    splits = [ { timestamp: Date.parse("2024-01-10").to_time.to_i, factor: factor } ]
+
+    # One dividend on 2024-01-11 with prev close 110 and value 1.0 -> multiplier
+    multiplier = (110.0 - 1.0) / 110.0
+    dividends = [ { timestamp: Date.parse("2024-01-11").to_time.to_i, multiplier: multiplier } ]
+
+    adjusted = Eodhd::PriceAdjust.apply(rows, splits, dividends)
+
+    expected = [
+      drow("2024-01-08", (90.0 / factor * multiplier).to_s, (90.0 / factor * multiplier).to_s, (90.0 / factor * multiplier).to_s, (90.0 / factor * multiplier).to_s, 20),
+      drow("2024-01-09", (100.0 / factor * multiplier).to_s, (100.0 / factor * multiplier).to_s, (100.0 / factor * multiplier).to_s, (100.0 / factor * multiplier).to_s, 40),
+      drow("2024-01-10", (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, (110.0 * multiplier).to_s, 30),
+      drow("2024-01-11", "120.0", "120.0", "120.0", "120.0", 40)
+    ]
+
+    _(adjusted).must_equal expected
+  end
+
   def drow(date_str, open, high, low, close, volume)
     date = Date.parse(date_str)
     {

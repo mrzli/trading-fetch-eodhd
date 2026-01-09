@@ -2,6 +2,7 @@
 
 require_relative "../../../test_helper"
 
+require_relative "../../../../lib/eodhd/parsing/dividends_parser"
 require_relative "../../../../lib/eodhd/parsing/splits_parser"
 require_relative "../../../../lib/eodhd/process/eod/eod_csv_processor"
 
@@ -27,9 +28,16 @@ describe Eodhd::EodCsvProcessor do
       ]
     JSON
 
+    dividends_json = <<~JSON
+      [
+        {"date":"2024-01-11","value":1.0}
+      ]
+    JSON
+
     splits = Eodhd::SplitsParser.parse_splits(splits_json)
+    dividends = Eodhd::DividendsParser.parse_dividends(dividends_json)
     processor = Eodhd::EodCsvProcessor.new(log: Eodhd::NullLogger.new)
-    out = processor.process_csv(raw_csv, splits)
+    out = processor.process_csv(raw_csv, splits, dividends)
 
     expected = <<~CSV
       Date,Open,High,Low,Close,Volume
