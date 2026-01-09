@@ -166,15 +166,15 @@ describe Eodhd::Path do
   )
 
   test_equals(
-    ".processed_intraday_year",
+    ".processed_intraday_year_month",
     [
       {
         description: "year file",
-        input: { exchange: "US", symbol: "AAPL", year: 2003 },
-        expected: File.join("data", "intraday", "us", "aapl", "2003.csv")
+        input: { exchange: "US", symbol: "AAPL", year: 2003, month: 1 },
+        expected: File.join("data", "intraday", "us", "aapl", "2003-01.csv")
       }
     ],
-    call: ->(input) { Eodhd::Path.processed_intraday_year(input[:exchange], input[:symbol], input[:year]) }
+    call: ->(input) { Eodhd::Path.processed_intraday_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
   )
 
   test_equals(

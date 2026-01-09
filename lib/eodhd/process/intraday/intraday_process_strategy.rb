@@ -69,18 +69,17 @@ module Eodhd
 
       outputs = @processor.process_csv_list(raw_csv_files, splits)
 
-      puts outputs.inspect.to_s[0..500]
+      if outputs.empty?
+        @log.info("No intraday rows produced for #{exchange}/#{symbol}")
+        return
+      end
 
-      # if outputs.empty?
-      #   @log.info("No intraday rows produced for #{exchange}/#{symbol}")
-      #   return
-      # end
-
-      # outputs.keys.sort.each do |year|
-      #   processed_rel = Path.processed_intraday_year(exchange, symbol, year)
-      #   saved_path = @io.save_csv(processed_rel, outputs.fetch(year))
-      #   @log.info("Wrote #{saved_path}")
-      # end
+      outputs.each do |item|
+        item in { key: key, csv: csv }
+        processed_rel = Path.processed_intraday_year_month(exchange, symbol, key.year, key.month)
+        saved_path = @io.save_csv(processed_rel, csv)
+        @log.info("Wrote #{saved_path}")
+      end
     rescue StandardError => e
       @log.warn("Failed processing intraday for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
     end

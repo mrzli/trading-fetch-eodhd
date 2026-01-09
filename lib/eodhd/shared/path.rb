@@ -50,10 +50,11 @@ module Eodhd
         File.join("data", "intraday", exchange, symbol)
       end
 
-      def processed_intraday_year(exchange, symbol, year)
+      def processed_intraday_year_month(exchange, symbol, year, month)
         dir = processed_intraday_data_dir(exchange, symbol)
         year = Validate.integer("year", year)
-        File.join(dir, "#{year}.csv")
+        month = Validate.integer("month", month)
+        File.join(dir, "#{year}-#{format('%02d', month)}.csv")
       end
 
       def splits(exchange, symbol)

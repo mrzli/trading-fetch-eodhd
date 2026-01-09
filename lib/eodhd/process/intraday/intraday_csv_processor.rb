@@ -24,7 +24,7 @@ module Eodhd
         raise ArgumentError, "raw_csv_list must be an Array"
       end
 
-      inputs = raw_csv_list.drop(70).map.with_index do |raw_csv, index|
+      inputs = raw_csv_list.drop(0).map.with_index do |raw_csv, index|
         parsed = IntradayCsvParser.parse(raw_csv)
         if parsed.empty?
           @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")
@@ -40,16 +40,27 @@ module Eodhd
 
       data = InputMerger.merge(inputs)
 
+      @log.info("Merged intraday rows. Total rows: #{data.size}.")
+
       splits = SplitProcessor.process(splits)
+
+      @log.info("Processed splits.")
+
       data = PriceAdjust.apply(data, splits)
 
+      @log.info("Applied price adjustments.")
+
       data_items = DataSplitter.by_month(data)
+
+      @log.info("Split intraday data into #{data_items.size} month(s).")
 
       data_items.map do |item|
         item in { key:, value: }
 
         value = to_output(value)
         csv = to_csv(value)
+
+        @log.info("Generated CSV for #{key.to_s} with #{value.size} rows.")
         
         {
           key: key,
