@@ -5,7 +5,6 @@ require "csv"
 require "date"
 
 require_relative "eod_csv_parser"
-require_relative "../shared/price_adjuster"
 require_relative "../shared/split_processor"
 
 module Eodhd
@@ -48,13 +47,21 @@ module Eodhd
         {
           timestamp: timestamp,
           date: row[:date],
-          open: PriceAdjuster.adjust_price(row[:open], factor),
-          high: PriceAdjuster.adjust_price(row[:high], factor),
-          low: PriceAdjuster.adjust_price(row[:low], factor),
-          close: PriceAdjuster.adjust_price(row[:close], factor),
-          volume: PriceAdjuster.adjust_volume(row[:volume], factor)
+          open: adjust_price(row[:open], factor),
+          high: adjust_price(row[:high], factor),
+          low: adjust_price(row[:low], factor),
+          close: adjust_price(row[:close], factor),
+          volume: adjust_volume(row[:volume], factor)
         }
       end
+    end
+
+    def adjust_price(value, factor)
+      value / factor
+    end
+
+    def adjust_volume(value, factor)
+      (value * factor).to_i
     end
 
     def to_output(data)
