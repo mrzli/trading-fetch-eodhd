@@ -45,11 +45,17 @@ module Eodhd
 
       data_items = DataSplitter.by_month(data)
 
-      puts data_items.class, data_items.size, data_items[0].class
-      puts data_items[0].inspect.to_s[0..500]
+      data_items.map do |item|
+        item in { key:, value: }
 
-      data = to_output(data)
-      to_csv(data)
+        value = to_output(value)
+        csv = to_csv(value)
+        
+        {
+          key: key,
+          csv: csv
+        }
+      end
     rescue IntradayCsvParser::Error => e
       raise Error, e.message
     rescue ArgumentError => e
