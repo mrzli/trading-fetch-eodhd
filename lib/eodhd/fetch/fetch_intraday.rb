@@ -15,9 +15,18 @@ module Eodhd
       @shared = shared
     end
 
-    def fetch(_symbol_entries)
-      symbol = "AAPL"
-      exchange = "US"
+    def fetch(symbol_entries)
+      symbol_entries.each do |entry|
+        next unless @shared.should_fetch?(entry)
+        fetch_single(entry)
+      end
+    end
+
+    private
+
+    def fetch_single(symbol_entry)
+      exchange = symbol_entry[:exchange]
+      symbol = symbol_entry[:symbol]
 
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
@@ -59,8 +68,6 @@ module Eodhd
         @shared.pause_between_requests
       end
     end
-
-    private
 
     def latest_intraday_raw_from_seconds(exchange, symbol)
       exchange = Validate.required_string("exchange", exchange)

@@ -28,14 +28,19 @@ module Eodhd
       @fetch_eod = FetchEod.new(log: log, api: api, io: io, shared: @shared)
       @fetch_intraday = FetchIntraday.new(log: log, api: api, io: io, shared: @shared)
     end
-∏
+
     def run
       symbol_entries = @fetch_exchange_data.fetch
 
       @fetch_splits.fetch(symbol_entries)
       @fetch_dividends.fetch(symbol_entries)
+
       @fetch_eod.fetch(symbol_entries)
-      @fetch_intraday.fetch(symbol_entries)
+
+      intraday_symbol_entries = symbol_entries.select do
+         |entry| entry[:symbol] == "AAPL" && entry[:exchange] == "US"
+      end
+      @fetch_intraday.fetch(intraday_symbol_entries)
     end
 
     private
