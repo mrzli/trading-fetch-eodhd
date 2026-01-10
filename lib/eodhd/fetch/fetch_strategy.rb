@@ -40,7 +40,7 @@ module Eodhd
       @fetch_eod.fetch(symbol_entries)
 
       intraday_symbol_entries = symbol_entries.select do |entry|
-        (INTRADAY_INCLUDED_SYMBOLS.length > 0 || INTRADAY_INCLUDED_SYMBOLS.include?(entry[:symbol]) && INTRADAY_INCLUDED_EXCHANGES.include?(entry[:exchange]))
+        (INTRADAY_INCLUDED_SYMBOLS.length == 0 || INTRADAY_INCLUDED_SYMBOLS.include?(entry[:symbol]) && INTRADAY_INCLUDED_EXCHANGES.include?(entry[:exchange]))
       end
       @fetch_intraday.fetch(intraday_symbol_entries)
     end
