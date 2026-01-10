@@ -7,9 +7,14 @@ require_relative "../../util"
 
 module Eodhd
   class Api
-    def initialize(base_url:, api_token:)
+    DEFAULT_MAX_RETRIES = 3
+    DEFAULT_BASE_DELAY = 1.0
+
+    def initialize(base_url:, api_token:, max_retries: DEFAULT_MAX_RETRIES, base_delay: DEFAULT_BASE_DELAY)
       @base_url = Validate.http_url("base_url", base_url)
       @api_token = Validate.required_string("api_token", api_token)
+      @max_retries = max_retries
+      @base_delay = base_delay
     end
 
     def get_exchanges_list_json
@@ -19,10 +24,11 @@ module Eodhd
         fmt: "json"
       )
 
-      response = Net::HTTP.get_response(uri)
-      validate_response(response)
-
-      response.body.to_s
+      retry_with_exponential_backoff do
+        response = Net::HTTP.get_response(uri)
+        validate_response(response)
+        response.body.to_s
+      end
     end
 
     def get_exchange_symbol_list_json(exchange)
@@ -34,10 +40,11 @@ module Eodhd
         fmt: "json"
       )
 
-      response = Net::HTTP.get_response(uri)
-      validate_response(response)
-
-      response.body.to_s
+      retry_with_exponential_backoff do
+        response = Net::HTTP.get_response(uri)
+        validate_response(response)
+        response.body.to_s
+      end
     end
 
     def get_eod_data_csv(exchange, symbol)
@@ -50,10 +57,11 @@ module Eodhd
         fmt: "csv"
       )
 
-      response = Net::HTTP.get_response(uri)
-      validate_response(response)
-
-      response.body.to_s
+      retry_with_exponential_backoff do
+        response = Net::HTTP.get_response(uri)
+        validate_response(response)
+        response.body.to_s
+      end
     end
 
     def get_intraday_csv(exchange, symbol, from:, to:)
@@ -71,10 +79,11 @@ module Eodhd
         to: to
       )
 
-      response = Net::HTTP.get_response(uri)
-      validate_response(response)
-
-      response.body.to_s
+      retry_with_exponential_backoff do
+        response = Net::HTTP.get_response(uri)
+        validate_response(response)
+        response.body.to_s
+      end
     end
 
     def get_splits_json(exchange, symbol)
@@ -87,10 +96,11 @@ module Eodhd
         fmt: "json"
       )
 
-      response = Net::HTTP.get_response(uri)
-      validate_response(response)
-
-      response.body.to_s
+      retry_with_exponential_backoff do
+        response = Net::HTTP.get_response(uri)
+        validate_response(response)
+        response.body.to_s
+      end
     end
 
     def get_dividends_json(exchange, symbol)
@@ -103,16 +113,33 @@ module Eodhd
         fmt: "json"
       )
 
-      response = Net::HTTP.get_response(uri)
-      validate_response(response)
-
-      response.body.to_s
+      retry_with_exponential_backoff do
+        response = Net::HTTP.get_response(uri)
+        validate_response(response)
+        response.body.to_s
+      end
     end
 
     private
 
     def get_full_url(path)
       URI.join(@base_url + "/", path)
+    end
+
+    def retry_with_exponential_backoff
+      attempt = 0
+      begin
+        attempt += 1
+        yield
+      rescue StandardError => e
+        if attempt <= @max_retries
+          delay = @base_delay * (2 ** (attempt - 1))
+          sleep(delay)
+          retry
+        else
+          raise
+        end
+      end
     end
 
     def validate_response(response)
