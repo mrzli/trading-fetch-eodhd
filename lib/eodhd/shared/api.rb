@@ -10,7 +10,14 @@ module Eodhd
     DEFAULT_MAX_RETRIES = 3
     DEFAULT_BASE_DELAY = 1.0
 
-    def initialize(base_url:, api_token:, max_retries: DEFAULT_MAX_RETRIES, base_delay: DEFAULT_BASE_DELAY)
+    def initialize(
+      log:,
+      base_url:,
+      api_token:,
+      max_retries: DEFAULT_MAX_RETRIES,
+      base_delay: DEFAULT_BASE_DELAY
+    )
+      @log = log
       @base_url = Validate.http_url("base_url", base_url)
       @api_token = Validate.required_string("api_token", api_token)
       @max_retries = max_retries
@@ -132,11 +139,13 @@ module Eodhd
         attempt += 1
         yield
       rescue StandardError => e
+        @log.warn("Request failed (attempt #{attempt}/#{@max_retries}): #{e.class}: #{e.message}")
         if attempt <= @max_retries
           delay = @base_delay * (2 ** (attempt - 1))
           sleep(delay)
           retry
         else
+          @log.error("Max retries reached (#{@max_retries}). Giving up.")
           raise
         end
       end

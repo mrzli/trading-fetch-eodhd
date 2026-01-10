@@ -22,6 +22,7 @@ module Eodhd
       end
 
       api = Api.new(
+        log: log,
         base_url: cfg.base_url,
         api_token: cfg.api_token
       )
