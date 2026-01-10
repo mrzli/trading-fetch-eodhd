@@ -13,16 +13,27 @@ module Eodhd
     module_function
 
     def run
-      log = Logger.new
-
       begin
         cfg = Config.eodhd
       rescue Config::Error => e
         abort e.message
       end
 
+      sinks = [
+        Eodhd::ConsoleSink.new(
+          level: ENV["LOG_LEVEL"], 
+          progname: "fetch"),
+        Eodhd::FileSink.new(
+          command: "fetch",
+          output_dir: cfg.output_dir,
+          level: ENV["LOG_LEVEL"],
+          progname: "fetch"
+        )
+      ]
+
+      log = Eodhd::Logger.new(sinks: sinks)
+
       api = Api.new(
-        log: log,
         base_url: cfg.base_url,
         api_token: cfg.api_token
       )

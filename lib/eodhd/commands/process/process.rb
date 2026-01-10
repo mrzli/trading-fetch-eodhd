@@ -12,13 +12,26 @@ module Eodhd
     module_function
 
     def run(mode: "eod", exchange_filters: [], symbol_filters: [])
-      log = Logger.new
-
       begin
         cfg = Config.eodhd
       rescue Config::Error => e
         abort e.message
       end
+
+      sinks = [
+        Eodhd::ConsoleSink.new(
+          level: ENV["LOG_LEVEL"],
+          progname: "process"
+        ),
+        Eodhd::FileSink.new(
+          command: "process",
+          output_dir: cfg.output_dir,
+          level: ENV["LOG_LEVEL"],
+          progname: "process"
+        )
+      ]
+
+      log = Eodhd::Logger.new(sinks: sinks)
 
       io = Io.new(output_dir: cfg.output_dir)
 
