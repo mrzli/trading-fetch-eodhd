@@ -5,10 +5,6 @@ require_relative "../../util"
 module Eodhd
   class Path
     class << self
-      def logging_dir
-        File.join("logs")
-      end
-
       def exchanges_list
         "exchanges-list.json"
       end
