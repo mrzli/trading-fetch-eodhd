@@ -6,10 +6,20 @@ require_relative "../../../lib/eodhd/shared/path"
 
 describe Eodhd::Path do
   test_equals(
+    ".logging_dir",
+    [
+      {
+        input: nil,
+        expected: "logs"
+      }
+    ],
+    call: ->(_input) { Eodhd::Path.logging_dir }
+  )
+
+  test_equals(
     ".exchanges_list",
     [
       {
-        description: "filename",
         input: nil,
         expected: "exchanges-list.json"
       }
