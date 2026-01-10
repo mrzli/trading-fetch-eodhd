@@ -44,10 +44,11 @@ module Eodhd
       @log.info("Merged intraday rows. Total rows: #{data.size}.")
 
       splits = SplitsProcessor.process(splits)
+      dividends = DividendsProcessor.process(dividends, data)
 
-      @log.info("Processed splits.")
+      @log.info("Processed splits and dividends.")
 
-      data = PriceAdjust.apply(data, splits, [])
+      data = PriceAdjust.apply(data, splits, dividends)
 
       @log.info("Applied price adjustments.")
 
