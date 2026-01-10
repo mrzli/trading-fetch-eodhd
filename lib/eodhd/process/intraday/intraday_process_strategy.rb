@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "../../parsing/dividends_parser"
 require_relative "../../parsing/splits_parser"
 require_relative "intraday_csv_processor"
 
@@ -55,6 +56,7 @@ module Eodhd
       raw_rels = raw_abs_files.map { |abs| @io.relative_path(abs) }
 
       splits_rel = Path.splits(exchange, symbol)
+      dividends_rel = Path.dividends(exchange, symbol)
       processed_dir_rel = Path.processed_intraday_data_dir(exchange, symbol)
 
       unless should_process?(raw_rels: raw_rels, splits_rel: splits_rel, processed_dir_rel: processed_dir_rel)
@@ -62,13 +64,14 @@ module Eodhd
         return
       end
 
-      splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : nil
-      splits = splits_json ? SplitsParser.parse_splits(splits_json) : []
-
       raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
 
-      outputs = @processor.process_csv_list(raw_csv_files, splits)
+      splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : nil
+      splits = splits_json ? SplitsParser.parse_splits(splits_json) : []
+      dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
+      dividends = DividendsParser.parse_dividends(dividends_json)
 
+      outputs = @processor.process_csv_list(raw_csv_files, splits, dividends)
       if outputs.empty?
         @log.info("No intraday rows produced for #{exchange}/#{symbol}")
         return

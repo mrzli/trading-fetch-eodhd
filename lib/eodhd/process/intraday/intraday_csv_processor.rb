@@ -20,7 +20,7 @@ module Eodhd
       @log = log
     end
 
-    def process_csv_list(raw_csv_list, splits)
+    def process_csv_list(raw_csv_list, splits, dividends)
       unless raw_csv_list.is_a?(Array)
         raise ArgumentError, "raw_csv_list must be an Array"
       end
