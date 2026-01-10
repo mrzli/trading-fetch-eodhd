@@ -10,10 +10,8 @@ module Eodhd
     SYMBOL_INCLUDED_REAL_EXCHANGES = Set.new(["NYSE", "NASDAQ"]).freeze
     SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
-    def initialize(log:, cfg:, api:, io:)
-      @log = log
+    def initialize(cfg:, io:)
       @cfg = cfg
-      @api = api
       @io = io
     end
 

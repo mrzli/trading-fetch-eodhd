@@ -2,14 +2,20 @@
 
 require_relative "../../util"
 require_relative "../shared/path"
-require_relative "shared"
 
 module Eodhd
-  class FetchSplits < FetchShared
+  class FetchSplits
+
+    def initialize(log:, api:, io:, shared:)
+      @log = log
+      @api = api
+      @io = io
+      @shared = shared
+    end
 
     def fetch(symbol_entries)
       symbol_entries.each do |entry|
-        next unless should_fetch?(entry)
+        next unless @shared.should_fetch?(entry)
         fetch_single(entry)
       end
     end
@@ -17,12 +23,12 @@ module Eodhd
     private
 
     def fetch_single(symbol_entry)
-      exchange = Validate.required_string("exchange", symbol_entry[:exchange])
-      symbol = Validate.required_string("symbol", symbol_entry[:symbol])
+      exchange = symbol_entry[:exchange]
+      symbol = symbol_entry[:symbol]
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
       splits_path = Path.splits(exchange, symbol)
-      unless file_stale?(splits_path)
+      unless @shared.file_stale?(splits_path)
         @log.info("Skipping splits (fresh): #{splits_path}")
         return
       end
@@ -35,7 +41,7 @@ module Eodhd
       rescue StandardError => e
         @log.warn("Failed splits for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       ensure
-        pause_between_requests
+        @shared.pause_between_requests
       end
     end
 

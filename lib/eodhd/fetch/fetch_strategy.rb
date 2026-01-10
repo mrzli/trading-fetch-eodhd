@@ -21,8 +21,8 @@ module Eodhd
       @cfg = cfg
       @api = api
       @io = io
-      @shared = FetchShared.new(log: log, cfg: cfg, api: api, io: io)
-      @fetch_splits = FetchSplits.new(log: log, cfg: cfg, api: api, io: io)
+      @shared = FetchShared.new(cfg: cfg, io: io)
+      @fetch_splits = FetchSplits.new(log: log, api: api, io: io, shared: @shared)
     end
 ∏
     def run
