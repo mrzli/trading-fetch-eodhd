@@ -58,12 +58,12 @@ describe Eodhd::DividendsProcessor do
     _(result).must_equal expected
   end
 
-  it "raises when no previous price is available" do
+  it "skips dividend when no previous price is available" do
     dividends = [dividend("2024-01-10", 1.0)]
     data = [row("2024-01-10", 100)]
 
-    err = _(-> { Eodhd::DividendsProcessor.process(dividends, data) }).must_raise(Eodhd::DividendsProcessor::Error)
-    _(err.message).must_match(/No price data before dividend date/)
+    result = Eodhd::DividendsProcessor.process(dividends, data)
+    _(result).must_equal []
   end
 
   it "raises when previous close is non-positive" do
