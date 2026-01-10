@@ -15,6 +15,8 @@ require_relative "fetch_intraday"
 
 module Eodhd
   class FetchStrategy
+    INTRADAY_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
+    INTRADAY_INCLUDED_SYMBOLS = Set.new(["AAPL"]).freeze
 
     def initialize(log:, cfg:, api:, io:)
       @log = log
@@ -37,8 +39,8 @@ module Eodhd
 
       @fetch_eod.fetch(symbol_entries)
 
-      intraday_symbol_entries = symbol_entries.select do
-         |entry| entry[:symbol] == "AAPL" && entry[:exchange] == "US"
+      intraday_symbol_entries = symbol_entries.select do |entry|
+        (INTRADAY_INCLUDED_SYMBOLS.length > 0 || INTRADAY_INCLUDED_SYMBOLS.include?(entry[:symbol]) && INTRADAY_INCLUDED_EXCHANGES.include?(entry[:exchange]))
       end
       @fetch_intraday.fetch(intraday_symbol_entries)
     end
