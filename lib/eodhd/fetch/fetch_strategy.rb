@@ -6,14 +6,12 @@ require "time"
 
 require_relative "../../util"
 require_relative "../shared/path"
+require_relative "shared"
+require_relative "fetch_splits"
 
 module Eodhd
   class FetchStrategy
     UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
-
-    SYMBOL_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
-    SYMBOL_INCLUDED_REAL_EXCHANGES = Set.new(["NYSE", "NASDAQ"]).freeze
-    SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
     INTRADAY_MAX_RANGE_SECONDS = 118 * 24 * 60 * 60
     INTRADAY_MIN_CSV_LENGTH = 20
@@ -23,8 +21,10 @@ module Eodhd
       @cfg = cfg
       @api = api
       @io = io
+      @shared = FetchShared.new(log: log, cfg: cfg, api: api, io: io)
+      @fetch_splits = FetchSplits.new(log: log, cfg: cfg, api: api, io: io)
     end
-
+∏
     def run
       fetch_exchanges_list
       exchanges = get_exhange_codes
@@ -32,7 +32,7 @@ module Eodhd
       fetch_symbols_for_exchanges(exchanges)
       symbol_entries = get_symbol_entries(exchanges)
 
-      fetch_splits(symbol_entries)
+      @fetch_splits.fetch(symbol_entries)
       fetch_dividends(symbol_entries)
 
       fetch_eod(symbol_entries)
@@ -44,7 +44,7 @@ module Eodhd
     def fetch_exchanges_list
       relative_path = Path.exchanges_list
 
-      if file_stale?(relative_path)
+      if @shared.file_stale?(relative_path)
         @log.info("Fetching exchanges list...")
         fetched = @api.get_exchanges_list_json
         saved_path = @io.save_json(relative_path, fetched, true)
@@ -74,7 +74,7 @@ module Eodhd
       exchange = Validate.required_string("exchange", exchange)
 
       existing_paths = symbols_paths_for_exchange(exchange)
-      if existing_paths.any? && existing_paths.none? { |path| file_stale?(path) }
+      if existing_paths.any? && existing_paths.none? { |path| @shared.file_stale?(path) }
         @log.info("Skipping symbols (fresh): #{File.join('symbols', StringUtil.kebab_case(exchange), '*.json')}")
         return
       end
@@ -98,7 +98,7 @@ module Eodhd
       rescue StandardError => e
         @log.warn("Failed symbols for #{exchange}: #{e.class}: #{e.message}")
       ensure
-        pause_between_requests
+        @shared.pause_between_requests
       end
     end
 
@@ -138,42 +138,9 @@ module Eodhd
       end
     end
 
-    def fetch_splits(symbol_entries)
-      symbol_entries.each do |entry|
-        if !should_fetch?(entry)
-          next
-        end
-
-        fetch_splits_single(entry)
-      end
-    end
-
-    def fetch_splits_single(symbol_entry)
-      exchange = Validate.required_string("exchange", symbol_entry[:exchange])
-      symbol = Validate.required_string("symbol", symbol_entry[:symbol])
-      symbol_with_exchange = "#{symbol}.#{exchange}"
-
-      splits_path = Path.splits(exchange, symbol)
-      unless file_stale?(splits_path)
-        @log.info("Skipping splits (fresh): #{splits_path}")
-        return
-      end
-
-      begin
-        @log.info("Fetching splits JSON: #{symbol_with_exchange}...")
-        splits = @api.get_splits_json(exchange, symbol)
-        saved_path = @io.save_json(splits_path, splits, true)
-        @log.info("Wrote #{saved_path}")
-      rescue StandardError => e
-        @log.warn("Failed splits for #{symbol_with_exchange}: #{e.class}: #{e.message}")
-      ensure
-        pause_between_requests
-      end
-    end
-
     def fetch_dividends(symbol_entries)
       symbol_entries.each do |entry|
-        if !should_fetch?(entry)
+        if !@shared.should_fetch?(entry)
           next
         end
 
@@ -187,7 +154,7 @@ module Eodhd
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
       dividends_path = Path.dividends(exchange, symbol)
-      unless file_stale?(dividends_path)
+      unless @shared.file_stale?(dividends_path)
         @log.info("Skipping dividends (fresh): #{dividends_path}")
         return
       end
@@ -200,13 +167,13 @@ module Eodhd
       rescue StandardError => e
         @log.warn("Failed dividends for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       ensure
-        pause_between_requests
+        @shared.pause_between_requests
       end
     end
 
     def fetch_eod(symbol_entries)
       symbol_entries.each do |entry|
-        if !should_fetch?(entry)
+        if !@shared.should_fetch?(entry)
           next
         end
 
@@ -222,7 +189,7 @@ module Eodhd
       symbol_with_exchange = "#{symbol}.#{exchange}"
       relative_path = Path.raw_eod_data(exchange, symbol)
 
-      unless file_stale?(relative_path)
+      unless @shared.file_stale?(relative_path)
         @log.info("Skipping EOD (fresh): #{relative_path}")
         return
       end
@@ -235,7 +202,7 @@ module Eodhd
       rescue StandardError => e
         @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       ensure
-        pause_between_requests
+        @shared.pause_between_requests
       end
     end
 
@@ -277,12 +244,12 @@ module Eodhd
           @log.info("Wrote #{saved_path}")
 
           to = from - 1
-          pause_between_requests
+          @shared.pause_between_requests
         end
       rescue StandardError => e
         @log.warn("Failed intraday for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       ensure
-        pause_between_requests
+        @shared.pause_between_requests
       end
     end
 
@@ -307,39 +274,6 @@ module Eodhd
       DateUtil.datetime_to_seconds(base)
     rescue ArgumentError
       nil
-    end
-
-    def should_fetch?(symbol_entry)
-      exchange = Validate.required_string("exchange", symbol_entry[:exchange])
-      real_exchange = Validate.required_string("real_exchange", symbol_entry[:real_exchange])
-      type = Validate.required_string("type", symbol_entry[:type])
-
-      if !SYMBOL_INCLUDED_EXCHANGES.include?(exchange)
-        return false
-      end
-
-      if !SYMBOL_INCLUDED_REAL_EXCHANGES.include?(real_exchange)
-        return false
-      end
-
-      if !SYMBOL_INCLUDED_TYPES.include?(type)
-        return false
-      end
-
-      true
-    end
-
-    def pause_between_requests
-      # return unless @cfg.request_pause_ms.positive?
-      # sleep(@cfg.request_pause_ms / 1000.0)
-    end
-
-    def file_stale?(relative_path)
-      last_updated_at = @io.file_last_updated_at(relative_path)
-      return true if last_updated_at.nil?
-
-      min_age_seconds = @cfg.min_file_age_minutes.to_i * 60
-      (Time.now - last_updated_at) >= min_age_seconds
     end
   end
 end
