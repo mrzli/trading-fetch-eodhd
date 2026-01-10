@@ -23,13 +23,11 @@ module Eodhd
         sorted_data = data.sort_by { |row| row.fetch(:timestamp) }
         sorted_dividends = dividends.sort_by(&:date)
 
-        events = sorted_dividends.map do |dividend|
+        events = sorted_dividends.filter_map do |dividend|
           ts = dividend.date.to_time.to_i
           idx = BinarySearch.last_lt(sorted_data, ts) { |row| row[:timestamp] }
 
-          if idx.nil?
-            raise Error, "No price data before dividend date #{dividend.date}"
-          end
+          next if idx.nil?
 
           prev_close = sorted_data[idx][:close]
           raise Error, "Missing close price before #{dividend.date}" if prev_close.nil?
