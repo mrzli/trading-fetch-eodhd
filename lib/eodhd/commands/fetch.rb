@@ -21,12 +21,13 @@ module Eodhd
 
       sinks = [
         Eodhd::ConsoleSink.new(
-          level: ENV["LOG_LEVEL"], 
-          progname: "fetch"),
+          level: cfg.log_level,
+          progname: "fetch"
+        ),
         Eodhd::FileSink.new(
           command: "fetch",
           output_dir: cfg.output_dir,
-          level: ENV["LOG_LEVEL"],
+          level: cfg.log_level,
           progname: "fetch"
         )
       ]

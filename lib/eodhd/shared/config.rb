@@ -11,7 +11,8 @@ module Eodhd
       :api_token,
       :output_dir,
       :request_pause_ms,
-      :min_file_age_minutes
+      :min_file_age_minutes,
+      :log_level
     )
 
     class << self
@@ -21,7 +22,8 @@ module Eodhd
           api_token: eodhd_api_token,
           output_dir: eodhd_output_dir,
           request_pause_ms: request_pause_ms,
-          min_file_age_minutes: min_file_age_minutes
+          min_file_age_minutes: min_file_age_minutes,
+          log_level: log_level
         )
       end
 
@@ -65,6 +67,11 @@ module Eodhd
           raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
         end
         minutes
+      end
+
+      def log_level
+        level = ENV.fetch("LOG_LEVEL", "info").to_s.strip
+        level.empty? ? "info" : level
       end
     end
   end
