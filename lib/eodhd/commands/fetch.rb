@@ -35,6 +35,7 @@ module Eodhd
       log = Eodhd::Logger.new(sinks: sinks)
 
       api = Api.new(
+        log: log,
         base_url: cfg.base_url,
         api_token: cfg.api_token
       )
