@@ -139,7 +139,7 @@ module Eodhd
         attempt += 1
         yield
       rescue StandardError => e
-        @log.warn("Request failed (attempt #{attempt}/#{@max_retries}): #{e.class}: #{e.message}")
+        @log.warn("Request failed (attempt #{attempt}/#{@max_retries + 1}): #{e.class}: #{e.message}")
         if attempt <= @max_retries
           delay = @base_delay * (2 ** (attempt - 1))
           sleep(delay)
