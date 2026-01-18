@@ -11,6 +11,7 @@ module Eodhd
       :api_token,
       :output_dir,
       :request_pause_ms,
+      :too_many_requests_pause_ms,
       :min_file_age_minutes,
       :log_level
     )
@@ -22,6 +23,7 @@ module Eodhd
           api_token: eodhd_api_token,
           output_dir: eodhd_output_dir,
           request_pause_ms: request_pause_ms,
+          too_many_requests_pause_ms: too_many_requests_pause_ms,
           min_file_age_minutes: min_file_age_minutes,
           log_level: log_level
         )
@@ -57,6 +59,14 @@ module Eodhd
         ms = Validate.integer("REQUEST_PAUSE_MS", ENV.fetch("REQUEST_PAUSE_MS", "100"))
         if ms.negative?
           raise Error, "REQUEST_PAUSE_MS must be a non-negative integer."
+        end
+        ms
+      end
+
+      def too_many_requests_pause_ms
+        ms = Validate.integer("TOO_MANY_REQUESTS_PAUSE", ENV.fetch("TOO_MANY_REQUESTS_PAUSE", "60000"))
+        if ms.negative?
+          raise Error, "TOO_MANY_REQUESTS_PAUSE must be a non-negative integer."
         end
         ms
       end

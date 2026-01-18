@@ -37,7 +37,8 @@ module Eodhd
       api = Api.new(
         log: log,
         base_url: cfg.base_url,
-        api_token: cfg.api_token
+        api_token: cfg.api_token,
+        too_many_requests_pause_ms: cfg.too_many_requests_pause_ms
       )
 
       io = Io.new(output_dir: cfg.output_dir)
