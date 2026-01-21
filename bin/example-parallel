@@ -2,40 +2,110 @@
 # frozen_string_literal: true
 
 require "parallel"
+require "optparse"
 
-def expensive_work(arg)
-  sleep rand(0.1..1.5)   # simulate work
-  arg * 2
+DEFAULT_TASKS = 100
+DEFAULT_WORKERS = 4
+DEFAULT_ITERATIONS = 250_000
+
+def expensive_work(arg, iterations)
+  # Deterministic CPU-bound busy work (no disk I/O, no randomness)
+  acc = 0
+  i = 1
+  while i <= iterations
+    acc = (acc + (i * arg)) ^ (acc >> 1)
+    acc &= 0xFFFF_FFFF
+    i += 1
+  end
+  acc
 end
 
-items = (1..20).to_a
-mode = (ARGV[0] || "processes").to_s.strip
+def run_with_timing(label:)
+  start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  result = yield
+  duration = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
+  puts format("%s duration: %.3fs", label, duration)
+  result
+end
+
+mode = (ARGV.shift || "processes").to_s.strip
+options = {
+  tasks: DEFAULT_TASKS,
+  workers: DEFAULT_WORKERS,
+  iterations: DEFAULT_ITERATIONS,
+}
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: example-parallel [mode] [options]"
+
+  opts.on("-t", "--tasks N", Integer, "Number of tasks (default: #{DEFAULT_TASKS})") do |value|
+    options[:tasks] = value
+  end
+
+  opts.on("-w", "--workers N", Integer, "Number of workers (default: #{DEFAULT_WORKERS})") do |value|
+    options[:workers] = value
+  end
+
+  opts.on("-i", "--iterations N", Integer, "Iterations per task (default: #{DEFAULT_ITERATIONS})") do |value|
+    options[:iterations] = value
+  end
+end.parse!(ARGV)
+
+workers = options[:workers]
+iterations = options[:iterations]
+tasks = options[:tasks]
+
+if workers <= 0
+  warn "Workers must be a positive integer."
+  exit 1
+end
+
+if iterations <= 0
+  warn "Iterations must be a positive integer."
+  exit 1
+end
+
+if tasks <= 0
+  warn "Tasks must be a positive integer."
+  exit 1
+end
+
+items = (1..tasks).to_a
 
 puts "Running mode: #{mode}"
+puts "Tasks: #{tasks}"
+puts "Workers: #{workers}"
+puts "Iterations: #{iterations}"
 
 case mode
 when "processes"
   # 1. in_processes = true parallelism (recommended for CPU work)
-  results = Parallel.map(items, in_processes: 4) do |i|
-    value = expensive_work(i)
-    puts "process #{Process.pid}: #{i} -> #{value}"
-    value
+  results = run_with_timing(label: "Processes") do
+    Parallel.map(items, in_processes: workers) do |i|
+      value = expensive_work(i, iterations)
+      puts "process #{Process.pid}: #{i} -> #{value}"
+      value
+    end
   end
   puts "Results count: #{results.size}"
 when "threads"
   # 2. in_threads = good for I/O bound work
-  results = Parallel.map(items, in_threads: 8) do |i|
-    value = expensive_work(i)
-    puts "thread #{Thread.current.object_id}: #{i} -> #{value}"
-    value
+  results = run_with_timing(label: "Threads") do
+    Parallel.map(items, in_threads: workers) do |i|
+      value = expensive_work(i, iterations)
+      puts "thread #{Thread.current.object_id}: #{i} -> #{value}"
+      value
+    end
   end
   puts "Results count: #{results.size}"
 when "each"
   # 3. each (no collection of results)
-  Parallel.each(items, in_processes: 4) do |i|
-    value = expensive_work(i)
-    puts "process #{Process.pid}: #{i} -> #{value}"
-    # no return value collected
+  run_with_timing(label: "Each") do
+    Parallel.each(items, in_processes: workers) do |i|
+      value = expensive_work(i, iterations)
+      puts "process #{Process.pid}: #{i} -> #{value}"
+      # no return value collected
+    end
   end
 else
   warn "Unknown mode: #{mode}. Use: processes | threads | each"
