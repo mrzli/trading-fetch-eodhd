@@ -20,11 +20,11 @@ module Eodhd
       end
 
       sinks = [
-        Eodhd::ConsoleSink.new(
+        ConsoleSink.new(
           level: cfg.log_level,
           progname: "fetch"
         ),
-        Eodhd::FileSink.new(
+        FileSink.new(
           command: "fetch",
           output_dir: cfg.output_dir,
           level: cfg.log_level,
@@ -32,13 +32,11 @@ module Eodhd
         )
       ]
 
-      log = Eodhd::Logger.new(sinks: sinks)
+      log = Logger.new(sinks: sinks)
 
       api = Api.new(
-        log: log,
-        base_url: cfg.base_url,
-        api_token: cfg.api_token,
-        too_many_requests_pause_ms: cfg.too_many_requests_pause_ms
+        cfg: cfg,
+        log: log
       )
 
       io = Io.new(output_dir: cfg.output_dir)
