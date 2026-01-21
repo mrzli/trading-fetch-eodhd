@@ -30,5 +30,15 @@ module Eodhd
     rescue ArgumentError
       raise ArgumentError, "#{name} must be an integer."
     end
+
+    # Parses a non-negative integer (>= 0).
+    # Returns Integer or raises ArgumentError with a consistent message.
+    def integer_non_negative(name, value)
+      n = integer(name, value)
+      if n.negative?
+        raise ArgumentError, "#{name} must be a non-negative integer."
+      end
+      n
+    end
   end
 end

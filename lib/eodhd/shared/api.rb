@@ -16,10 +16,7 @@ module Eodhd
       @log = log
       @base_url = Validate.http_url("base_url", cfg.base_url)
       @api_token = Validate.required_string("api_token", cfg.api_token)
-      @too_many_requests_pause_ms = Validate.integer("too_many_requests_pause_ms", cfg.too_many_requests_pause_ms)
-      if @too_many_requests_pause_ms.negative?
-        raise ArgumentError, "too_many_requests_pause_ms must be a non-negative integer."
-      end
+      @too_many_requests_pause_ms = Validate.integer_non_negative("too_many_requests_pause_ms", cfg.too_many_requests_pause_ms)
       @max_retries = DEFAULT_MAX_RETRIES
       @base_delay = DEFAULT_BASE_DELAY
     end

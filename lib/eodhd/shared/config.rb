@@ -56,27 +56,21 @@ module Eodhd
       end
 
       def request_pause_ms
-        ms = Validate.integer("REQUEST_PAUSE_MS", ENV.fetch("REQUEST_PAUSE_MS", "100"))
-        if ms.negative?
-          raise Error, "REQUEST_PAUSE_MS must be a non-negative integer."
-        end
-        ms
+        Validate.integer_non_negative("REQUEST_PAUSE_MS", ENV.fetch("REQUEST_PAUSE_MS", "100"))
+      rescue ArgumentError
+        raise Error, "REQUEST_PAUSE_MS must be a non-negative integer."
       end
 
       def too_many_requests_pause_ms
-        ms = Validate.integer("TOO_MANY_REQUESTS_PAUSE", ENV.fetch("TOO_MANY_REQUESTS_PAUSE", "60000"))
-        if ms.negative?
-          raise Error, "TOO_MANY_REQUESTS_PAUSE must be a non-negative integer."
-        end
-        ms
+        Validate.integer_non_negative("TOO_MANY_REQUESTS_PAUSE", ENV.fetch("TOO_MANY_REQUESTS_PAUSE", "60000"))
+      rescue ArgumentError
+        raise Error, "TOO_MANY_REQUESTS_PAUSE must be a non-negative integer."
       end
 
       def min_file_age_minutes
-        minutes = Validate.integer("MIN_FILE_AGE_MINUTES", ENV.fetch("MIN_FILE_AGE_MINUTES", "60"))
-        if minutes.negative?
-          raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
-        end
-        minutes
+        Validate.integer_non_negative("MIN_FILE_AGE_MINUTES", ENV.fetch("MIN_FILE_AGE_MINUTES", "60"))
+      rescue ArgumentError
+        raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
       end
 
       def log_level

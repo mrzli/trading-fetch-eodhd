@@ -113,4 +113,43 @@ describe Eodhd::Validate do
       }
     ],
     call: ->(input) { Eodhd::Validate.integer(input[:name], input[:value]) }  )
+
+  test_equals(
+    ".integer_non_negative",
+    [
+      {
+        description: "accepts zero",
+        input: { name: "n", value: "0" },
+        expected: 0
+      },
+      {
+        description: "accepts positive",
+        input: { name: "n", value: "42" },
+        expected: 42
+      }
+    ],
+    call: ->(input) { Eodhd::Validate.integer_non_negative(input[:name], input[:value]) }
+  )
+
+  test_raises(
+    ".integer_non_negative errors",
+    [
+      {
+        description: "rejects negative",
+        input: { name: "n", value: "-1" },
+        exception: ArgumentError
+      },
+      {
+        description: "rejects non-integer",
+        input: { name: "n", value: "1.5" },
+        exception: ArgumentError
+      },
+      {
+        description: "rejects blank",
+        input: { name: "n", value: "  " },
+        exception: ArgumentError
+      }
+    ],
+    call: ->(input) { Eodhd::Validate.integer_non_negative(input[:name], input[:value]) }
+  )
 end
