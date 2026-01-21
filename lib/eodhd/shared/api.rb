@@ -12,12 +12,7 @@ module Eodhd
 
     class TooManyRequestsError < StandardError; end
 
-    def initialize(
-      cfg:,
-      log:,
-      max_retries: DEFAULT_MAX_RETRIES,
-      base_delay: DEFAULT_BASE_DELAY
-    )
+    def initialize(cfg:, log:)
       @log = log
       @base_url = Validate.http_url("base_url", cfg.base_url)
       @api_token = Validate.required_string("api_token", cfg.api_token)
@@ -25,8 +20,8 @@ module Eodhd
       if @too_many_requests_pause_ms.negative?
         raise ArgumentError, "too_many_requests_pause_ms must be a non-negative integer."
       end
-      @max_retries = max_retries
-      @base_delay = base_delay
+      @max_retries = DEFAULT_MAX_RETRIES
+      @base_delay = DEFAULT_BASE_DELAY
     end
 
     def get_exchanges_list_json
