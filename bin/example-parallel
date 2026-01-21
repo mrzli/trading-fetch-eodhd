@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 # Example calls:
+# ./bin/example-parallel sequential -t 1000 -w 8
 # ./bin/example-parallel processes -t 1000 -w 8
 # ./bin/example-parallel threads -t 1000 -w 8
 # ./bin/example-parallel each -t 1000 -w 8
@@ -83,6 +84,16 @@ puts "Workers: #{workers}"
 puts "Iterations: #{iterations}"
 
 case mode
+when "sequential"
+  # No parallelism - baseline for comparison
+  results = run_with_timing(label: "Sequential") do
+    items.map do |i|
+      value = expensive_work(i, iterations)
+      puts "sequential: #{i} -> #{value}"
+      value
+    end
+  end
+  puts "Results count: #{results.size}"
 when "processes"
   # 1. in_processes = true parallelism (recommended for CPU work)
   results = run_with_timing(label: "Processes") do
@@ -113,6 +124,6 @@ when "each"
     end
   end
 else
-  warn "Unknown mode: #{mode}. Use: processes | threads | each"
+  warn "Unknown mode: #{mode}. Use: sequential | processes | threads | each"
   exit 1
 end
