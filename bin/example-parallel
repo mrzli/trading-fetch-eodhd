@@ -34,7 +34,6 @@ def run_with_timing(label:)
   result
 end
 
-mode = (ARGV.shift || "processes").to_s.strip
 options = {
   tasks: DEFAULT_TASKS,
   workers: DEFAULT_WORKERS,
@@ -55,7 +54,21 @@ OptionParser.new do |opts|
   opts.on("-i", "--iterations N", Integer, "Iterations per task (default: #{DEFAULT_ITERATIONS})") do |value|
     options[:iterations] = value
   end
+
+  opts.on("-h", "--help", "Show this help") do
+    puts opts
+    puts
+    puts "Modes: sequential | processes | threads | each"
+    puts "Examples:"
+    puts "  ./bin/example-parallel sequential -t 1000 -w 8"
+    puts "  ./bin/example-parallel processes -t 1000 -w 8"
+    puts "  ./bin/example-parallel threads -t 1000 -w 8"
+    puts "  ./bin/example-parallel each -t 1000 -w 8"
+    exit 0
+  end
 end.parse!(ARGV)
+
+mode = (ARGV.shift || "processes").to_s.strip
 
 workers = options[:workers]
 iterations = options[:iterations]
