@@ -12,9 +12,6 @@ module Eodhd
 
     class TooManyRequestsError < StandardError; end
 
-    @@pause_mutex = Mutex.new
-    @@pause_until = Time.at(0)
-
     def initialize(
       cfg:,
       log:,
@@ -180,20 +177,11 @@ module Eodhd
       return unless @too_many_requests_pause_ms.positive?
 
       pause_seconds = @too_many_requests_pause_ms / 1000.0
-      sleep_for = @@pause_mutex.synchronize do
-        now = Time.now
-        new_until = now + pause_seconds
-        @@pause_until = [@@pause_until, new_until].max
-        [@@pause_until - now, 0].max
-      end
-
-      return unless sleep_for.positive?
-
-      msg = "Pausing requests for #{(sleep_for * 1000).to_i}ms"
+      msg = "Pausing requests for #{(@too_many_requests_pause_ms).to_i}ms"
       msg += " (#{reason})" if reason
       msg += " (X-RateLimit-Remaining=#{remaining})" if remaining
       @log.warn(msg)
-      sleep(sleep_for)
+      sleep(pause_seconds)
     end
   end
 end
