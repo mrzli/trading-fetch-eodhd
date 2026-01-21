@@ -4,41 +4,19 @@ require "json"
 
 require_relative "../../../util"
 require_relative "../../process/process_strategy"
-require_relative "../../shared/config"
-require_relative "../../shared/io"
+require_relative "../../shared/container"
 
 module Eodhd
   module Process
     module_function
 
     def run(mode: "eod", exchange_filters: [], symbol_filters: [])
-      begin
-        cfg = Config.eodhd
-      rescue Config::Error => e
-        abort e.message
-      end
-
-      sinks = [
-        Eodhd::ConsoleSink.new(
-          level: cfg.log_level,
-          progname: "process"
-        ),
-        Eodhd::FileSink.new(
-          command: "process",
-          output_dir: cfg.output_dir,
-          level: cfg.log_level,
-          progname: "process"
-        )
-      ]
-
-      log = Eodhd::Logger.new(sinks: sinks)
-
-      io = Io.new(output_dir: cfg.output_dir)
+      container = Container.new(command: "process")
 
       strategy = ProcessStrategy.new(
-        log: log,
-        cfg: cfg,
-        io: io
+        log: container.logger,
+        cfg: container.config,
+        io: container.io
       )
 
       mode = mode.to_s.strip.downcase
