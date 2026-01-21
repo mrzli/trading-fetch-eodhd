@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Example calls:
+# ./bin/example-parallel processes -t 1000 -w 8
+# ./bin/example-parallel threads -t 1000 -w 8
+# ./bin/example-parallel each -t 1000 -w 8
+
 require "parallel"
 require "optparse"
 
