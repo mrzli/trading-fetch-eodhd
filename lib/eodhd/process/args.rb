@@ -7,13 +7,11 @@ module Eodhd
   module ProcessArgs
     Result = Data.define(:mode, :exchange_filters, :symbol_filters)
 
-    module_function
-
-    def parse(argv)
-      Args.with_exception_handling { parse_args(argv) }
-    end
-
     class << self
+      def parse(argv)
+        Args.with_exception_handling { parse_args(argv) }
+      end
+
       private
 
       def parse_args(argv)
