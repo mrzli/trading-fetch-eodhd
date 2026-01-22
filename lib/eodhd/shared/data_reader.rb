@@ -25,11 +25,9 @@ module Eodhd
     end
 
     def symbols
-      exchanges = @io.list_relative_dirs("symbols")
+      exchange_dirs = @io.list_relative_dirs("symbols")
 
-      exchanges.flat_map do |exchange|
-        relative_dir = File.join("symbols", exchange)
-
+      exchange_dirs.flat_map do |relative_dir|
         @io
           .list_relative_files(relative_dir)
           .select { |path| path.end_with?(".json") }

@@ -23,31 +23,26 @@ module Eodhd
       Pathname.new(output_path).relative_path_from(Pathname.new(@output_dir)).to_s
     end
 
-    def list_relative_files(relative_dir)
+    def list_relative_entries(relative_dir)
       relative_dir = Validate.required_string("relative_dir", relative_dir)
       dir_path = output_path(relative_dir)
       return [] unless Dir.exist?(dir_path)
+      Dir.children(dir_path)
+    end
 
-      Dir.children(dir_path).filter_map do |name|
-        relative_path = File.join(relative_dir, name)
-        absolute_path = output_path(relative_path)
+    def list_relative_files(relative_dir)
+      list_relative_entries(relative_dir).filter_map do |name|
+        absolute_path = output_path(File.join(relative_dir, name))
         next unless File.file?(absolute_path)
-
-        relative_path
+        File.join(relative_dir, name)
       end
     end
 
     def list_relative_dirs(relative_dir)
-      relative_dir = Validate.required_string("relative_dir", relative_dir)
-      dir_path = output_path(relative_dir)
-      return [] unless Dir.exist?(dir_path)
-
-      Dir.children(dir_path).filter_map do |name|
-        relative_path = File.join(relative_dir, name)
-        absolute_path = output_path(relative_path)
+      list_relative_entries(relative_dir).filter_map do |name|
+        absolute_path = output_path(File.join(relative_dir, name))
         next unless File.directory?(absolute_path)
-
-        name
+        File.join(relative_dir, name)
       end
     end
     # Path - end
