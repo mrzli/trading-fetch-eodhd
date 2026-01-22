@@ -13,35 +13,39 @@ module Eodhd
       Args.with_exception_handling { parse_args(argv) }
     end
 
-    def parse_args(argv)
-      subcommand = "exchanges"
+    class << self
+      private
 
-      parser = OptionParser.new do |opts|
-        opts.banner = "Usage: bin/fetch [options]"
+      def parse_args(argv)
+        subcommand = "exchanges"
 
-        opts.on("-cSUBCOMMAND", "--subcommand=SUBCOMMAND", "Subcommand: exchanges or symbols (default: exchanges)") do |v|
-          subcommand = v.to_s.strip
+        parser = OptionParser.new do |opts|
+          opts.banner = "Usage: bin/fetch [options]"
+
+          opts.on("-cSUBCOMMAND", "--subcommand=SUBCOMMAND", "Subcommand: exchanges or symbols (default: exchanges)") do |v|
+            subcommand = v.to_s.strip
+          end
+
+          opts.on("-h", "--help", "Show this help") do
+            raise Args::Help.new(opts.to_s)
+          end
         end
 
-        opts.on("-h", "--help", "Show this help") do
-          raise Help.new(opts.to_s)
+        parser.parse!(argv)
+
+        unless argv.empty?
+          raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
         end
+
+        subcommand = subcommand.to_s.strip.downcase
+        unless %w[exchanges symbols].include?(subcommand)
+          raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected 'exchanges' or 'symbols'.", usage: parser.to_s)
+        end
+
+        Result.new(subcommand: subcommand)
+      rescue OptionParser::ParseError => e
+        raise Args::Error.new(e.message, usage: parser.to_s)
       end
-
-      parser.parse!(argv)
-
-      unless argv.empty?
-        raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
-      end
-
-      subcommand = subcommand.to_s.strip.downcase
-      unless %w[exchanges symbols].include?(subcommand)
-        raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected 'exchanges' or 'symbols'.", usage: parser.to_s)
-      end
-
-      Result.new(subcommand: subcommand)
-    rescue OptionParser::ParseError => e
-      raise Args::Error.new(e.message, usage: parser.to_s)
     end
   end
 end

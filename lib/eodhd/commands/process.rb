@@ -21,14 +21,12 @@ module Eodhd
         io: container.io
       )
 
-      puts mode
-
-      # case mode
-      # when "eod"
-      #   strategy.process_eod(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
-      # when "intraday"
-      #   strategy.process_intraday(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
-      # end
+      case mode
+      when "eod"
+        strategy.process_eod(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
+      when "intraday"
+        strategy.process_intraday(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
+      end
     end
   end
 end
