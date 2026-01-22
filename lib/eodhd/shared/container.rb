@@ -2,12 +2,13 @@
 
 require_relative "config"
 require_relative "io"
+require_relative "data_reader"
 require_relative "api"
 require_relative "../../util"
 
 module Eodhd
   class Container
-    attr_reader :config, :logger, :api, :io
+    attr_reader :config, :logger, :api, :io, :data_reader
 
     def initialize(command: "fetch")
       @command = command
@@ -15,6 +16,7 @@ module Eodhd
       @logger = build_logger
       @api = build_api
       @io = build_io
+      @data_reader = build_data_reader
     end
 
     private
@@ -50,6 +52,10 @@ module Eodhd
 
     def build_io
       Io.new(output_dir: @config.output_dir)
+    end
+
+    def build_data_reader
+      DataReader.new(output_dir: @config.output_dir)
     end
   end
 end

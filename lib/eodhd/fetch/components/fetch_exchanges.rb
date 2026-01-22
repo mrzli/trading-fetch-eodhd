@@ -7,8 +7,6 @@ require_relative "../../shared/path"
 
 module Eodhd
   class FetchExchanges
-    UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
-
     def initialize(log:, api:, io:, shared:)
       @log = log
       @api = api
@@ -26,16 +24,6 @@ module Eodhd
         @log.info("Wrote #{saved_path}")
       else
         @log.info("Skipping exchanges list (fresh): #{relative_path}.")
-      end
-    end
-
-    def get_exchanges
-      exchanges_text = @io.read_text(Path.exchanges_list)
-      exchanges = JSON.parse(exchanges_text)
-      exchanges.filter_map do |exchange|
-        code = exchange["Code"].to_s.strip
-        next if UNSUPPORTED_EXCHANGE_CODES.include?(code)
-        code
       end
     end
 
