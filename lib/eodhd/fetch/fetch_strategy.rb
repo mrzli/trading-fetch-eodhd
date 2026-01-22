@@ -31,9 +31,10 @@ module Eodhd
       @fetch_intraday = FetchIntraday.new(log: log, api: api, io: io, shared: @shared)
     end
 
-    def run
+    def run_all
       run_exchanges
       run_symbols
+      run_rest
     end
 
     def run_exchanges
@@ -41,17 +42,21 @@ module Eodhd
     end
 
     def run_symbols
-      exchanges = @fetch_exchanges.fetch
-      symbol_entries = @fetch_symbols.fetch(exchanges)
+      # exchanges = @fetch_exchanges.fetch
+    end
 
-      @fetch_meta.fetch(symbol_entries)
+    def run_rest
+      # exchanges = @fetch_exchanges.fetch
+      # symbol_entries = @fetch_symbols.fetch(exchanges)
 
-      @fetch_eod.fetch(symbol_entries)
+      # @fetch_meta.fetch(symbol_entries)
 
-      intraday_symbol_entries = symbol_entries.select do |entry|
-        (INTRADAY_INCLUDED_SYMBOLS.length == 0 || INTRADAY_INCLUDED_SYMBOLS.include?(entry[:symbol]) && INTRADAY_INCLUDED_EXCHANGES.include?(entry[:exchange]))
-      end
-      @fetch_intraday.fetch(intraday_symbol_entries)
+      # @fetch_eod.fetch(symbol_entries)
+
+      # intraday_symbol_entries = symbol_entries.select do |entry|
+      #   (INTRADAY_INCLUDED_SYMBOLS.length == 0 || INTRADAY_INCLUDED_SYMBOLS.include?(entry[:symbol]) && INTRADAY_INCLUDED_EXCHANGES.include?(entry[:exchange]))
+      # end
+      # @fetch_intraday.fetch(intraday_symbol_entries)
     end
 
     private

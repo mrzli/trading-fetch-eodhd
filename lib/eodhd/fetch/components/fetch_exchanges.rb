@@ -17,13 +17,6 @@ module Eodhd
     end
 
     def fetch
-      fetch_exchanges_list
-      get_exchange_codes
-    end
-
-    private
-
-    def fetch_exchanges_list
       relative_path = Path.exchanges_list
 
       if @shared.file_stale?(relative_path)
@@ -36,7 +29,7 @@ module Eodhd
       end
     end
 
-    def get_exchange_codes
+    def get_exchanges
       exchanges_text = @io.read_text(Path.exchanges_list)
       exchanges = JSON.parse(exchanges_text)
       exchanges.filter_map do |exchange|
