@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../../util"
-require_relative "../shared/path"
+require_relative "../../../util"
+require_relative "../../shared/path"
 
 module Eodhd
-  class FetchDividends
+  class FetchEod
 
     def initialize(log:, api:, io:, shared:)
       @log = log
@@ -24,22 +24,24 @@ module Eodhd
 
     def fetch_single(symbol_entry)
       exchange = symbol_entry[:exchange]
+      type = symbol_entry[:type]
       symbol = symbol_entry[:symbol]
-      symbol_with_exchange = "#{symbol}.#{exchange}"
 
-      dividends_path = Path.dividends(exchange, symbol)
-      unless @shared.file_stale?(dividends_path)
-        @log.info("Skipping dividends (fresh): #{dividends_path}")
+      symbol_with_exchange = "#{symbol}.#{exchange}"
+      relative_path = Path.raw_eod_data(exchange, symbol)
+
+      unless @shared.file_stale?(relative_path)
+        @log.info("Skipping EOD (fresh): #{relative_path}")
         return
       end
 
       begin
-        @log.info("Fetching dividends JSON: #{symbol_with_exchange}...")
-        dividends = @api.get_dividends_json(exchange, symbol)
-        saved_path = @io.save_json(dividends_path, dividends, true)
+        @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})...")
+        csv = @api.get_eod_data_csv(exchange, symbol)
+        saved_path = @io.save_csv(relative_path, csv)
         @log.info("Wrote #{saved_path}")
       rescue StandardError => e
-        @log.warn("Failed dividends for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+        @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       ensure
         @shared.pause_between_requests
       end

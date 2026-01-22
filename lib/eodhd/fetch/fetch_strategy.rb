@@ -7,12 +7,12 @@ require "time"
 require_relative "../../util"
 require_relative "../shared/path"
 require_relative "shared"
-require_relative "fetch_exchanges"
-require_relative "fetch_symbols"
-require_relative "fetch_splits"
-require_relative "fetch_dividends"
-require_relative "fetch_eod"
-require_relative "fetch_intraday"
+require_relative "components/fetch_exchanges"
+require_relative "components/fetch_symbols"
+require_relative "components/fetch_splits"
+require_relative "components/fetch_dividends"
+require_relative "components/fetch_eod"
+require_relative "components/fetch_intraday"
 
 module Eodhd
   class FetchStrategy

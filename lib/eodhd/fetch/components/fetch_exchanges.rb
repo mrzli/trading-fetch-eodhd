@@ -2,8 +2,8 @@
 
 require "json"
 
-require_relative "../../util"
-require_relative "../shared/path"
+require_relative "../../../util"
+require_relative "../../shared/path"
 
 module Eodhd
   class FetchExchanges

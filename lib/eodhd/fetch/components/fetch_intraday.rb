@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../../util"
-require_relative "../shared/path"
+require_relative "../../../util"
+require_relative "../../shared/path"
 
 module Eodhd
   class FetchIntraday
