@@ -31,7 +31,7 @@ module Eodhd
         relative_dir = File.join("symbols", exchange)
 
         @io
-          .list_relative_paths(relative_dir)
+          .list_relative_files(relative_dir)
           .select { |path| path.end_with?(".json") }
           .sort
           .flat_map do |relative_path|

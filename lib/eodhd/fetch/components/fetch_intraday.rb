@@ -74,7 +74,7 @@ module Eodhd
       symbol = Validate.required_string("symbol", symbol)
 
       raw_dir = Path.raw_intraday_data_dir(exchange, symbol)
-      raw_paths = @io.list_relative_paths(raw_dir)
+      raw_paths = @io.list_relative_files(raw_dir)
 
       raw_paths
         .select { |path| path.end_with?(".csv") }

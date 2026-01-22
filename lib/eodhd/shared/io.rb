@@ -23,7 +23,7 @@ module Eodhd
       Pathname.new(output_path).relative_path_from(Pathname.new(@output_dir)).to_s
     end
 
-    def list_relative_paths(relative_dir)
+    def list_relative_files(relative_dir)
       relative_dir = Validate.required_string("relative_dir", relative_dir)
       dir_path = output_path(relative_dir)
       return [] unless Dir.exist?(dir_path)

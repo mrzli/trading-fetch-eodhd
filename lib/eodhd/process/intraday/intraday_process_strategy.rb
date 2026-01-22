@@ -88,7 +88,7 @@ module Eodhd
     end
 
     def should_process?(raw_rels:, splits_rel:, processed_dir_rel:)
-      processed_paths = @io.list_relative_paths(processed_dir_rel)
+      processed_paths = @io.list_relative_files(processed_dir_rel)
       processed_mtime = processed_paths.map { |p| @io.file_last_updated_at(p) }.compact.max
       return true if processed_mtime.nil?
 
