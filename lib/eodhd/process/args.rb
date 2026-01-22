@@ -27,6 +27,17 @@ module Eodhd
     module_function
 
     def parse(argv)
+      parse_args(argv)
+    rescue Help => e
+      puts e.usage
+      exit 0
+    rescue Error => e
+      warn e.message
+      warn e.usage if e.usage
+      exit 2
+    end
+
+    def parse_args(argv)
       mode = "eod"
       exchange_filters = []
       symbol_filters = []
