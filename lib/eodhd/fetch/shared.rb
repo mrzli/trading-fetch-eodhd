@@ -10,9 +10,9 @@ module Eodhd
     SYMBOL_INCLUDED_REAL_EXCHANGES = Set.new(["NYSE", "NASDAQ"]).freeze
     SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
-    def initialize(cfg:, io:)
-      @cfg = cfg
-      @io = io
+    def initialize(container:)
+      @cfg = container.config
+      @io = container.io
     end
 
     def should_fetch?(symbol_entry)

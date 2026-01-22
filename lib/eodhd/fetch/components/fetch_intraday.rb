@@ -8,10 +8,10 @@ module Eodhd
     INTRADAY_MAX_RANGE_SECONDS = 118 * 24 * 60 * 60
     INTRADAY_MIN_CSV_LENGTH = 20
 
-    def initialize(log:, api:, io:, shared:)
-      @log = log
-      @api = api
-      @io = io
+    def initialize(container:, shared:)
+      @log = container.logger
+      @api = container.api
+      @io = container.io
       @shared = shared
     end
 

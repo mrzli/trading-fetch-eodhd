@@ -18,17 +18,13 @@ module Eodhd
     INTRADAY_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
     INTRADAY_INCLUDED_SYMBOLS = Set.new(["AAPL"]).freeze
 
-    def initialize(log:, cfg:, api:, io:)
-      @log = log
-      @cfg = cfg
-      @api = api
-      @io = io
-      @shared = FetchShared.new(cfg: cfg, io: io)
-      @fetch_exchanges = FetchExchanges.new(log: log, api: api, io: io, shared: @shared)
-      @fetch_symbols = FetchSymbols.new(log: log, api: api, io: io, shared: @shared)
-      @fetch_meta = FetchMeta.new(log: log, api: api, io: io, shared: @shared)
-      @fetch_eod = FetchEod.new(log: log, api: api, io: io, shared: @shared)
-      @fetch_intraday = FetchIntraday.new(log: log, api: api, io: io, shared: @shared)
+    def initialize(container:)
+      shared = FetchShared.new(container: container)
+      @fetch_exchanges = FetchExchanges.new(container: container, shared: shared)
+      @fetch_symbols = FetchSymbols.new(container: container, shared: shared)
+      @fetch_meta = FetchMeta.new(container: container, shared: shared)
+      @fetch_eod = FetchEod.new(container: container, shared: shared)
+      @fetch_intraday = FetchIntraday.new(container: container, shared: shared)
     end
 
     def run_all

@@ -15,12 +15,7 @@ module Eodhd
       subcommand, = FetchArgs.parse(ARGV)
 
       container = Container.new(command: "fetch")
-      strategy = FetchStrategy.new(
-        log: container.logger,
-        cfg: container.config,
-        api: container.api,
-        io: container.io
-      )
+      strategy = FetchStrategy.new(container: container)
 
       case subcommand
       when "exchanges"

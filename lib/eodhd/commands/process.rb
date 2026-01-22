@@ -15,11 +15,7 @@ module Eodhd
       mode, exchange_filters, symbol_filters = ProcessArgs.parse(ARGV)
       container = Container.new(command: "process")
 
-      strategy = ProcessStrategy.new(
-        log: container.logger,
-        cfg: container.config,
-        io: container.io
-      )
+      strategy = ProcessStrategy.new(container: container)
 
       case mode
       when "eod"

@@ -7,10 +7,10 @@ require_relative "../../shared/path"
 
 module Eodhd
   class FetchExchanges
-    def initialize(log:, api:, io:, shared:)
-      @log = log
-      @api = api
-      @io = io
+    def initialize(container:, shared:)
+      @log = container.logger
+      @api = container.api
+      @io = container.io
       @shared = shared
     end
 
