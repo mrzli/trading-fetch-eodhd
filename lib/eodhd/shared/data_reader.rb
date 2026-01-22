@@ -24,5 +24,39 @@ module Eodhd
       end
     end
 
+    def symbols
+      symbols_dir = File.join(@output_dir, "symbols")
+      return [] unless Dir.exist?(symbols_dir)
+
+      exchanges = Dir.children(symbols_dir).select do |name|
+        File.directory?(File.join(symbols_dir, name))
+      end
+
+      exchanges.flat_map do |exchange|
+        relative_dir = File.join("symbols", exchange)
+        absolute_dir = File.join(@output_dir, relative_dir)
+
+        Dir.children(absolute_dir)
+          .select { |path| path.end_with?(".json") }
+          .sort
+          .flat_map do |filename|
+            type = File.basename(filename, ".json")
+            file_path = File.join(absolute_dir, filename)
+
+            symbols_file_text = File.read(file_path)
+            symbol_entries = JSON.parse(symbols_file_text)
+
+            symbol_entries.map do |entry|
+              {
+                exchange: StringUtil.pascal_case(exchange),
+                real_exchange: entry["Exchange"],
+                type: type,
+                symbol: entry["Code"]
+              }
+            end
+          end
+      end
+    end
+
   end
 end

@@ -19,7 +19,6 @@ module Eodhd
     def fetch(parallel:, workers:)
       exchanges = @data_reader.exchanges
       fetch_symbols_for_exchanges(exchanges, parallel: parallel, workers: workers)
-      get_symbol_entries(exchanges)
     end
 
     private
@@ -66,34 +65,6 @@ module Eodhd
       @io
         .list_relative_paths(relative_dir)
         .select { |path| path.end_with?(".json") }
-    end
-
-    def get_symbol_entries(exchanges)
-      exchanges.flat_map do |exchange|
-        exchange = Validate.required_string("exchange", exchange)
-
-        relative_dir = File.join("symbols", StringUtil.kebab_case(exchange))
-
-        @io
-          .list_relative_paths(relative_dir)
-          .select { |path| path.end_with?(".json") }
-          .sort
-          .flat_map do |relative_path|
-            type = File.basename(relative_path, ".json")
-
-            symbols_file_text = @io.read_text(relative_path)
-            symbol_entries = JSON.parse(symbols_file_text)
-
-            symbol_entries.map do |entry|
-              {
-                exchange: exchange,
-                real_exchange: entry["Exchange"],
-                type: type,
-                symbol: entry["Code"]
-              }
-            end
-          end
-      end
     end
 
   end
