@@ -27,12 +27,12 @@ module Eodhd
       @fetch_intraday = FetchIntraday.new(container: container, shared: shared)
     end
 
-    def run_exchanges(force: false)
+    def run_exchanges(force:)
       @fetch_exchanges.fetch(force: force)
     end
 
-    def run_symbols
-      @fetch_symbols.fetch
+    def run_symbols(parallel:, workers:)
+      @fetch_symbols.fetch(parallel: parallel, workers: workers)
     end
 
     def run_rest

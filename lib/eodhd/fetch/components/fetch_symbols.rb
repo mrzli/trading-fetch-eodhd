@@ -16,15 +16,15 @@ module Eodhd
       @shared = shared
     end
 
-    def fetch
+    def fetch(parallel:, workers:)
       exchanges = @data_reader.exchanges
-      fetch_symbols_for_exchanges(exchanges)
+      fetch_symbols_for_exchanges(exchanges, parallel: parallel, workers: workers)
       get_symbol_entries(exchanges)
     end
 
     private
 
-    def fetch_symbols_for_exchanges(exchanges)
+    def fetch_symbols_for_exchanges(exchanges, parallel:, workers:)
       exchanges.each do |exchange|
         fetch_symbols_for_exchange(exchange)
       end

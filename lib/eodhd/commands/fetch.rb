@@ -12,7 +12,7 @@ module Eodhd
     module_function
 
     def run
-      subcommand, force = FetchArgs.parse(ARGV)
+      subcommand, force, parallel, workers = FetchArgs.parse(ARGV)
 
       container = Container.new(command: "fetch")
       strategy = FetchStrategy.new(container: container)
@@ -21,7 +21,7 @@ module Eodhd
       when "exchanges"
         strategy.run_exchanges(force: force)
       when "symbols"
-        strategy.run_symbols
+        strategy.run_symbols(parallel: parallel, workers: workers)
       end
     end
   end
