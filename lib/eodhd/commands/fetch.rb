@@ -11,7 +11,7 @@ module Eodhd
   module Fetch
     module_function
 
-    def run()
+    def run
       subcommand, = FetchArgs.parse(ARGV)
 
       container = Container.new(command: "fetch")

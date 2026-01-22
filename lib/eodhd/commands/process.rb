@@ -11,7 +11,7 @@ module Eodhd
   module Process
     module_function
 
-    def run()
+    def run
       mode, exchange_filters, symbol_filters = ProcessArgs.parse(ARGV)
       container = Container.new(command: "process")
 
