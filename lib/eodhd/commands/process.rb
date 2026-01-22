@@ -3,6 +3,7 @@
 require "json"
 
 require_relative "../../util"
+require_relative "../process/args"
 require_relative "../process/process_strategy"
 require_relative "../shared/container"
 
@@ -10,7 +11,11 @@ module Eodhd
   module Process
     module_function
 
-    def run(mode: "eod", exchange_filters: [], symbol_filters: [])
+    def run()
+      args = ProcessArgs.parse(ARGV)
+      mode = args.mode
+      exchange_filters = args.exchange_filters
+      symbol_filters = args.symbol_filters
       container = Container.new(command: "process")
 
       strategy = ProcessStrategy.new(
