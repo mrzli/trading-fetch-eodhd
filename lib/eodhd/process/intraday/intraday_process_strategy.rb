@@ -80,7 +80,7 @@ module Eodhd
       outputs.each do |item|
         item in { key: key, csv: csv }
         processed_rel = Path.processed_intraday_year_month(exchange, symbol, key.year, key.month)
-        saved_path = @io.save_csv(processed_rel, csv)
+        saved_path = @io.write_csv(processed_rel, csv)
         @log.info("Wrote #{saved_path}")
       end
     rescue StandardError => e

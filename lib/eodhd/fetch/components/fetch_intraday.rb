@@ -56,7 +56,7 @@ module Eodhd
             break
           end
 
-          saved_path = @io.save_csv(relative_path, csv)
+          saved_path = @io.write_csv(relative_path, csv)
           @log.info("Wrote #{saved_path}")
 
           to = from - 1

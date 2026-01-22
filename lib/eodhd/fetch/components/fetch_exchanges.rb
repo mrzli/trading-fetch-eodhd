@@ -22,7 +22,7 @@ module Eodhd
       if @shared.file_stale?(relative_path)
         @log.info("Fetching exchanges list...")
         fetched = @api.get_exchanges_list_json
-        saved_path = @io.save_json(relative_path, fetched, true)
+        saved_path = @io.write_json(relative_path, fetched, true)
         @log.info("Wrote #{saved_path}")
       else
         @log.info("Skipping exchanges list (fresh): #{relative_path}.")

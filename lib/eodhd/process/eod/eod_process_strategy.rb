@@ -80,7 +80,7 @@ module Eodhd
       dividends = DividendsParser.parse_dividends(dividends_json)
 
       processed_csv = @processor.process_csv(raw_csv, splits, dividends)
-      saved_path = @io.save_csv(processed_rel, processed_csv)
+      saved_path = @io.write_csv(processed_rel, processed_csv)
       @log.info("Wrote #{saved_path}")
     rescue StandardError => e
       @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")

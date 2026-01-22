@@ -58,13 +58,13 @@ module Eodhd
     # Read - end
 
     # Write - start
-    def save_csv(relative_path, csv)
+    def write_csv(relative_path, csv)
       csv = Validate.required_string("csv", csv)
 
       write_text_file(relative_path, csv, false)
     end
 
-    def save_json(relative_path, json, pretty = true)
+    def write_json(relative_path, json, pretty = true)
       json = Validate.required_string("json", json)
 
       content = pretty ? pretty_json(json) : json

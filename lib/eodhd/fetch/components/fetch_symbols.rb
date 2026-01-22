@@ -49,7 +49,7 @@ module Eodhd
 
         symbols_by_type.each do |type, items|
           relative_path = Path.exchange_symbol_list(exchange, type)
-          saved_path = @io.save_json(relative_path, JSON.generate(items), true)
+          saved_path = @io.write_json(relative_path, JSON.generate(items), true)
           @log.info("Wrote #{saved_path}")
         end
       rescue StandardError => e
