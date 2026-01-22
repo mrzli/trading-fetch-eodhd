@@ -32,6 +32,15 @@ module Eodhd
     end
 
     def run
+      run_exchanges
+      run_symbols
+    end
+
+    def run_exchanges
+      @fetch_exchange_data.fetch
+    end
+
+    def run_symbols
       symbol_entries = @fetch_exchange_data.fetch
 
       @fetch_splits.fetch(symbol_entries)
