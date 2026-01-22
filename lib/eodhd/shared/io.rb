@@ -12,6 +12,7 @@ module Eodhd
       @output_dir = Validate.required_string("output_dir", output_dir)
     end
 
+    # Path - start
     def output_path(relative_path)
       relative_path = Validate.required_string("relative_path", relative_path)
       File.join(@output_dir, relative_path)
@@ -20,21 +21,6 @@ module Eodhd
     def relative_path(output_path)
       output_path = Validate.required_string("output_path", output_path)
       Pathname.new(output_path).relative_path_from(Pathname.new(@output_dir)).to_s
-    end
-
-    def file_exists?(relative_path)
-      File.exist?(output_path(relative_path))
-    end
-
-    def file_last_updated_at(relative_path)
-      output_path = output_path(relative_path)
-      return nil unless File.exist?(output_path)
-
-      File.mtime(output_path)
-    end
-
-    def read_text(relative_path)
-      File.read(output_path(relative_path))
     end
 
     def list_relative_paths(relative_dir)
@@ -50,7 +36,28 @@ module Eodhd
         relative_path
       end
     end
+    # Path - end
 
+    # File info - start
+    def file_exists?(relative_path)
+      File.exist?(output_path(relative_path))
+    end
+
+    def file_last_updated_at(relative_path)
+      output_path = output_path(relative_path)
+      return nil unless File.exist?(output_path)
+
+      File.mtime(output_path)
+    end
+    # File info - end
+
+    # Read - start
+    def read_text(relative_path)
+      File.read(output_path(relative_path))
+    end
+    # Read - end
+
+    # Write - start
     def save_csv(relative_path, csv)
       csv = Validate.required_string("csv", csv)
 
@@ -64,7 +71,9 @@ module Eodhd
 
       write_text_file(relative_path, content, true)
     end
+    # Write - end
 
+    # File operations - start
     def delete_dir(relative_dir)
       relative_dir = Validate.required_string("relative_dir", relative_dir)
       if relative_dir.include?("..") || relative_dir.start_with?("/")
@@ -75,6 +84,7 @@ module Eodhd
 
       FileUtils.rm_rf(full_path)
     end
+    # File operations - end
 
     private
 
