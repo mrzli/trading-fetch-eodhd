@@ -31,8 +31,6 @@ module Eodhd
     end
 
     def fetch_symbols_for_exchange(exchange)
-      exchange = Validate.required_string("exchange", exchange)
-
       existing_paths = symbols_paths_for_exchange(exchange)
       if existing_paths.any? && existing_paths.none? { |path| @shared.file_stale?(path) }
         @log.info("Skipping symbols (fresh): #{File.join('symbols', StringUtil.kebab_case(exchange), '*.json')}")
