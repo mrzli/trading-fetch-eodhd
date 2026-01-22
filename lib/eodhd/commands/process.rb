@@ -24,14 +24,11 @@ module Eodhd
         io: container.io
       )
 
-      mode = mode.to_s.strip.downcase
       case mode
       when "eod"
         strategy.process_eod(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
       when "intraday"
         strategy.process_intraday(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
-      else
-        raise ArgumentError, "Unknown mode: #{mode.inspect}. Expected 'eod' or 'intraday'."
       end
     end
   end
