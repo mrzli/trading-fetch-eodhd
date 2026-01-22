@@ -7,7 +7,7 @@ require "time"
 require_relative "../../util"
 require_relative "../shared/path"
 require_relative "shared"
-require_relative "fetch_exchange_data"
+require_relative "fetch_exchanges"
 require_relative "fetch_splits"
 require_relative "fetch_dividends"
 require_relative "fetch_eod"
@@ -24,7 +24,7 @@ module Eodhd
       @api = api
       @io = io
       @shared = FetchShared.new(cfg: cfg, io: io)
-      @fetch_exchange_data = FetchExchangeData.new(log: log, api: api, io: io, shared: @shared)
+      @fetch_exchanges = FetchExchanges.new(log: log, api: api, io: io, shared: @shared)
       @fetch_splits = FetchSplits.new(log: log, api: api, io: io, shared: @shared)
       @fetch_dividends = FetchDividends.new(log: log, api: api, io: io, shared: @shared)
       @fetch_eod = FetchEod.new(log: log, api: api, io: io, shared: @shared)
@@ -37,11 +37,11 @@ module Eodhd
     end
 
     def run_exchanges
-      @fetch_exchange_data.fetch
+      @fetch_exchanges.fetch
     end
 
     def run_symbols
-      symbol_entries = @fetch_exchange_data.fetch
+      symbol_entries = @fetch_exchanges.fetch
 
       @fetch_splits.fetch(symbol_entries)
       @fetch_dividends.fetch(symbol_entries)

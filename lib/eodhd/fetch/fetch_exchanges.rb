@@ -6,7 +6,7 @@ require_relative "../../util"
 require_relative "../shared/path"
 
 module Eodhd
-  class FetchExchangeData
+  class FetchExchanges
     UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
 
     def initialize(log:, api:, io:, shared:)
