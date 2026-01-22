@@ -9,8 +9,7 @@ require_relative "../shared/path"
 require_relative "shared"
 require_relative "components/fetch_exchanges"
 require_relative "components/fetch_symbols"
-require_relative "components/fetch_splits"
-require_relative "components/fetch_dividends"
+require_relative "components/fetch_meta"
 require_relative "components/fetch_eod"
 require_relative "components/fetch_intraday"
 
@@ -27,8 +26,7 @@ module Eodhd
       @shared = FetchShared.new(cfg: cfg, io: io)
       @fetch_exchanges = FetchExchanges.new(log: log, api: api, io: io, shared: @shared)
       @fetch_symbols = FetchSymbols.new(log: log, api: api, io: io, shared: @shared)
-      @fetch_splits = FetchSplits.new(log: log, api: api, io: io, shared: @shared)
-      @fetch_dividends = FetchDividends.new(log: log, api: api, io: io, shared: @shared)
+      @fetch_meta = FetchMeta.new(log: log, api: api, io: io, shared: @shared)
       @fetch_eod = FetchEod.new(log: log, api: api, io: io, shared: @shared)
       @fetch_intraday = FetchIntraday.new(log: log, api: api, io: io, shared: @shared)
     end
@@ -46,8 +44,7 @@ module Eodhd
       exchanges = @fetch_exchanges.fetch
       symbol_entries = @fetch_symbols.fetch(exchanges)
 
-      @fetch_splits.fetch(symbol_entries)
-      @fetch_dividends.fetch(symbol_entries)
+      @fetch_meta.fetch(symbol_entries)
 
       @fetch_eod.fetch(symbol_entries)
 
