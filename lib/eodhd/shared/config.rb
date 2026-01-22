@@ -7,35 +7,42 @@ module Eodhd
     class Error < StandardError; end
 
     Eodhd = Data.define(
+      :log_level,
       :base_url,
       :api_token,
       :output_dir,
-      :request_pause_ms,
-      :too_many_requests_pause_ms,
       :min_file_age_minutes,
-      :log_level
+      :request_pause_ms,
+      :too_many_requests_pause_ms
     )
 
     class << self
       def eodhd
         Eodhd.new(
+          log_level: log_level,
           base_url: eodhd_base_url,
           api_token: eodhd_api_token,
           output_dir: eodhd_output_dir,
-          request_pause_ms: request_pause_ms,
-          too_many_requests_pause_ms: too_many_requests_pause_ms,
           min_file_age_minutes: min_file_age_minutes,
-          log_level: log_level
+          request_pause_ms: request_pause_ms,
+          too_many_requests_pause_ms: too_many_requests_pause_ms
         )
       end
 
       private
 
-      # Read a required env var and return a stripped string.
-      def required_env(key)
-        Validate.required_string(key, ENV[key])
-      rescue ArgumentError
-        raise Error, "Missing #{key} in environment (.env)"
+      def log_level
+        level = ENV.fetch("LOG_LEVEL", "info").to_s.strip
+        level.empty? ? "info" : level
+      end
+
+      def eodhd_base_url
+        base = required_env("BASE_URL")
+        base = base.chomp("/")
+        unless base.start_with?("http://", "https://")
+          raise Error, "BASE_URL must start with http:// or https://"
+        end
+        base
       end
 
       def eodhd_api_token
@@ -46,13 +53,10 @@ module Eodhd
         File.expand_path(required_env("OUTPUT_DIR"))
       end
 
-      def eodhd_base_url
-        base = required_env("BASE_URL")
-        base = base.chomp("/")
-        unless base.start_with?("http://", "https://")
-          raise Error, "BASE_URL must start with http:// or https://"
-        end
-        base
+      def min_file_age_minutes
+        Validate.integer_non_negative("MIN_FILE_AGE_MINUTES", ENV.fetch("MIN_FILE_AGE_MINUTES", "60"))
+      rescue ArgumentError
+        raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
       end
 
       def request_pause_ms
@@ -67,15 +71,11 @@ module Eodhd
         raise Error, "TOO_MANY_REQUESTS_PAUSE must be a non-negative integer."
       end
 
-      def min_file_age_minutes
-        Validate.integer_non_negative("MIN_FILE_AGE_MINUTES", ENV.fetch("MIN_FILE_AGE_MINUTES", "60"))
+      # Read a required env var and return a stripped string.
+      def required_env(key)
+        Validate.required_string(key, ENV[key])
       rescue ArgumentError
-        raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
-      end
-
-      def log_level
-        level = ENV.fetch("LOG_LEVEL", "info").to_s.strip
-        level.empty? ? "info" : level
+        raise Error, "Missing #{key} in environment (.env)"
       end
     end
   end
