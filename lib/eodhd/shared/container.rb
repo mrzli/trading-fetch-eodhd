@@ -55,7 +55,7 @@ module Eodhd
     end
 
     def build_data_reader
-      DataReader.new(output_dir: @config.output_dir)
+      DataReader.new(io: @io)
     end
   end
 end
