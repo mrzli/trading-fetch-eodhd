@@ -40,5 +40,15 @@ module Eodhd
       end
       n
     end
+
+    # Parses a positive integer (> 0).
+    # Returns Integer or raises ArgumentError with a consistent message.
+    def integer_positive(name, value)
+      n = integer(name, value)
+      if n <= 0
+        raise ArgumentError, "#{name} must be a positive integer."
+      end
+      n
+    end
   end
 end
