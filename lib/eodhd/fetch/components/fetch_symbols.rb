@@ -11,10 +11,13 @@ module Eodhd
       @log = container.logger
       @api = container.api
       @io = container.io
+      @data_reader = container.data_reader
+
       @shared = shared
     end
 
-    def fetch(exchanges)
+    def fetch
+      exchanges = @data_reader.exchanges
       fetch_symbols_for_exchanges(exchanges)
       get_symbol_entries(exchanges)
     end

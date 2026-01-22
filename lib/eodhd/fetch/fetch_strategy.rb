@@ -38,7 +38,7 @@ module Eodhd
     end
 
     def run_symbols
-      # exchanges = @fetch_exchanges.fetch
+      @fetch_symbols.fetch
     end
 
     def run_rest
