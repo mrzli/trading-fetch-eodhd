@@ -1,41 +1,19 @@
 # frozen_string_literal: true
 
 require "optparse"
+require_relative "../shared/args"
 
 module Eodhd
   module ProcessArgs
-    class Error < StandardError
-      attr_reader :usage
-
-      def initialize(message, usage: nil)
-        super(message)
-        @usage = usage
-      end
-    end
-
-    class Help < StandardError
-      attr_reader :usage
-
-      def initialize(usage)
-        super("help")
-        @usage = usage
-      end
-    end
-
     Result = Data.define(:mode, :exchange_filters, :symbol_filters)
 
     module_function
 
     def parse(argv)
-      parse_args(argv)
-    rescue Help => e
-      puts e.usage
-      exit 0
-    rescue Error => e
-      warn e.message
-      warn e.usage if e.usage
-      exit 2
+      Args.with_exception_handling { parse_args(argv) }
     end
+
+    private
 
     def parse_args(argv)
       mode = "eod"
@@ -58,19 +36,19 @@ module Eodhd
         end
 
         opts.on("-h", "--help", "Show this help") do
-          raise Help.new(opts.to_s)
+          raise Args::Help.new(opts.to_s)
         end
       end
 
       parser.parse!(argv)
 
       unless argv.empty?
-        raise Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
+        raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
       end
 
       mode = mode.to_s.strip.downcase
       unless %w[eod intraday].include?(mode)
-        raise Error.new("Unknown mode: #{mode.inspect}. Expected 'eod' or 'intraday'.", usage: parser.to_s)
+        raise Args::Error.new("Unknown mode: #{mode.inspect}. Expected 'eod' or 'intraday'.", usage: parser.to_s)
       end
 
       Result.new(
@@ -79,7 +57,7 @@ module Eodhd
         symbol_filters: normalize_filters(symbol_filters)
       )
     rescue OptionParser::ParseError => e
-      raise Error.new(e.message, usage: parser.to_s)
+      raise Args::Error.new(e.message, usage: parser.to_s)
     end
 
     def normalize_filters(filters)
