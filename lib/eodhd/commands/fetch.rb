@@ -12,8 +12,7 @@ module Eodhd
     module_function
 
     def run()
-      args = FetchArgs.parse(ARGV)
-      subcommand = args.subcommand
+      subcommand, = FetchArgs.parse(ARGV)
 
       container = Container.new(command: "fetch")
       strategy = FetchStrategy.new(

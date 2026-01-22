@@ -13,8 +13,6 @@ module Eodhd
       Args.with_exception_handling { parse_args(argv) }
     end
 
-    private
-
     def parse_args(argv)
       subcommand = "exchanges"
 

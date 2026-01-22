@@ -12,10 +12,7 @@ module Eodhd
     module_function
 
     def run()
-      args = ProcessArgs.parse(ARGV)
-      mode = args.mode
-      exchange_filters = args.exchange_filters
-      symbol_filters = args.symbol_filters
+      mode, exchange_filters, symbol_filters = ProcessArgs.parse(ARGV)
       container = Container.new(command: "process")
 
       strategy = ProcessStrategy.new(
@@ -24,12 +21,14 @@ module Eodhd
         io: container.io
       )
 
-      case mode
-      when "eod"
-        strategy.process_eod(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
-      when "intraday"
-        strategy.process_intraday(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
-      end
+      puts mode
+
+      # case mode
+      # when "eod"
+      #   strategy.process_eod(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
+      # when "intraday"
+      #   strategy.process_intraday(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
+      # end
     end
   end
 end
