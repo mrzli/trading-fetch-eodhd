@@ -12,7 +12,7 @@ module Eodhd
     module_function
 
     def run
-      mode, exchange_filters, symbol_filters = ProcessArgs.parse(ARGV)
+      mode, exchange_filters, symbol_filters = ProcessArgs.parse(ARGV).deconstruct
       container = Container.new(command: "process")
 
       strategy = ProcessStrategy.new(container: container)

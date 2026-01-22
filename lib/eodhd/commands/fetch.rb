@@ -12,7 +12,7 @@ module Eodhd
     module_function
 
     def run
-      subcommand, force, parallel, workers = FetchArgs.parse(ARGV)
+      subcommand, force, parallel, workers = FetchArgs.parse(ARGV).deconstruct
 
       container = Container.new(command: "fetch")
       strategy = FetchStrategy.new(container: container)
