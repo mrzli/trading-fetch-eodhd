@@ -14,11 +14,11 @@ module Eodhd
       @shared = shared
     end
 
-    def fetch
+    def fetch(force: false)
       relative_path = Path.exchanges_list
 
-      if @shared.file_stale?(relative_path)
-        @log.info("Fetching exchanges list...")
+      if force || @shared.file_stale?(relative_path)
+        @log.info("Fetching exchanges list#{force ? ' (forced)' : ''}...")
         fetched = @api.get_exchanges_list_json
         saved_path = @io.write_json(relative_path, fetched, true)
         @log.info("Wrote #{saved_path}")

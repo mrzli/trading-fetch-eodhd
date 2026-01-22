@@ -12,14 +12,14 @@ module Eodhd
     module_function
 
     def run
-      subcommand, = FetchArgs.parse(ARGV)
+      subcommand, force = FetchArgs.parse(ARGV)
 
       container = Container.new(command: "fetch")
       strategy = FetchStrategy.new(container: container)
 
       case subcommand
       when "exchanges"
-        strategy.run_exchanges
+        strategy.run_exchanges(force: force)
       when "symbols"
         strategy.run_symbols
       end

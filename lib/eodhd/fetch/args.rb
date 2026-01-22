@@ -5,7 +5,7 @@ require_relative "../shared/args"
 
 module Eodhd
   module FetchArgs
-    Result = Data.define(:subcommand)
+    Result = Data.define(:subcommand, :force)
 
     class << self
       def parse(argv)
@@ -16,12 +16,17 @@ module Eodhd
 
       def parse_args(argv)
         subcommand = "exchanges"
+        force = false
 
         parser = OptionParser.new do |opts|
           opts.banner = "Usage: bin/fetch [options]"
 
           opts.on("-cSUBCOMMAND", "--subcommand=SUBCOMMAND", "Subcommand: exchanges or symbols (default: exchanges)") do |v|
             subcommand = v.to_s.strip
+          end
+
+          opts.on("-f", "--force", "Force fetch, ignore file staleness") do
+            force = true
           end
 
           opts.on("-h", "--help", "Show this help") do
@@ -40,7 +45,7 @@ module Eodhd
           raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected 'exchanges' or 'symbols'.", usage: parser.to_s)
         end
 
-        Result.new(subcommand: subcommand)
+        Result.new(subcommand: subcommand, force: force)
       rescue OptionParser::ParseError => e
         raise Args::Error.new(e.message, usage: parser.to_s)
       end

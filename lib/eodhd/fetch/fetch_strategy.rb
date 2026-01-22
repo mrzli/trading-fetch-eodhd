@@ -27,8 +27,8 @@ module Eodhd
       @fetch_intraday = FetchIntraday.new(container: container, shared: shared)
     end
 
-    def run_exchanges
-      @fetch_exchanges.fetch
+    def run_exchanges(force: false)
+      @fetch_exchanges.fetch(force: force)
     end
 
     def run_symbols
