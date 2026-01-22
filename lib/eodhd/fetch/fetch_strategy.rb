@@ -27,12 +27,6 @@ module Eodhd
       @fetch_intraday = FetchIntraday.new(container: container, shared: shared)
     end
 
-    def run_all
-      run_exchanges
-      run_symbols
-      run_rest
-    end
-
     def run_exchanges
       @fetch_exchanges.fetch
     end
