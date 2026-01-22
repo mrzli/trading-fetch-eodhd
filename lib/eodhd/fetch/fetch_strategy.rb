@@ -31,8 +31,8 @@ module Eodhd
       @fetch_exchanges.fetch(force: force)
     end
 
-    def run_symbols(parallel:, workers:)
-      @fetch_symbols.fetch(parallel: parallel, workers: workers)
+    def run_symbols(force:, parallel:, workers:)
+      @fetch_symbols.fetch(force: force, parallel: parallel, workers: workers)
     end
 
     def run_rest

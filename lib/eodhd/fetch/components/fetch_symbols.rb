@@ -16,25 +16,27 @@ module Eodhd
       @shared = shared
     end
 
-    def fetch(parallel:, workers:)
+    def fetch(force:, parallel:, workers:)
       exchanges = @data_reader.exchanges
-      fetch_symbols_for_exchanges(exchanges, parallel: parallel, workers: workers)
+      fetch_symbols_for_exchanges(exchanges, force: force, parallel: parallel, workers: workers)
     end
 
     private
 
-    def fetch_symbols_for_exchanges(exchanges, parallel:, workers:)
+    def fetch_symbols_for_exchanges(exchanges, force:, parallel:, workers:)
       exchanges.each do |exchange|
-        fetch_symbols_for_exchange(exchange)
+        fetch_symbols_for_exchange(exchange, force: force)
       end
     end
 
-    def fetch_symbols_for_exchange(exchange)
+    def fetch_symbols_for_exchange(exchange, force:)
       existing_paths = symbols_paths_for_exchange(exchange)
-      if existing_paths.any? && existing_paths.none? { |path| @shared.file_stale?(path) }
+      if !force && existing_paths.any? && existing_paths.none? { |path| @shared.file_stale?(path) }
         @log.info("Skipping symbols (fresh): #{File.join('symbols', StringUtil.kebab_case(exchange), '*.json')}")
         return
       end
+
+      @log.info("Fetching symbols for #{exchange}#{force ? ' (forced)' : ''}...")
 
       begin
         symbols_text = @api.get_exchange_symbol_list_json(exchange)
