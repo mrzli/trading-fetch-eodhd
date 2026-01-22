@@ -15,17 +15,12 @@ module Eodhd
       private
 
       def parse_args(argv)
-        subcommand = "exchanges"
         force = false
         parallel = false
         workers = 4
 
         parser = OptionParser.new do |opts|
-          opts.banner = "Usage: bin/fetch [options]"
-
-          opts.on("-cSUBCOMMAND", "--subcommand=SUBCOMMAND", "Subcommand: exchanges or symbols (default: exchanges)") do |v|
-            subcommand = v.to_s.strip
-          end
+          opts.banner = "Usage: bin/fetch SUBCOMMAND [options]\n\nSubcommands: exchanges, symbols"
 
           opts.on("-f", "--force", "Force fetch, ignore file staleness") do
             force = true
@@ -46,13 +41,17 @@ module Eodhd
 
         parser.parse!(argv)
 
-        unless argv.empty?
-          raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
+        if argv.empty?
+          raise Args::Error.new("Missing required subcommand.", usage: parser.to_s)
         end
 
-        subcommand = subcommand.to_s.strip.downcase
+        subcommand = argv.shift.to_s.strip.downcase
         unless %w[exchanges symbols].include?(subcommand)
           raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected 'exchanges' or 'symbols'.", usage: parser.to_s)
+        end
+
+        unless argv.empty?
+          raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
         end
 
         Result.new(subcommand: subcommand, force: force, parallel: parallel, workers: workers)
