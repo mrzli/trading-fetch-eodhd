@@ -1,99 +1,78 @@
-# trading-fetch-eodhd
+# Trading - Fetch EODHD
 
-Minimal Ruby app (managed by mise) that prints a message.
+This is a collection of Ruby scripts used to fetch trading data from [EOD Historical Data](https://eodhistoricaldata.com/) and for processing it.
 
-## Step by step
+## Project Setup
 
-1. Confirm mise is installed:
+### 1. Install Ruby
+
+Confirm mise is installed and install the Ruby version declared in `.mise.toml`:
 
 ```bash
 mise --version
-```
-
-2. Install the Ruby version declared in .mise.toml:
-
-```bash
 mise install
 ```
 
-3. Verify the Ruby version mise will use in this folder:
+Verify:
 
 ```bash
-mise current
 mise exec -- ruby -v
 ```
 
-4. Run the script:
-
-```bash
-chmod +x bin/hello
-./bin/hello
-```
-
-## Using an external library (minimum)
-
-This repo includes a Gemfile and uses the `colorize` gem.
-
-1. Install gems (under the mise Ruby):
+### 2. Install Gems
 
 ```bash
 mise exec -- bundle install
 ```
 
-2. Run:
+Or if you have mise shell activation enabled:
 
 ```bash
-./bin/hello
+bundle install
 ```
 
-## Using an env var (dotenv)
-
-Yes, `dotenv` is commonly used in Ruby apps to load environment variables from a local `.env` file.
-It’s mainly for local development; in production you typically set real env vars (and don’t use `.env`).
-
-1. Create a local env file:
+### 3. Make Scripts Executable
 
 ```bash
-cp .env.example .env
+chmod +x bin/*
 ```
 
-2. Install gems (if you haven’t yet):
+### 4. Setup Environment Variables
 
-```bash
-mise exec -- bundle install
-```
-
-3. Run:
-
-```bash
-./bin/hello
-```
-
-## Suggested structure (standard Ruby pattern)
-
-Yes—this is normal/standard: keep `bin/*` as thin wrappers and put the “meat” in `lib/`.
-
-- `bin/fetch`: reads env/args and calls library code
-- `lib/trading_fetch_eodhd/fetch.rb`: implements the actual HTTP + file writing
-
-## Fetch CSV (MCD.US)
-
-`bin/fetch` fetches CSV for `MCD.US` and writes it to `OUTPUT_DIR/MCD.US.csv`.
-
-`OUTPUT_DIR` can be relative (e.g. `data`) or absolute (e.g. `/home/you/data` or `~/data`).
-
-1. Set required env vars (recommended via `.env`):
+Copy the example env file and configure it:
 
 ```bash
 cp .env.example .env
-# edit .env: set BASE_URL, API_TOKEN and OUTPUT_DIR
-# optionally set REQUEST_PAUSE_MS (0-200) and LOG_LEVEL
 ```
 
-2. Run:
+Edit `.env` and set your EODHD API key and any other necessary variables.
+
+## Running Commands
+
+### Fetch Data
 
 ```bash
-./bin/fetch
+./bin/fetch --help                           # Show help
+./bin/fetch --subcommand exchanges          # Fetch exchanges list
+./bin/fetch --subcommand exchanges --force  # Force fresh fetch
+./bin/fetch --subcommand symbols            # Fetch symbols (sequentially)
+./bin/fetch --subcommand symbols --parallel # Fetch symbols (parallel with 4 workers)
+./bin/fetch -c symbols -p -w 8              # Fetch symbols (parallel with 8 workers)
 ```
 
-If you have mise shell activation enabled, you can also run `ruby -v` directly.
+### Process Data
+
+```bash
+./bin/process --help              # Show help
+./bin/process eod                 # Process EOD data
+./bin/process intraday            # Process intraday data
+```
+
+## Architecture
+
+- `bin/`: Command entry points
+- `lib/eodhd/`: Core library code
+  - `commands/`: CLI command handlers
+  - `fetch/`: Fetching logic and components
+  - `process/`: Processing logic
+  - `shared/`: Shared utilities (config, logging, IoC container, etc.)
