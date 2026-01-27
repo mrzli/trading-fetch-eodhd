@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
+require "parallel"
 
 require_relative "../../../util"
 require_relative "../../shared/path"
@@ -18,19 +19,32 @@ module Eodhd
 
     def fetch(force:, parallel:, workers:)
       exchanges = @data_reader.exchanges
-      fetch_symbols_for_exchanges(exchanges, force: force, parallel: parallel, workers: workers)
+      exchange_items = build_exchange_items(exchanges)
+
+      fetch_symbols_for_exchanges(exchange_items, force: force, parallel: parallel, workers: workers)
     end
 
     private
 
-    def fetch_symbols_for_exchanges(exchanges, force:, parallel:, workers:)
-      exchanges.each do |exchange|
-        fetch_symbols_for_exchange(exchange, force: force)
+    def fetch_symbols_for_exchanges(exchange_items, force:, parallel:, workers:)
+      if parallel
+        Parallel.each(exchange_items, in_processes: workers) do |item|
+          fetch_symbols_for_exchange(item[:exchange], force: force, existing_paths: item[:existing_paths])
+        end
+      else
+        exchange_items.each do |item|
+          fetch_symbols_for_exchange(item[:exchange], force: force, existing_paths: item[:existing_paths])
+        end
       end
     end
 
-    def fetch_symbols_for_exchange(exchange, force:)
-      existing_paths = symbols_paths_for_exchange(exchange)
+    def build_exchange_items(exchanges)
+      exchanges.map do |exchange|
+        { exchange: exchange, existing_paths: symbols_paths_for_exchange(exchange) }
+      end
+    end
+
+    def fetch_symbols_for_exchange(exchange, force:, existing_paths:)
       if !force && existing_paths.any? && existing_paths.none? { |path| @shared.file_stale?(path) }
         @log.info("Skipping symbols (fresh): #{File.join('symbols', StringUtil.kebab_case(exchange), '*.json')}")
         return
