@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "json"
-require "parallel"
 
 require_relative "../../../util"
 require_relative "../../shared/path"
@@ -27,14 +26,8 @@ module Eodhd
     private
 
     def fetch_symbols_for_exchanges(exchange_items, force:, parallel:, workers:)
-      if parallel
-        Parallel.each(exchange_items, in_processes: workers) do |item|
-          fetch_symbols_for_exchange(item[:exchange], force: force, existing_paths: item[:existing_paths])
-        end
-      else
-        exchange_items.each do |item|
-          fetch_symbols_for_exchange(item[:exchange], force: force, existing_paths: item[:existing_paths])
-        end
+      ParallelExecutor.execute(exchange_items, parallel: parallel, workers: workers) do |item|
+        fetch_symbols_for_exchange(item[:exchange], force: force, existing_paths: item[:existing_paths])
       end
     end
 
