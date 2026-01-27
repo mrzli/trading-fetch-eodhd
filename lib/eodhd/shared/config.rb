@@ -12,6 +12,7 @@ module Eodhd
       :api_token,
       :output_dir,
       :min_file_age_minutes,
+      :default_workers,
       :too_many_requests_pause_ms
     )
 
@@ -19,10 +20,11 @@ module Eodhd
       def eodhd
         Eodhd.new(
           log_level: log_level,
-          base_url: eodhd_base_url,
-          api_token: eodhd_api_token,
-          output_dir: eodhd_output_dir,
+          base_url: base_url,
+          api_token: api_token,
+          output_dir: output_dir,
           min_file_age_minutes: min_file_age_minutes,
+          default_workers: default_workers,
           too_many_requests_pause_ms: too_many_requests_pause_ms
         )
       end
@@ -34,7 +36,7 @@ module Eodhd
         level.empty? ? "info" : level
       end
 
-      def eodhd_base_url
+      def base_url
         base = required_env("BASE_URL")
         base = base.chomp("/")
         unless base.start_with?("http://", "https://")
@@ -43,11 +45,23 @@ module Eodhd
         base
       end
 
-      def eodhd_api_token
+      def api_token
         required_env("API_TOKEN")
       end
 
-      def eodhd_output_dir
+      def too_many_requests_pause_ms
+        Validate.integer_non_negative("TOO_MANY_REQUESTS_PAUSE", ENV.fetch("TOO_MANY_REQUESTS_PAUSE", "60000"))
+      rescue ArgumentError
+        raise Error, "TOO_MANY_REQUESTS_PAUSE must be a non-negative integer."
+      end
+
+      def default_workers
+        Validate.integer_positive("DEFAULT_WORKERS", ENV.fetch("DEFAULT_WORKERS", "4"))
+      rescue ArgumentError
+        raise Error, "DEFAULT_WORKERS must be a positive integer."
+      end
+
+      def output_dir
         File.expand_path(required_env("OUTPUT_DIR"))
       end
 
@@ -55,12 +69,6 @@ module Eodhd
         Validate.integer_non_negative("MIN_FILE_AGE_MINUTES", ENV.fetch("MIN_FILE_AGE_MINUTES", "60"))
       rescue ArgumentError
         raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
-      end
-
-      def request_pause_ms
-        Validate.integer_non_negative("TOO_MANY_REQUESTS_PAUSE", ENV.fetch("TOO_MANY_REQUESTS_PAUSE", "60000"))
-      rescue ArgumentError
-        raise Error, "TOO_MANY_REQUESTS_PAUSE must be a non-negative integer."
       end
 
       # Read a required env var and return a stripped string.
