@@ -36,9 +36,6 @@ module Eodhd
     end
 
     def run_rest
-      # exchanges = @fetch_exchanges.fetch
-      # symbol_entries = @fetch_symbols.fetch(exchanges)
-
       # @fetch_meta.fetch(symbol_entries)
 
       # @fetch_eod.fetch(symbol_entries)
