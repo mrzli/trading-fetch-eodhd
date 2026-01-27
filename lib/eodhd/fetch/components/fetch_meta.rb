@@ -31,8 +31,11 @@ module Eodhd
     end
 
     def fetch_single(symbol_entry, force:)
-      fetch_metadata(symbol_entry, :splits, ->(e, s) { @api.get_splits_json(e, s) }, force: force)
-      fetch_metadata(symbol_entry, :dividends, ->(e, s) { @api.get_dividends_json(e, s) }, force: force)
+      threads = [
+        Thread.new { fetch_metadata(symbol_entry, :splits, ->(e, s) { @api.get_splits_json(e, s) }, force: force) },
+        Thread.new { fetch_metadata(symbol_entry, :dividends, ->(e, s) { @api.get_dividends_json(e, s) }, force: force) }
+      ]
+      threads.each(&:join)
     end
 
     def fetch_metadata(symbol_entry, type, api_method, force:)
