@@ -42,8 +42,6 @@ module Eodhd
         @log.info("Wrote #{saved_path}")
       rescue StandardError => e
         @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
-      ensure
-        @shared.pause_between_requests
       end
     end
 

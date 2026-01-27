@@ -23,11 +23,6 @@ module Eodhd
       true
     end
 
-    def pause_between_requests
-      # return unless @cfg.request_pause_ms.positive?
-      # sleep(@cfg.request_pause_ms / 1000.0)
-    end
-
     def file_stale?(relative_path)
       last_updated_at = @io.file_last_updated_at(relative_path)
       return true if last_updated_at.nil?

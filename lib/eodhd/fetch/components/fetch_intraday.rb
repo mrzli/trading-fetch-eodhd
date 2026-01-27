@@ -60,12 +60,9 @@ module Eodhd
           @log.info("Wrote #{saved_path}")
 
           to = from - 1
-          @shared.pause_between_requests
         end
       rescue StandardError => e
         @log.warn("Failed intraday for #{symbol_with_exchange}: #{e.class}: #{e.message}")
-      ensure
-        @shared.pause_between_requests
       end
     end
 

@@ -63,8 +63,6 @@ module Eodhd
         end
       rescue StandardError => e
         @log.warn("Failed symbols for #{exchange}: #{e.class}: #{e.message}")
-      ensure
-        @shared.pause_between_requests
       end
     end
 
