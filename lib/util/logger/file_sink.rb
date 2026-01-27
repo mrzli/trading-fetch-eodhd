@@ -10,10 +10,12 @@ class Eodhd::FileSink
     level = Eodhd::LoggerShared.normalize_level(level)
     formatter ||= Eodhd::LoggerShared.default_formatter
 
-    log_dir = File.join(output_dir, "log")
+    now = Time.now
+    date_dir = now.strftime("%Y-%m-%d")
+    log_dir = File.join(output_dir, "log", date_dir)
     FileUtils.mkdir_p(log_dir)
 
-    timestamp = Time.now.strftime("%Y-%m-%d_%H-%M-%S")
+    timestamp = now.strftime("%H-%M-%S")
     log_file = File.join(log_dir, "#{command}_#{timestamp}.log")
 
     @logger = ::Logger.new(log_file)
