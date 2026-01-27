@@ -20,7 +20,7 @@ module Eodhd
         workers = 4
 
         parser = OptionParser.new do |opts|
-          opts.banner = "Usage: bin/fetch SUBCOMMAND [options]\n\nSubcommands: exchanges, symbols"
+          opts.banner = "Usage: bin/fetch SUBCOMMAND [options]\n\nSubcommands: exchanges, symbols, meta"
 
           opts.on("-f", "--force", "Force fetch, ignore file staleness") do
             force = true
@@ -46,8 +46,8 @@ module Eodhd
         end
 
         subcommand = argv.shift.to_s.strip.downcase
-        unless %w[exchanges symbols].include?(subcommand)
-          raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected 'exchanges' or 'symbols'.", usage: parser.to_s)
+        unless %w[exchanges symbols meta].include?(subcommand)
+          raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected 'exchanges', 'symbols', or 'meta'.", usage: parser.to_s)
         end
 
         unless argv.empty?
