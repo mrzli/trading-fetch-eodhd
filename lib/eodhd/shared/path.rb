@@ -14,6 +14,16 @@ module Eodhd
         File.join("symbols", exchange, "#{type}.json")
       end
 
+      def splits(exchange, symbol)
+        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
+        File.join("meta", exchange, symbol, "splits.json")
+      end
+
+      def dividends(exchange, symbol)
+        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
+        File.join("meta", exchange, symbol, "dividends.json")
+      end
+
       def raw_eod_dir
         File.join("raw", "eod")
       end
@@ -55,16 +65,6 @@ module Eodhd
         year = Validate.integer("year", year)
         month = Validate.integer("month", month)
         File.join(dir, "#{year}-#{format('%02d', month)}.csv")
-      end
-
-      def splits(exchange, symbol)
-        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-        File.join("meta", exchange, symbol, "splits.json")
-      end
-
-      def dividends(exchange, symbol)
-        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-        File.join("meta", exchange, symbol, "dividends.json")
       end
 
       private
