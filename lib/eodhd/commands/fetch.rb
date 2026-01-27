@@ -12,10 +12,11 @@ module Eodhd
     module_function
 
     def run
-      subcommand, force, parallel, workers = FetchArgs.parse(ARGV).deconstruct
-
       container = Container.new(command: "fetch")
       strategy = FetchStrategy.new(container: container)
+      args_parser = FetchArgs.new(container: container)
+
+      subcommand, force, parallel, workers = args_parser.parse(ARGV).deconstruct
 
       case subcommand
       when "exchanges"

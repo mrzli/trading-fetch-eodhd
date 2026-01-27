@@ -4,62 +4,64 @@ require "optparse"
 require_relative "../shared/args"
 
 module Eodhd
-  module FetchArgs
+  class FetchArgs
     Result = Data.define(:subcommand, :force, :parallel, :workers)
 
     VALID_SUBCOMMANDS = %w[exchanges symbols meta eod].freeze
 
-    class << self
-      def parse(argv)
-        Args.with_exception_handling { parse_args(argv) }
+    def initialize(container:)
+      @cfg = container.config
+    end
+
+    def parse(argv)
+      Args.with_exception_handling { parse_args(argv) }
+    end
+
+    private
+
+    def parse_args(argv)
+      force = false
+      parallel = false
+      workers = @cfg.default_workers
+
+      parser = OptionParser.new do |opts|
+        opts.banner = "Usage: bin/fetch SUBCOMMAND [options]\n\nSubcommands: #{VALID_SUBCOMMANDS.join(', ')}"
+
+        opts.on("-f", "--force", "Force fetch, ignore file staleness") do
+          force = true
+        end
+
+        opts.on("-p", "--parallel", "Use parallel processing for symbols") do
+          parallel = true
+        end
+
+        opts.on("-w", "--workers N", Integer, "Number of parallel workers (default: #{@cfg.default_workers})") do |v|
+          workers = Validate.integer_positive("workers", v)
+        end
+
+        opts.on("-h", "--help", "Show this help") do
+          raise Args::Help.new(opts.to_s)
+        end
       end
 
-      private
+      parser.parse!(argv)
 
-      def parse_args(argv)
-        force = false
-        parallel = false
-        workers = 4
-
-        parser = OptionParser.new do |opts|
-          opts.banner = "Usage: bin/fetch SUBCOMMAND [options]\n\nSubcommands: #{VALID_SUBCOMMANDS.join(', ')}"
-
-          opts.on("-f", "--force", "Force fetch, ignore file staleness") do
-            force = true
-          end
-
-          opts.on("-p", "--parallel", "Use parallel processing for symbols") do
-            parallel = true
-          end
-
-          opts.on("-w", "--workers N", Integer, "Number of parallel workers (default: 4)") do |v|
-            workers = Validate.integer_positive("workers", v)
-          end
-
-          opts.on("-h", "--help", "Show this help") do
-            raise Args::Help.new(opts.to_s)
-          end
-        end
-
-        parser.parse!(argv)
-
-        if argv.empty?
-          raise Args::Error.new("Missing required subcommand.", usage: parser.to_s)
-        end
-
-        subcommand = argv.shift.to_s.strip.downcase
-        unless VALID_SUBCOMMANDS.include?(subcommand)
-          raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected one of: #{VALID_SUBCOMMANDS.join(', ')}.", usage: parser.to_s)
-        end
-
-        unless argv.empty?
-          raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
-        end
-
-        Result.new(subcommand: subcommand, force: force, parallel: parallel, workers: workers)
-      rescue OptionParser::ParseError => e
-        raise Args::Error.new(e.message, usage: parser.to_s)
+      if argv.empty?
+        raise Args::Error.new("Missing required subcommand.", usage: parser.to_s)
       end
+
+      subcommand = argv.shift.to_s.strip.downcase
+      unless VALID_SUBCOMMANDS.include?(subcommand)
+        raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected one of: #{VALID_SUBCOMMANDS.join(', ')}.", usage: parser.to_s)
+      end
+
+      unless argv.empty?
+        raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
+      end
+
+      Result.new(subcommand: subcommand, force: force, parallel: parallel, workers: workers)
+    rescue OptionParser::ParseError => e
+      raise Args::Error.new(e.message, usage: parser.to_s)
     end
   end
 end
