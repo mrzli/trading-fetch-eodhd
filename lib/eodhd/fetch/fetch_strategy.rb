@@ -41,6 +41,10 @@ module Eodhd
       @fetch_meta.fetch(force: force, parallel: parallel, workers: workers)
     end
 
+    def run_eod(force:, parallel:, workers:)
+      @fetch_eod.fetch(force: force, parallel: parallel, workers: workers)
+    end
+
     def run_rest
       # @fetch_meta.fetch(symbol_entries)
 
