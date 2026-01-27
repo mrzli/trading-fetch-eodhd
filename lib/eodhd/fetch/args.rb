@@ -7,6 +7,8 @@ module Eodhd
   module FetchArgs
     Result = Data.define(:subcommand, :force, :parallel, :workers)
 
+    VALID_SUBCOMMANDS = %w[exchanges symbols meta eod].freeze
+
     class << self
       def parse(argv)
         Args.with_exception_handling { parse_args(argv) }
@@ -20,7 +22,7 @@ module Eodhd
         workers = 4
 
         parser = OptionParser.new do |opts|
-          opts.banner = "Usage: bin/fetch SUBCOMMAND [options]\n\nSubcommands: exchanges, symbols, meta, eod"
+          opts.banner = "Usage: bin/fetch SUBCOMMAND [options]\n\nSubcommands: #{VALID_SUBCOMMANDS.join(', ')}"
 
           opts.on("-f", "--force", "Force fetch, ignore file staleness") do
             force = true
@@ -46,8 +48,8 @@ module Eodhd
         end
 
         subcommand = argv.shift.to_s.strip.downcase
-        unless %w[exchanges symbols meta eod].include?(subcommand)
-          raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected 'exchanges', 'symbols', 'meta', or 'eod'.", usage: parser.to_s)
+        unless VALID_SUBCOMMANDS.include?(subcommand)
+          raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected one of: #{VALID_SUBCOMMANDS.join(', ')}.", usage: parser.to_s)
         end
 
         unless argv.empty?
