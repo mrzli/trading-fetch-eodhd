@@ -53,11 +53,11 @@ Edit `.env` and set your EODHD API key and any other necessary variables.
 
 ```bash
 ./bin/fetch --help                           # Show help
-./bin/fetch --subcommand exchanges          # Fetch exchanges list
-./bin/fetch --subcommand exchanges --force  # Force fresh fetch
-./bin/fetch --subcommand symbols            # Fetch symbols (sequentially)
-./bin/fetch --subcommand symbols --parallel # Fetch symbols (parallel with 4 workers)
-./bin/fetch -c symbols -p -w 8              # Fetch symbols (parallel with 8 workers)
+./bin/fetch exchanges          # Fetch exchanges list
+./bin/fetch exchanges --force  # Force fresh fetch
+./bin/fetch symbols            # Fetch symbols (sequentially)
+./bin/fetch symbols --parallel # Fetch symbols (parallel with 4 workers)
+./bin/fetch symbols -p -w 8              # Fetch symbols (parallel with 8 workers)
 ```
 
 ### Process Data
