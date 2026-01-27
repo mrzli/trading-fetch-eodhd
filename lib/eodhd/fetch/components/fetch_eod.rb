@@ -15,7 +15,7 @@ module Eodhd
 
     def fetch(symbol_entries)
       symbol_entries.each do |entry|
-        next unless @shared.should_fetch?(entry)
+        next unless @shared.should_fetch_symbol?(entry)
         fetch_single(entry)
       end
     end

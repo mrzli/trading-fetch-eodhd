@@ -15,7 +15,7 @@ module Eodhd
       @io = container.io
     end
 
-    def should_fetch?(symbol_entry)
+    def should_fetch_symbol?(symbol_entry)
       return false unless SYMBOL_INCLUDED_EXCHANGES.include?(symbol_entry[:exchange])
       return false unless SYMBOL_INCLUDED_REAL_EXCHANGES.include?(symbol_entry[:real_exchange])
       return false unless SYMBOL_INCLUDED_TYPES.include?(symbol_entry[:type])

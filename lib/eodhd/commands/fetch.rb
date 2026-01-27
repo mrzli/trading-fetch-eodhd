@@ -22,6 +22,8 @@ module Eodhd
         strategy.run_exchanges(force: force)
       when "symbols"
         strategy.run_symbols(force: force, parallel: parallel, workers: workers)
+      when "meta"
+        strategy.run_meta(force: force, parallel: parallel, workers: workers)
       end
     end
   end

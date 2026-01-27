@@ -10,44 +10,49 @@ module Eodhd
       @log = container.logger
       @api = container.api
       @io = container.io
+      @data_reader = container.data_reader
+
       @shared = shared
     end
 
-    def fetch(symbol_entries)
-      symbol_entries.each do |entry|
-        next unless @shared.should_fetch?(entry)
-        fetch_single(entry)
-      end
+    def fetch(force:, parallel:, workers:)
+      symbol_entries = @data_reader.symbols
+      filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol?(entry) }
+      fetch_metadata_for_symbols(filtered_entries, force: force, parallel: parallel, workers: workers)
     end
 
     private
 
-    def fetch_single(symbol_entry)
-      fetch_metadata(symbol_entry, :splits, ->(e, s) { @api.get_splits_json(e, s) })
-      fetch_metadata(symbol_entry, :dividends, ->(e, s) { @api.get_dividends_json(e, s) })
+    def fetch_metadata_for_symbols(symbol_entries, force:, parallel:, workers:)
+      ParallelExecutor.execute(symbol_entries, parallel: parallel, workers: workers) do |entry|
+        fetch_single(entry, force: force)
+      end
     end
 
-    def fetch_metadata(symbol_entry, type, api_method)
+    def fetch_single(symbol_entry, force:)
+      fetch_metadata(symbol_entry, :splits, ->(e, s) { @api.get_splits_json(e, s) }, force: force)
+      fetch_metadata(symbol_entry, :dividends, ->(e, s) { @api.get_dividends_json(e, s) }, force: force)
+    end
+
+    def fetch_metadata(symbol_entry, type, api_method, force:)
       exchange = symbol_entry[:exchange]
       symbol = symbol_entry[:symbol]
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
       path = Path.public_send(type, exchange, symbol)
-      unless @shared.file_stale?(path)
+      unless force || @shared.file_stale?(path)
         @log.info("Skipping #{type} (fresh): #{path}")
         return
       end
 
-      begin
-        @log.info("Fetching #{type} JSON: #{symbol_with_exchange}...")
-        data = api_method.call(exchange, symbol)
-        saved_path = @io.write_json(path, data, true)
-        @log.info("Wrote #{saved_path}")
-      rescue StandardError => e
-        @log.warn("Failed #{type} for #{symbol_with_exchange}: #{e.class}: #{e.message}")
-      ensure
-        @shared.pause_between_requests
-      end
+      @log.info("Fetching #{type} JSON: #{symbol_with_exchange}#{force ? ' (forced)' : ''}...")
+      data = api_method.call(exchange, symbol)
+      saved_path = @io.write_json(path, data, true)
+      @log.info("Wrote #{saved_path}")
+    rescue StandardError => e
+      @log.warn("Failed #{type} for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+    ensure
+      @shared.pause_between_requests
     end
 
   end

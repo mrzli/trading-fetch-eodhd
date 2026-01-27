@@ -25,6 +25,8 @@ module Eodhd
       @fetch_meta = FetchMeta.new(container: container, shared: shared)
       @fetch_eod = FetchEod.new(container: container, shared: shared)
       @fetch_intraday = FetchIntraday.new(container: container, shared: shared)
+
+      @data_reader = container.data_reader
     end
 
     def run_exchanges(force:)
@@ -33,6 +35,10 @@ module Eodhd
 
     def run_symbols(force:, parallel:, workers:)
       @fetch_symbols.fetch(force: force, parallel: parallel, workers: workers)
+    end
+
+    def run_meta(force:, parallel:, workers:)
+      @fetch_meta.fetch(force: force, parallel: parallel, workers: workers)
     end
 
     def run_rest
