@@ -25,9 +25,11 @@ module Eodhd
     end
 
     def symbols
-      exchange_dirs = @io.list_relative_dirs("symbols")
+      exchanges.flat_map do |exchange|
+        relative_dir = File.join("symbols", StringUtil.kebab_case(exchange))
+        
+        next [] unless @io.dir_exists?(relative_dir)
 
-      exchange_dirs.flat_map do |relative_dir|
         @io
           .list_relative_files(relative_dir)
           .select { |path| path.end_with?(".json") }
@@ -40,7 +42,7 @@ module Eodhd
 
             symbol_entries.map do |entry|
               {
-                exchange: StringUtil.pascal_case(exchange),
+                exchange: exchange,
                 real_exchange: entry["Exchange"],
                 type: type,
                 symbol: entry["Code"]

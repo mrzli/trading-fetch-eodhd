@@ -18,6 +18,7 @@ module Eodhd
     def fetch(force:, parallel:, workers:)
       symbol_entries = @data_reader.symbols
       filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol?(entry) }
+
       fetch_metadata_for_symbols(filtered_entries, force: force, parallel: parallel, workers: workers)
     end
 

@@ -52,6 +52,10 @@ module Eodhd
       File.exist?(output_path(relative_path))
     end
 
+    def dir_exists?(relative_dir)
+      File.directory?(output_path(relative_dir))
+    end
+
     def file_last_updated_at(relative_path)
       output_path = output_path(relative_path)
       return nil unless File.exist?(output_path)
