@@ -3,11 +3,11 @@
 require "csv"
 require "date"
 
+require_relative "../../parsing/intraday_csv_parser"
 require_relative "../shared/constants"
 require_relative "../shared/price_adjust"
 require_relative "../shared/splits_processor"
 require_relative "data_splitter"
-require_relative "intraday_csv_parser"
 require_relative "input_merger"
 
 module Eodhd

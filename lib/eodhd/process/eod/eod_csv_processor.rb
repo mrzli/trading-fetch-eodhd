@@ -3,7 +3,7 @@
 require "csv"
 require "date"
 
-require_relative "eod_csv_parser"
+require_relative "../../parsing/eod_csv_parser"
 require_relative "../shared/constants"
 require_relative "../shared/dividends_processor"
 require_relative "../shared/price_adjust"

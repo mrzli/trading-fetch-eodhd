@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "../../../test_helper"
+require_relative "../../test_helper"
 
 require "date"
-require_relative "../../../../lib/eodhd/process/eod/eod_csv_parser"
+require_relative "../../../lib/eodhd/parsing/eod_csv_parser"
 
 describe Eodhd::EodCsvParser do
   it "parses EOD rows" do

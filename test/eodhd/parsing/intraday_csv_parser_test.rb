@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "../../../test_helper"
+require_relative "../../test_helper"
 
-require_relative "../../../../lib/eodhd/process/intraday/intraday_csv_parser"
+require_relative "../../../lib/eodhd/parsing/intraday_csv_parser"
 
 describe Eodhd::IntradayCsvParser do
   it "parses intraday rows" do
