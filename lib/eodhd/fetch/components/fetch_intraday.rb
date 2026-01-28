@@ -45,18 +45,18 @@ module Eodhd
             break
           end
 
-          relative_path = Path.raw_intraday_data(exchange, symbol, from, to)
-
           from_formatted = DateUtil.seconds_to_datetime(from)
           to_formatted = DateUtil.seconds_to_datetime(to)
           @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
-
+          
           csv = @api.get_intraday_csv(exchange, symbol, from: from, to: to)
-
+          
           if csv.to_s.length < MIN_CSV_LENGTH
             @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
             break
           end
+
+          relative_path = Path.raw_intraday_data(exchange, symbol, from, to)
 
           saved_path = @io.write_csv(relative_path, csv)
           @log.info("Wrote #{saved_path}")
