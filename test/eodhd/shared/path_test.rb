@@ -39,6 +39,40 @@ describe Eodhd::Path do
   )
 
   test_equals(
+    ".splits",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("meta", "us", "aapl", "splits.json")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("meta", "us", "brk-b", "splits.json")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.splits(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
+    ".dividends",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("meta", "us", "aapl", "dividends.json")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("meta", "us", "brk-b", "dividends.json")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.dividends(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
     ".raw_eod_dir",
     [
       {
@@ -68,23 +102,6 @@ describe Eodhd::Path do
   )
 
   test_equals(
-    ".processed_eod_data",
-    [
-      {
-        description: "symbol with exchange",
-        input: { exchange: "US", symbol: "MCD" },
-        expected: File.join("data", "eod", "us", "mcd.csv")
-      },
-      {
-        description: "symbol with dot class",
-        input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("data", "eod", "us", "brk-b.csv")
-      }
-    ],
-    call: ->(input) { Eodhd::Path.processed_eod_data(input[:exchange], input[:symbol]) }
-  )
-
-  test_equals(
     ".raw_intraday_dir",
     [
       {
@@ -97,20 +114,39 @@ describe Eodhd::Path do
   )
 
   test_equals(
-    ".raw_intraday_data_dir",
+    ".raw_intraday_fetched_dir",
     [
       {
-        description: "symbol with exchange",
-        input: { exchange: "US", symbol: "AAPL" },
-        expected: File.join("raw", "intraday", "us", "aapl")
-      },
-      {
-        description: "symbol with dot class",
-        input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("raw", "intraday", "us", "brk-b")
+        description: "hardcoded fetched root",
+        input: nil,
+        expected: File.join("raw", "intraday", "fetched")
       }
     ],
-    call: ->(input) { Eodhd::Path.raw_intraday_data_dir(input[:exchange], input[:symbol]) }
+    call: ->(_input) { Eodhd::Path.raw_intraday_fetched_dir }
+  )
+
+  test_equals(
+    ".raw_intraday_meta_dir",
+    [
+      {
+        description: "hardcoded meta root",
+        input: nil,
+        expected: File.join("raw", "intraday", "meta")
+      }
+    ],
+    call: ->(_input) { Eodhd::Path.raw_intraday_meta_dir }
+  )
+
+  test_equals(
+    ".raw_intraday_processed_dir",
+    [
+      {
+        description: "hardcoded processed root",
+        input: nil,
+        expected: File.join("raw", "intraday", "processed")
+      }
+    ],
+    call: ->(_input) { Eodhd::Path.raw_intraday_processed_dir }
   )
 
   test_equals(
@@ -148,6 +184,23 @@ describe Eodhd::Path do
   )
 
   test_equals(
+    ".processed_eod_data",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "MCD" },
+        expected: File.join("data", "eod", "us", "mcd.csv")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("data", "eod", "us", "brk-b.csv")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.processed_eod_data(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
     ".processed_intraday_data_dir",
     [
       {
@@ -174,39 +227,5 @@ describe Eodhd::Path do
       }
     ],
     call: ->(input) { Eodhd::Path.processed_intraday_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
-  )
-
-  test_equals(
-    ".splits",
-    [
-      {
-        description: "symbol with exchange",
-        input: { exchange: "US", symbol: "AAPL" },
-        expected: File.join("meta", "us", "aapl", "splits.json")
-      },
-      {
-        description: "symbol with dot class",
-        input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("meta", "us", "brk-b", "splits.json")
-      }
-    ],
-    call: ->(input) { Eodhd::Path.splits(input[:exchange], input[:symbol]) }
-  )
-
-  test_equals(
-    ".dividends",
-    [
-      {
-        description: "symbol with exchange",
-        input: { exchange: "US", symbol: "AAPL" },
-        expected: File.join("meta", "us", "aapl", "dividends.json")
-      },
-      {
-        description: "symbol with dot class",
-        input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("meta", "us", "brk-b", "dividends.json")
-      }
-    ],
-    call: ->(input) { Eodhd::Path.dividends(input[:exchange], input[:symbol]) }
   )
 end
