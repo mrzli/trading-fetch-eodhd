@@ -5,8 +5,9 @@ require_relative "../../shared/path"
 
 module Eodhd
   class FetchIntraday
-    INTRADAY_MAX_RANGE_SECONDS = 118 * 24 * 60 * 60
-    INTRADAY_MIN_CSV_LENGTH = 20
+    DAYS_TO_SECONDS = 24 * 60 * 60
+    MAX_RANGE_SECONDS = 118 * DAYS_TO_SECONDS
+    MIN_CSV_LENGTH = 20
 
     def initialize(container:, shared:)
       @log = container.logger
@@ -35,7 +36,7 @@ module Eodhd
 
         to = Time.now.to_i
         while to > 0 do
-          from = [0, to - INTRADAY_MAX_RANGE_SECONDS].max
+          from = [0, to - MAX_RANGE_SECONDS].max
 
           if !latest_from_on_disk.nil? && from <= latest_from_on_disk
             latest_from_formatted = DateUtil.seconds_to_datetime(latest_from_on_disk)
@@ -51,7 +52,7 @@ module Eodhd
 
           csv = @api.get_intraday_csv(exchange, symbol, from: from, to: to)
 
-          if csv.to_s.length < INTRADAY_MIN_CSV_LENGTH
+          if csv.to_s.length < MIN_CSV_LENGTH
             @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
             break
           end
