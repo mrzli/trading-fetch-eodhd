@@ -42,6 +42,18 @@ module Eodhd
         File.join("raw", "intraday")
       end
 
+      def raw_intraday_fetched_dir
+        File.join(raw_intraday_dir, "fetched")
+      end
+
+      def raw_intraday_meta_dir
+        File.join(raw_intraday_dir, "meta")
+      end
+
+      def raw_intraday_processed_dir
+        File.join(raw_intraday_dir, "processed")
+      end
+
       def raw_intraday_data_dir(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join(raw_intraday_dir, exchange, symbol)
