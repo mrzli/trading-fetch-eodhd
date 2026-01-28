@@ -46,7 +46,7 @@ module Eodhd
             break
           end
 
-          fetch_valid = fetch_intraday_interval(exchange, symbol, symbol_with_exchange, from, to)
+          fetch_valid = fetch_intraday_interval(exchange, symbol, from, to)
           break unless fetch_valid
 
           to = to - STRIDE_SECONDS
@@ -73,7 +73,9 @@ module Eodhd
         .max
     end
 
-    def fetch_intraday_interval(exchange, symbol, symbol_with_exchange, from, to)
+    def fetch_intraday_interval(exchange, symbol, from, to)
+      symbol_with_exchange = "#{symbol}.#{exchange}"
+
       from_formatted = DateUtil.seconds_to_datetime(from)
       to_formatted = DateUtil.seconds_to_datetime(to)
       @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
