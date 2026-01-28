@@ -78,18 +78,19 @@ module Eodhd
 
       from_formatted = DateUtil.seconds_to_datetime(from)
       to_formatted = DateUtil.seconds_to_datetime(to)
-      @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
+      from_to_message_fragment = "(from=#{from_formatted} to=#{to_formatted})"
+      @log.info("Fetching intraday CSV: #{symbol_with_exchange} #{from_to_message_fragment}...")
 
       csv = @api.get_intraday_csv(exchange, symbol, from: from, to: to)
 
       if csv.to_s.length < MIN_CSV_LENGTH
-        @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
+        @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} #{from_to_message_fragment}")
         return false
       end
 
       relative_path = relative_intraday_path(exchange, symbol, csv)
       if relative_path.nil?
-        @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
+        @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} #{from_to_message_fragment}")
         return false
       end
 
