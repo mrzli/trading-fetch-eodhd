@@ -6,7 +6,8 @@ require_relative "../../shared/path"
 module Eodhd
   class FetchIntraday
     DAYS_TO_SECONDS = 24 * 60 * 60
-    MAX_RANGE_SECONDS = 118 * DAYS_TO_SECONDS
+    RANGE_SECONDS = 118 * DAYS_TO_SECONDS
+    STRIDE_SECONDS = 110 * DAYS_TO_SECONDS
     MIN_CSV_LENGTH = 20
 
     def initialize(container:, shared:)
@@ -36,7 +37,7 @@ module Eodhd
 
         to = Time.now.to_i
         while to > 0 do
-          from = [0, to - MAX_RANGE_SECONDS].max
+          from = [0, to - RANGE_SECONDS].max
 
           if !latest_from_on_disk.nil? && from <= latest_from_on_disk
             latest_from_formatted = DateUtil.seconds_to_datetime(latest_from_on_disk)
@@ -60,7 +61,7 @@ module Eodhd
           saved_path = @io.write_csv(relative_path, csv)
           @log.info("Wrote #{saved_path}")
 
-          to = from - 1
+          to = to - STRIDE_SECONDS
         end
       rescue StandardError => e
         @log.warn("Failed intraday for #{symbol_with_exchange}: #{e.class}: #{e.message}")
@@ -68,9 +69,6 @@ module Eodhd
     end
 
     def latest_intraday_raw_from_seconds(exchange, symbol)
-      exchange = Validate.required_string("exchange", exchange)
-      symbol = Validate.required_string("symbol", symbol)
-
       raw_dir = Path.raw_intraday_data_dir(exchange, symbol)
       raw_paths = @io.list_relative_files(raw_dir)
 
