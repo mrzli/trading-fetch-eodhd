@@ -14,6 +14,7 @@ module Eodhd
         File.join("symbols", exchange, "#{type}.json")
       end
 
+      # Meta - start
       def splits(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join("meta", exchange, symbol, "splits.json")
@@ -23,7 +24,9 @@ module Eodhd
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join("meta", exchange, symbol, "dividends.json")
       end
+      # Meta - end
 
+      # Raw eod - start
       def raw_eod_dir
         File.join("raw", "eod")
       end
@@ -32,7 +35,9 @@ module Eodhd
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join(raw_eod_dir, exchange, "#{symbol}.csv")
       end
+      # Raw eod - end
 
+      # Raw intraday - start
       def raw_intraday_dir
         File.join("raw", "intraday")
       end
@@ -49,12 +54,16 @@ module Eodhd
 
         File.join(dir_for_intraday_raw, "#{from_formatted}.csv")
       end
+      # Raw intraday - end
 
+      # Processed eod - start
       def processed_eod_data(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join("data", "eod", exchange, "#{symbol}.csv")
       end
+      # Processed eod - end
 
+      # Processed intraday - start
       def processed_intraday_data_dir(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
         File.join("data", "intraday", exchange, symbol)
@@ -66,6 +75,7 @@ module Eodhd
         month = Validate.integer("month", month)
         File.join(dir, "#{year}-#{format('%02d', month)}.csv")
       end
+      # Processed intraday - end
 
       private
 
