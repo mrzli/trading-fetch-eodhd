@@ -1,3 +1,29 @@
+- getting start date
+  - if no files present
+    - start with
+      - from 2000-01-01 00:00:00
+      - from 2010-01-01 00:00:00
+    - if both present
+      - go decade before
+      - no need to re-fetch later date, as it was alredy fetched in previous step
+    - if none present
+      - go decade later
+      - no need to re-fetch earlier date, as it was alredy fetched in previous step
+    - if only one present
+      - do in loop
+        - bisect the date between that date and now
+        - if file is empty
+          - new range is the mid date to high date
+        - else
+          - new range is low date to mid date
+          - steps until low and high date have same start timestamp
+
+
+
+
+
+
+
 - process intraday data
   - get all files
     - each file is in csv format
