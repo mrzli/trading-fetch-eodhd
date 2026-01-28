@@ -21,13 +21,13 @@ module Eodhd
     def fetch(symbol_entries)
       symbol_entries.each do |entry|
         next unless @shared.should_fetch_symbol?(entry)
-        fetch_single(entry)
+        fetch_single_symbol(entry)
       end
     end
 
     private
 
-    def fetch_single(symbol_entry)
+    def fetch_single_symbol(symbol_entry)
       exchange = symbol_entry[:exchange]
       symbol = symbol_entry[:symbol]
 
@@ -46,25 +46,8 @@ module Eodhd
             break
           end
 
-          from_formatted = DateUtil.seconds_to_datetime(from)
-          to_formatted = DateUtil.seconds_to_datetime(to)
-          @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
-          
-          csv = @api.get_intraday_csv(exchange, symbol, from: from, to: to)
-          
-          if csv.to_s.length < MIN_CSV_LENGTH
-            @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
-            break
-          end
-
-          relative_path = relative_intraday_path(exchange, symbol, csv)
-          if relative_path.nil?
-            @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
-            break
-          end
-
-          saved_path = @io.write_csv(relative_path, csv)
-          @log.info("Wrote #{saved_path}")
+          fetch_valid = fetch_intraday_interval(exchange, symbol, symbol_with_exchange, from, to)
+          break unless fetch_valid
 
           to = to - STRIDE_SECONDS
         end
@@ -98,6 +81,30 @@ module Eodhd
       parsed_to = rows.last[:timestamp]
 
       Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
+    end
+
+    def fetch_intraday_interval(exchange, symbol, symbol_with_exchange, from, to)
+      from_formatted = DateUtil.seconds_to_datetime(from)
+      to_formatted = DateUtil.seconds_to_datetime(to)
+      @log.info("Fetching intraday CSV: #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})...")
+
+      csv = @api.get_intraday_csv(exchange, symbol, from: from, to: to)
+
+      if csv.to_s.length < MIN_CSV_LENGTH
+        @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
+        return false
+      end
+
+      relative_path = relative_intraday_path(exchange, symbol, csv)
+      if relative_path.nil?
+        @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
+        return false
+      end
+
+      saved_path = @io.write_csv(relative_path, csv)
+      @log.info("Wrote #{saved_path}")
+
+      true
     end
 
   end
