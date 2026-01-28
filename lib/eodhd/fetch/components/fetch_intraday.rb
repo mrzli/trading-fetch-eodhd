@@ -34,15 +34,15 @@ module Eodhd
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
       begin
-        latest_from_on_disk = latest_intraday_raw_from_seconds(exchange, symbol)
+        latest_timestamp = latest_existing_timestamp(exchange, symbol)
 
         to = Time.now.to_i
         while to > 0 do
           from = [0, to - RANGE_SECONDS].max
 
-          if !latest_from_on_disk.nil? && from <= latest_from_on_disk
-            latest_from_formatted = DateUtil.seconds_to_datetime(latest_from_on_disk)
-            @log.info("Stopping intraday fetch (already have newer data): #{symbol_with_exchange} (from=#{DateUtil.seconds_to_datetime(from)} <= latest_from=#{latest_from_formatted})")
+          if !latest_timestamp.nil? && to <= latest_timestamp
+            latest_to_formatted = DateUtil.seconds_to_datetime(latest_timestamp)
+            @log.info("Stopping intraday fetch (already have newer data): #{symbol_with_exchange} (from=#{DateUtil.seconds_to_datetime(from)} <= latest_to=#{latest_to_formatted})")
             break
           end
 
@@ -56,31 +56,21 @@ module Eodhd
       end
     end
 
-    def latest_intraday_raw_from_seconds(exchange, symbol)
+    def latest_existing_timestamp(exchange, symbol)
       raw_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
       raw_paths = @io.list_relative_files(raw_dir)
+      if raw_paths.empty?
+        return nil
+      end
 
       raw_paths
-        .select { |path| path.end_with?(".csv") }
+        .filter { |path| path.end_with?(".csv") }
         .map do |path|
           base_name = File.basename(path, ".csv")
-          from_str = base_name.split("__", 2).first
-          DateUtil.datetime_to_seconds(from_str)
-        rescue ArgumentError
-          nil
+          to_str = base_name.split("__", 2).last
+          DateUtil.datetime_to_seconds(to_str)
         end
-        .compact
         .max
-    end
-
-    def relative_intraday_path(exchange, symbol, csv)
-      rows = IntradayCsvParser.parse(csv)
-      return nil if rows.empty?
-
-      parsed_from = rows.first[:timestamp]
-      parsed_to = rows.last[:timestamp]
-
-      Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
     end
 
     def fetch_intraday_interval(exchange, symbol, symbol_with_exchange, from, to)
@@ -105,6 +95,16 @@ module Eodhd
       @log.info("Wrote #{saved_path}")
 
       true
+    end
+
+    def relative_intraday_path(exchange, symbol, csv)
+      rows = IntradayCsvParser.parse(csv)
+      return nil if rows.empty?
+
+      parsed_from = rows.first[:timestamp]
+      parsed_to = rows.last[:timestamp]
+
+      Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
     end
 
   end
