@@ -2,6 +2,7 @@
 
 require_relative "../../../util"
 require_relative "../../shared/path"
+require_relative "../../parsing/intraday_csv_parser"
 
 module Eodhd
   class FetchIntraday
@@ -56,7 +57,11 @@ module Eodhd
             break
           end
 
-          relative_path = Path.raw_intraday_data(exchange, symbol, from, to)
+          relative_path = relative_intraday_path(exchange, symbol, csv)
+          if relative_path.nil?
+            @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} (from=#{from_formatted} to=#{to_formatted})")
+            break
+          end
 
           saved_path = @io.write_csv(relative_path, csv)
           @log.info("Wrote #{saved_path}")
@@ -76,9 +81,23 @@ module Eodhd
         .select { |path| path.end_with?(".csv") }
         .map do |path|
           base_name = File.basename(path, ".csv")
-          DateUtil.datetime_to_seconds(base_name)
+          from_str = base_name.split("__", 2).first
+          DateUtil.datetime_to_seconds(from_str)
+        rescue ArgumentError
+          nil
         end
+        .compact
         .max
+    end
+
+    def relative_intraday_path(exchange, symbol, csv)
+      rows = IntradayCsvParser.parse(csv)
+      return nil if rows.empty?
+
+      parsed_from = rows.first[:timestamp]
+      parsed_to = rows.last[:timestamp]
+
+      Path.raw_intraday_data(exchange, symbol, parsed_from, parsed_to)
     end
 
   end
