@@ -6,7 +6,7 @@ require_relative "../../../lib/eodhd/parsing/dividends_parser"
 
 describe Eodhd::DividendsParser do
   it "returns [] for blank input" do
-    _(Eodhd::DividendsParser.parse_dividends(" ")).must_equal []
+    _(Eodhd::DividendsParser.parse(" ")).must_equal []
   end
 
   it "parses dividends and sorts by date" do
