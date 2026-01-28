@@ -46,21 +46,13 @@ module Eodhd
         File.join(raw_intraday_dir, "fetched")
       end
 
-      def raw_intraday_meta_dir
-        File.join(raw_intraday_dir, "meta")
-      end
-
-      def raw_intraday_processed_dir
-        File.join(raw_intraday_dir, "processed")
-      end
-
-      def raw_intraday_data_dir(exchange, symbol)
+      def raw_intraday_fetched_symbol_data_dir(exchange, symbol)
         exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-        File.join(raw_intraday_dir, exchange, symbol)
+        File.join(raw_intraday_fetched_dir, exchange, symbol)
       end
 
-      def raw_intraday_data(exchange, symbol, from, to)
-        dir_for_intraday_raw = raw_intraday_data_dir(exchange, symbol)
+      def raw_intraday_fetched_symbol_data(exchange, symbol, from, to)
+        dir_for_intraday_raw = raw_intraday_fetched_symbol_data_dir(exchange, symbol)
 
         from = Validate.integer("from", from)
         from_formatted = DateUtil.seconds_to_datetime(from)
@@ -69,6 +61,14 @@ module Eodhd
         to_formatted = DateUtil.seconds_to_datetime(to)
 
         File.join(dir_for_intraday_raw, "#{from_formatted}__#{to_formatted}.csv")
+      end
+
+      def raw_intraday_meta_dir
+        File.join(raw_intraday_dir, "meta")
+      end
+
+      def raw_intraday_processed_dir
+        File.join(raw_intraday_dir, "processed")
       end
       # Raw intraday - end
 

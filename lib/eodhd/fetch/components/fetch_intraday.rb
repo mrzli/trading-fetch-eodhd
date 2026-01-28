@@ -74,7 +74,7 @@ module Eodhd
     end
 
     def latest_intraday_raw_from_seconds(exchange, symbol)
-      raw_dir = Path.raw_intraday_data_dir(exchange, symbol)
+      raw_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
       raw_paths = @io.list_relative_files(raw_dir)
 
       raw_paths
@@ -97,7 +97,7 @@ module Eodhd
       parsed_from = rows.first[:timestamp]
       parsed_to = rows.last[:timestamp]
 
-      Path.raw_intraday_data(exchange, symbol, parsed_from, parsed_to)
+      Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
     end
 
   end

@@ -126,6 +126,40 @@ describe Eodhd::Path do
   )
 
   test_equals(
+    ".raw_intraday_fetched_symbol_data_dir",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("raw", "intraday", "fetched", "us", "aapl")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("raw", "intraday", "fetched", "us", "brk-b")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.raw_intraday_fetched_symbol_data_dir(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
+    ".raw_intraday_fetched_symbol_data",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL", from: 0, to: 100 },
+        expected: File.join("raw", "intraday", "fetched", "us", "aapl", "1970-01-01_00-00-00__1970-01-01_00-01-40.csv")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B", from: 123, to: 456 },
+        expected: File.join("raw", "intraday", "fetched", "us", "brk-b", "1970-01-01_00-02-03__1970-01-01_00-07-36.csv")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.raw_intraday_fetched_symbol_data(input[:exchange], input[:symbol], input[:from], input[:to]) }
+  )
+
+  test_equals(
     ".raw_intraday_meta_dir",
     [
       {
@@ -147,40 +181,6 @@ describe Eodhd::Path do
       }
     ],
     call: ->(_input) { Eodhd::Path.raw_intraday_processed_dir }
-  )
-
-  test_equals(
-    ".raw_intraday_data_dir",
-    [
-      {
-        description: "symbol with exchange",
-        input: { exchange: "US", symbol: "AAPL" },
-        expected: File.join("raw", "intraday", "us", "aapl")
-      },
-      {
-        description: "symbol with dot class",
-        input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("raw", "intraday", "us", "brk-b")
-      }
-    ],
-    call: ->(input) { Eodhd::Path.raw_intraday_data_dir(input[:exchange], input[:symbol]) }
-  )
-
-  test_equals(
-    ".raw_intraday_data",
-    [
-      {
-        description: "symbol with exchange",
-        input: { exchange: "US", symbol: "AAPL", from: 0, to: 100 },
-        expected: File.join("raw", "intraday", "us", "aapl", "1970-01-01_00-00-00__1970-01-01_00-01-40.csv")
-      },
-      {
-        description: "symbol with dot class",
-        input: { exchange: "US", symbol: "BRK.B", from: 123, to: 456 },
-        expected: File.join("raw", "intraday", "us", "brk-b", "1970-01-01_00-02-03__1970-01-01_00-07-36.csv")
-      }
-    ],
-    call: ->(input) { Eodhd::Path.raw_intraday_data(input[:exchange], input[:symbol], input[:from], input[:to]) }
   )
 
   test_equals(
