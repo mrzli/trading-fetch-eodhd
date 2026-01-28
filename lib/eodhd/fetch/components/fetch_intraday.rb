@@ -45,7 +45,7 @@ module Eodhd
             break
           end
 
-          relative_path = Path.raw_intraday_data(exchange, symbol, from)
+          relative_path = Path.raw_intraday_data(exchange, symbol, from, to)
 
           from_formatted = DateUtil.seconds_to_datetime(from)
           to_formatted = DateUtil.seconds_to_datetime(to)
