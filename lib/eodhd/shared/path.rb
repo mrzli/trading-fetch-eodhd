@@ -56,7 +56,7 @@ module Eodhd
         to = Validate.integer("to", to)
         to_formatted = DateUtil.seconds_to_datetime(to)
 
-        File.join(dir_for_intraday_raw, "#{from_formatted}_#{to_formatted}.csv")
+        File.join(dir_for_intraday_raw, "#{from_formatted}__#{to_formatted}.csv")
       end
       # Raw intraday - end
 
