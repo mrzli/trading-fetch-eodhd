@@ -12,7 +12,7 @@ module Eodhd
     Split = Data.define(:date, :factor)
 
     class << self
-      def parse_splits(splits_json, sorted: true)
+      def parse(splits_json, sorted: true)
         splits_json = splits_json.to_s
         return [] if splits_json.strip.empty?
 

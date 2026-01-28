@@ -35,7 +35,7 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    dividends = Eodhd::DividendsParser.parse_dividends(json, sorted: false)
+    dividends = Eodhd::DividendsParser.parse(json, sorted: false)
 
     expected = [
       Eodhd::DividendsParser::Dividend.new(
@@ -79,7 +79,7 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    dividends = Eodhd::DividendsParser.parse_dividends(json)
+    dividends = Eodhd::DividendsParser.parse(json)
 
     expected = [
       Eodhd::DividendsParser::Dividend.new(
@@ -98,12 +98,12 @@ describe Eodhd::DividendsParser do
   end
 
   it "raises for invalid JSON" do
-    err = _(-> { Eodhd::DividendsParser.parse_dividends("not json") }).must_raise(Eodhd::DividendsParser::Error)
+    err = _(-> { Eodhd::DividendsParser.parse("not json") }).must_raise(Eodhd::DividendsParser::Error)
     _(err.message).must_match(/Invalid dividends_json/i)
   end
 
   it "raises if top-level is not an array" do
-    _(-> { Eodhd::DividendsParser.parse_dividends("{}") }).must_raise(Eodhd::DividendsParser::Error)
+    _(-> { Eodhd::DividendsParser.parse("{}") }).must_raise(Eodhd::DividendsParser::Error)
   end
 
   it "raises if entry is not a hash" do
@@ -111,7 +111,7 @@ describe Eodhd::DividendsParser do
       ["invalid"]
     JSON
 
-    _(-> { Eodhd::DividendsParser.parse_dividends(json) }).must_raise(Eodhd::DividendsParser::Error)
+    _(-> { Eodhd::DividendsParser.parse(json) }).must_raise(Eodhd::DividendsParser::Error)
   end
 
   it "raises for missing required date" do
@@ -126,7 +126,7 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::DividendsParser.parse_dividends(json) }).must_raise(Eodhd::DividendsParser::Error)
+    _(-> { Eodhd::DividendsParser.parse(json) }).must_raise(Eodhd::DividendsParser::Error)
   end
 
   it "raises for missing value" do
@@ -140,7 +140,7 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::DividendsParser.parse_dividends(json) }).must_raise(Eodhd::DividendsParser::Error)
+    _(-> { Eodhd::DividendsParser.parse(json) }).must_raise(Eodhd::DividendsParser::Error)
   end
 
   it "raises for missing unadjustedValue" do
@@ -154,7 +154,7 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::DividendsParser.parse_dividends(json) }).must_raise(Eodhd::DividendsParser::Error)
+    _(-> { Eodhd::DividendsParser.parse(json) }).must_raise(Eodhd::DividendsParser::Error)
   end
 
   it "raises for missing currency" do
@@ -168,7 +168,7 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::DividendsParser.parse_dividends(json) }).must_raise(Eodhd::DividendsParser::Error)
+    _(-> { Eodhd::DividendsParser.parse(json) }).must_raise(Eodhd::DividendsParser::Error)
   end
 
   it "raises for invalid date format" do
@@ -183,7 +183,7 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::DividendsParser.parse_dividends(json) }).must_raise(Eodhd::DividendsParser::Error)
+    _(-> { Eodhd::DividendsParser.parse(json) }).must_raise(Eodhd::DividendsParser::Error)
   end
 
   it "raises for invalid value" do
@@ -198,6 +198,6 @@ describe Eodhd::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::DividendsParser.parse_dividends(json) }).must_raise(Eodhd::DividendsParser::Error)
+    _(-> { Eodhd::DividendsParser.parse(json) }).must_raise(Eodhd::DividendsParser::Error)
   end
 end

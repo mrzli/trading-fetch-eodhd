@@ -21,7 +21,7 @@ module Eodhd
     )
 
     class << self
-      def parse_dividends(dividends_json, sorted: true)
+      def parse(dividends_json, sorted: true)
         dividends_json = dividends_json.to_s
         return [] if dividends_json.strip.empty?
 
