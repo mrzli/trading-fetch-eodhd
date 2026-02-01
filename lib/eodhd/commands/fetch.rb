@@ -21,12 +21,12 @@ module Eodhd
       strategy = FetchStrategy.new(container: container)
       fetch_args_parser = FetchArgs.new(container: container)
 
-      subcommand = fetch_args_parser.parse(ARGV).deconstruct
+      subcommand, = fetch_args_parser.parse(ARGV).deconstruct
 
       case subcommand
       when "exchanges"
         args_parser = FetchExchangesArgs.new(container: container)
-        force = args_parser.parse(ARGV).deconstruct
+        force, = args_parser.parse(ARGV).deconstruct
         strategy.run_exchanges(force: force)
       when "symbols"
         args_parser = FetchSymbolsArgs.new(container: container)
@@ -44,6 +44,8 @@ module Eodhd
         args_parser = FetchIntradayArgs.new(container: container)
         recheck_start_date, parallel, workers = args_parser.parse(ARGV).deconstruct
         strategy.run_intraday(recheck_start_date: recheck_start_date, parallel: parallel, workers: workers)
+      else
+        raise "Unknown subcommand: #{subcommand}"
       end
     end
   end

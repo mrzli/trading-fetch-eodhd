@@ -14,7 +14,7 @@ module Eodhd
       @shared = shared
     end
 
-    def fetch(force: false)
+    def fetch(force:)
       relative_path = Path.exchanges_list
 
       if force || @shared.file_stale?(relative_path)
