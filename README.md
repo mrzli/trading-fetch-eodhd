@@ -57,7 +57,7 @@ Edit `.env` and set your EODHD API key and any other necessary variables.
 ./bin/fetch exchanges --force  # Force fresh fetch
 ./bin/fetch symbols            # Fetch symbols (sequentially)
 ./bin/fetch symbols --parallel # Fetch symbols (parallel with 4 workers)
-./bin/fetch symbols -p -w 8              # Fetch symbols (parallel with 8 workers)
+./bin/fetch symbols -p -w 8    # Fetch symbols (parallel with 8 workers)
 ```
 
 ### Process Data
