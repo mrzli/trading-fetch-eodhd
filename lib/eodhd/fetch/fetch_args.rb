@@ -5,7 +5,7 @@ require_relative "../shared/args"
 
 module Eodhd
   class FetchArgs
-    Result = Data.define(:subcommand, :force, :parallel, :workers, :recheck_start_date)
+    Result = Data.define(:subcommand)
 
     VALID_SUBCOMMANDS = %w[exchanges symbols meta eod intraday].freeze
 
@@ -20,29 +20,8 @@ module Eodhd
     private
 
     def parse_args(argv)
-      force = false
-      recheck_start_date = false
-      parallel = false
-      workers = @cfg.default_workers
-
       parser = OptionParser.new do |opts|
         opts.banner = "Usage: bin/fetch SUBCOMMAND [options]\n\nSubcommands: #{VALID_SUBCOMMANDS.join(', ')}"
-
-        opts.on("-f", "--force", "Force fetch, ignore file staleness") do
-          force = true
-        end
-
-        opts.on("-r", "--recheck-start-date", "Recheck data from start date") do
-          recheck_start_date = true
-        end
-
-        opts.on("-p", "--parallel", "Use parallel processing for symbols") do
-          parallel = true
-        end
-
-        opts.on("-w", "--workers N", Integer, "Number of parallel workers (default: #{@cfg.default_workers})") do |v|
-          workers = Validate.integer_positive("workers", v)
-        end
 
         opts.on("-h", "--help", "Show this help") do
           raise Args::Help.new(opts.to_s)
@@ -60,11 +39,7 @@ module Eodhd
         raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected one of: #{VALID_SUBCOMMANDS.join(', ')}.", usage: parser.to_s)
       end
 
-      unless argv.empty?
-        raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
-      end
-
-      Result.new(subcommand: subcommand, force: force, parallel: parallel, workers: workers, recheck_start_date: recheck_start_date)
+      Result.new(subcommand: subcommand)
     rescue OptionParser::ParseError => e
       raise Args::Error.new(e.message, usage: parser.to_s)
     end

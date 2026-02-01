@@ -3,6 +3,7 @@
 require "json"
 
 require_relative "../../util"
+require_relative "../fetch/fetch_args"
 require_relative "../fetch/fetch_strategy"
 require_relative "../fetch/components/exchanges/fetch_exchanges_args"
 require_relative "../fetch/components/symbols/fetch_symbols_args"
@@ -18,14 +19,9 @@ module Eodhd
     def run
       container = Container.new(command: "fetch")
       strategy = FetchStrategy.new(container: container)
+      fetch_args_parser = FetchArgs.new(container: container)
 
-      if ARGV.empty?
-        puts "Usage: bin/fetch SUBCOMMAND [options]"
-        puts "\nSubcommands: exchanges, symbols, meta, eod, intraday"
-        exit 1
-      end
-
-      subcommand = ARGV.shift.to_s.strip.downcase
+      subcommand = fetch_args_parser.parse(ARGV).deconstruct
 
       case subcommand
       when "exchanges"
@@ -48,10 +44,6 @@ module Eodhd
         args_parser = FetchIntradayArgs.new(container: container)
         recheck_start_date, parallel, workers = args_parser.parse(ARGV).deconstruct
         strategy.run_intraday(recheck_start_date: recheck_start_date, parallel: parallel, workers: workers)
-      else
-        puts "Unknown subcommand: #{subcommand}"
-        puts "Valid subcommands: exchanges, symbols, meta, eod, intraday"
-        exit 1
       end
     end
   end
