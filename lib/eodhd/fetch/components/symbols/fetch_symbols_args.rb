@@ -2,6 +2,7 @@
 
 require "optparse"
 require_relative "../../../shared/args"
+require_relative "../../args/shared"
 
 module Eodhd
   class FetchSymbolsArgs
@@ -25,32 +26,17 @@ module Eodhd
       parser = OptionParser.new do |opts|
         opts.banner = "Usage: bin/fetch symbols [options]"
 
-        opts.on("-f", "--force", "Force fetch, ignore file staleness") do
-          force = true
-        end
-
-        opts.on("-p", "--parallel", "Use parallel processing") do
-          parallel = true
-        end
-
-        opts.on("-w", "--workers N", Integer, "Number of parallel workers (default: #{@cfg.default_workers})") do |v|
-          workers = Validate.integer_positive("workers", v)
-        end
-
-        opts.on("-h", "--help", "Show this help") do
-          raise Args::Help.new(opts.to_s)
-        end
+        FetchArgsShared.add_force_option(opts) { |v| force = v }
+        FetchArgsShared.add_parallel_option(opts) { |v| parallel = v }
+        FetchArgsShared.add_workers_option(opts, @cfg.default_workers) { |v| workers = v }
+        FetchArgsShared.add_help_option(opts)
       end
 
-      parser.parse!(argv)
-
-      unless argv.empty?
-        raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
+      FetchArgsShared.handle_parse_error(parser) do
+        parser.parse!(argv)
+        FetchArgsShared.check_args(argv, parser)
+        Result.new(force: force, parallel: parallel, workers: workers)
       end
-
-      Result.new(force: force, parallel: parallel, workers: workers)
-    rescue OptionParser::ParseError => e
-      raise Args::Error.new(e.message, usage: parser.to_s)
     end
   end
 end

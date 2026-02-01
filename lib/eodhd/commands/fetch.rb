@@ -3,7 +3,7 @@
 require "json"
 
 require_relative "../../util"
-require_relative "../fetch/fetch_args"
+require_relative "../fetch/args/fetch_args"
 require_relative "../fetch/fetch_strategy"
 require_relative "../fetch/components/exchanges/fetch_exchanges_args"
 require_relative "../fetch/components/symbols/fetch_symbols_args"
