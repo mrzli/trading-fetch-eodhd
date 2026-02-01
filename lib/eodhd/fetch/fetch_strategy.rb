@@ -11,7 +11,7 @@ require_relative "components/fetch_exchanges"
 require_relative "components/fetch_symbols"
 require_relative "components/fetch_meta"
 require_relative "components/fetch_eod"
-require_relative "components/fetch_intraday"
+require_relative "components/intraday/fetch_intraday"
 
 module Eodhd
   class FetchStrategy
