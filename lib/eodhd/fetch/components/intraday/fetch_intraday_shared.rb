@@ -6,12 +6,14 @@ require_relative "../../../parsing/intraday_csv_parser"
 
 module Eodhd
   class FetchIntradayShared
+    MIN_CSV_LENGTH = 20
+
     def initialize(container:)
       @log = container.logger
       @api = container.api
     end
 
-    def fetch_intraday_interval_rows(exchange, symbol, from, to)
+    def fetch_intraday_interval_csv(exchange, symbol, from, to)
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
       from_formatted = DateUtil.seconds_to_datetime(from)
@@ -26,13 +28,8 @@ module Eodhd
         return nil
       end
 
-      rows = IntradayCsvParser.parse(csv)
-      if rows.empty?
-        @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} #{from_to_message_fragment}")
-        return nil
-      end
-
-      return rows
+      return csv
     end
+
   end
 end

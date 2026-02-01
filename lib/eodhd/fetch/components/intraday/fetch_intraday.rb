@@ -10,7 +10,6 @@ module Eodhd
     DAYS_TO_SECONDS = 24 * 60 * 60
     RANGE_SECONDS = 118 * DAYS_TO_SECONDS
     STRIDE_SECONDS = 110 * DAYS_TO_SECONDS
-    MIN_CSV_LENGTH = 20
 
     def initialize(container:, shared:)
       @log = container.logger
@@ -85,7 +84,14 @@ module Eodhd
     end
 
     def fetch_intraday_interval(exchange, symbol, from, to)
-      rows = @intraday_shared.fetch_intraday_interval_rows(exchange, symbol, from, to)
+      csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, from, to)
+      return false if csv.nil?
+
+      rows = IntradayCsvParser.parse(csv)
+      if rows.empty?
+        @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} #{from_to_message_fragment}")
+        return nil
+      end
 
       parsed_from = rows.first[:timestamp]
       parsed_to = rows.last[:timestamp]
