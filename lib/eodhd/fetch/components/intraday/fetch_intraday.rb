@@ -22,7 +22,7 @@ module Eodhd
       @intraday_shared = FetchIntradayShared.new(container: container)
     end
 
-    def fetch(parallel:, workers:)
+    def fetch(recheck_start_date:, parallel:, workers:)
       symbol_entries = @data_reader.symbols
       filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol_intraday?(entry) }
 

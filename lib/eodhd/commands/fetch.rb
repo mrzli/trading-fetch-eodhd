@@ -16,7 +16,7 @@ module Eodhd
       strategy = FetchStrategy.new(container: container)
       args_parser = FetchArgs.new(container: container)
 
-      subcommand, force, parallel, workers = args_parser.parse(ARGV).deconstruct
+      subcommand, force, recheck_start_date, parallel, workers = args_parser.parse(ARGV).deconstruct
 
       case subcommand
       when "exchanges"
@@ -28,7 +28,7 @@ module Eodhd
       when "eod"
         strategy.run_eod(force: force, parallel: parallel, workers: workers)
       when "intraday"
-        strategy.run_intraday(parallel: parallel, workers: workers)
+        strategy.run_intraday(recheck_start_date: recheck_start_date, parallel: parallel, workers: workers)
       else
       end
     end

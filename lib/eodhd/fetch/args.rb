@@ -5,7 +5,7 @@ require_relative "../shared/args"
 
 module Eodhd
   class FetchArgs
-    Result = Data.define(:subcommand, :force, :parallel, :workers)
+    Result = Data.define(:subcommand, :force, :parallel, :workers, :recheck_start_date)
 
     VALID_SUBCOMMANDS = %w[exchanges symbols meta eod intraday].freeze
 
@@ -21,6 +21,7 @@ module Eodhd
 
     def parse_args(argv)
       force = false
+      recheck_start_date = false
       parallel = false
       workers = @cfg.default_workers
 
@@ -29,6 +30,10 @@ module Eodhd
 
         opts.on("-f", "--force", "Force fetch, ignore file staleness") do
           force = true
+        end
+
+        opts.on("-r", "--recheck-start-date", "Recheck data from start date") do
+          recheck_start_date = true
         end
 
         opts.on("-p", "--parallel", "Use parallel processing for symbols") do
@@ -59,7 +64,7 @@ module Eodhd
         raise Args::Error.new("Unexpected arguments: #{argv.join(" ")}.", usage: parser.to_s)
       end
 
-      Result.new(subcommand: subcommand, force: force, parallel: parallel, workers: workers)
+      Result.new(subcommand: subcommand, force: force, parallel: parallel, workers: workers, recheck_start_date: recheck_start_date)
     rescue OptionParser::ParseError => e
       raise Args::Error.new(e.message, usage: parser.to_s)
     end
