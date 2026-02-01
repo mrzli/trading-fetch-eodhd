@@ -25,7 +25,7 @@ module Eodhd
       true
     end
 
-    def should_fetch_intraday?(symbol_entry)
+    def should_fetch_symbol_intraday?(symbol_entry)
       return false unless should_fetch_symbol?(symbol_entry)
       return false unless SYMBOLS_INCLUDED_INTRADAY.include?(symbol_entry[:symbol])
       true
