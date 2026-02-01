@@ -1,3 +1,28 @@
+- intraday use cases
+  - data items
+    - fetched (raw) intraday intervals
+    - processed (monthly) intraday data files
+  - steps
+    - delete fetched (raw) intraday intervals directory
+    - if no processed files exist
+      - delete start date file if exists
+      - just start downloading from now backwards
+      - process data after downloading all into moonly files
+    - if any processed files exist
+      - determine existing start date, use earliest timestamp in earliest processed intraday data file
+      - if force re-check start date flag is set
+        - fetch data around existing start date, see if there is any date change
+        - if change, delete all processed files, and start downloading all again
+        - if no change, just continue
+      - determine last downloaded date
+      - download from now to last downloaded date and merge with existing data
+
+
+
+
+
+
+
 - getting start date
   - if no files present
     - start with
