@@ -20,6 +20,7 @@ module Eodhd
 
     def initialize(container:)
       shared = FetchShared.new(container: container)
+
       @fetch_exchanges = FetchExchanges.new(container: container, shared: shared)
       @fetch_symbols = FetchSymbols.new(container: container, shared: shared)
       @fetch_meta = FetchMeta.new(container: container, shared: shared)

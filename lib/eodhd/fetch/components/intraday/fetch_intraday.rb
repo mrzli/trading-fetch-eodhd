@@ -3,6 +3,7 @@
 require_relative "../../../../util"
 require_relative "../../../shared/path"
 require_relative "../../../parsing/intraday_csv_parser"
+require_relative "fetch_intraday_shared"
 
 module Eodhd
   class FetchIntraday
@@ -16,6 +17,8 @@ module Eodhd
       @api = container.api
       @io = container.io
       @shared = shared
+
+      @intraday_shared = FetchIntradayShared.new(container: container)
     end
 
     def fetch(symbol_entries)
@@ -74,40 +77,16 @@ module Eodhd
     end
 
     def fetch_intraday_interval(exchange, symbol, from, to)
-      symbol_with_exchange = "#{symbol}.#{exchange}"
-
-      from_formatted = DateUtil.seconds_to_datetime(from)
-      to_formatted = DateUtil.seconds_to_datetime(to)
-      from_to_message_fragment = "(from=#{from_formatted} to=#{to_formatted})"
-      @log.info("Fetching intraday CSV: #{symbol_with_exchange} #{from_to_message_fragment}...")
-
-      csv = @api.get_intraday_csv(exchange, symbol, from: from, to: to)
-
-      if csv.to_s.length < MIN_CSV_LENGTH
-        @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} #{from_to_message_fragment}")
-        return false
-      end
-
-      relative_path = relative_intraday_path(exchange, symbol, csv)
-      if relative_path.nil?
-        @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} #{from_to_message_fragment}")
-        return false
-      end
-
-      saved_path = @io.write_csv(relative_path, csv)
-      @log.info("Wrote #{saved_path}")
-
-      true
-    end
-
-    def relative_intraday_path(exchange, symbol, csv)
-      rows = IntradayCsvParser.parse(csv)
-      return nil if rows.empty?
+      rows = @intraday_shared.fetch_intraday_interval_rows(exchange, symbol, from, to)
 
       parsed_from = rows.first[:timestamp]
       parsed_to = rows.last[:timestamp]
 
-      Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
+      relative_path = Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
+      saved_path = @io.write_csv(relative_path, csv)
+      @log.info("Wrote #{saved_path}")
+
+      true
     end
 
   end
