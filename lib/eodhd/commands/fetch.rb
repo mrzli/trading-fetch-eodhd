@@ -27,6 +27,9 @@ module Eodhd
         strategy.run_meta(force: force, parallel: parallel, workers: workers)
       when "eod"
         strategy.run_eod(force: force, parallel: parallel, workers: workers)
+      when "intraday"
+        strategy.run_intraday(parallel: parallel, workers: workers)
+      else
       end
     end
   end
