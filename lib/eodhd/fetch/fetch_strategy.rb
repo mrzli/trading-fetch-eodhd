@@ -46,18 +46,9 @@ module Eodhd
       @fetch_eod.fetch(force: force, parallel: parallel, workers: workers)
     end
 
-    def run_rest
-      # @fetch_meta.fetch(symbol_entries)
-
-      # @fetch_eod.fetch(symbol_entries)
-
-      # intraday_symbol_entries = symbol_entries.select do |entry|
-      #   (INTRADAY_INCLUDED_SYMBOLS.length == 0 || INTRADAY_INCLUDED_SYMBOLS.include?(entry[:symbol]) && INTRADAY_INCLUDED_EXCHANGES.include?(entry[:exchange]))
-      # end
-      # @fetch_intraday.fetch(intraday_symbol_entries)
+    def run_intraday(parallel:, workers:)
+      @fetch_intraday.fetch(parallel: parallel, workers: workers)
     end
-
-    private
 
   end
 end

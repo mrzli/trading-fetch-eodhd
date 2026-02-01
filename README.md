@@ -53,11 +53,33 @@ Edit `.env` and set your EODHD API key and any other necessary variables.
 
 ```bash
 ./bin/fetch --help                           # Show help
-./bin/fetch exchanges          # Fetch exchanges list
+
+# Fetch exchanges list
+./bin/fetch exchanges          # Fetch exchanges
 ./bin/fetch exchanges --force  # Force fresh fetch
+
+# Fetch symbols
 ./bin/fetch symbols            # Fetch symbols (sequentially)
-./bin/fetch symbols --parallel # Fetch symbols (parallel with 4 workers)
+./bin/fetch symbols --parallel # Fetch symbols (parallel with default workers)
 ./bin/fetch symbols -p -w 8    # Fetch symbols (parallel with 8 workers)
+./bin/fetch symbols -f -p      # Force fetch symbols in parallel
+
+# Fetch metadata (splits and dividends)
+./bin/fetch meta               # Fetch metadata (sequentially)
+./bin/fetch meta --parallel    # Fetch metadata (parallel with default workers)
+./bin/fetch meta -p -w 8       # Fetch metadata (parallel with 8 workers)
+./bin/fetch meta -f -p         # Force fetch metadata in parallel
+
+# Fetch EOD (end-of-day) data
+./bin/fetch eod                # Fetch EOD (sequentially)
+./bin/fetch eod --parallel     # Fetch EOD (parallel with default workers)
+./bin/fetch eod -p -w 8        # Fetch EOD (parallel with 8 workers)
+./bin/fetch eod -f -p          # Force fetch EOD in parallel
+
+# Fetch intraday data
+./bin/fetch intraday           # Fetch intraday (sequentially)
+./bin/fetch intraday --parallel # Fetch intraday (parallel with default workers)
+./bin/fetch intraday -p -w 8   # Fetch intraday (parallel with 8 workers)
 ```
 
 ### Process Data

@@ -16,19 +16,27 @@ module Eodhd
       @log = container.logger
       @api = container.api
       @io = container.io
+      @data_reader = container.data_reader
+
       @shared = shared
 
       @intraday_shared = FetchIntradayShared.new(container: container)
     end
 
-    def fetch(symbol_entries)
-      symbol_entries.each do |entry|
-        next unless @shared.should_fetch_symbol?(entry)
-        fetch_single_symbol(entry)
-      end
+    def fetch(parallel:, workers:)
+      symbol_entries = @data_reader.symbols
+      filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol_intraday?(entry) }
+
+      fetch_intraday_for_symbols(filtered_entries, parallel: parallel, workers: workers)
     end
 
     private
+
+    def fetch_intraday_for_symbols(symbol_entries, parallel:, workers:)
+      ParallelExecutor.execute(symbol_entries, parallel: parallel, workers: workers) do |entry|
+        fetch_single_symbol(entry)
+      end
+    end
 
     def fetch_single_symbol(symbol_entry)
       exchange = symbol_entry[:exchange]

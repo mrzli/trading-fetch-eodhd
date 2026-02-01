@@ -10,6 +10,8 @@ module Eodhd
     SYMBOL_INCLUDED_REAL_EXCHANGES = Set.new(["NYSE", "NASDAQ"]).freeze
     SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
+    SYMBOLS_INCLUDED_INTRADAY = Set.new(["AAPL"]).freeze
+
     def initialize(container:)
       @cfg = container.config
       @io = container.io
@@ -20,6 +22,12 @@ module Eodhd
       return false unless SYMBOL_INCLUDED_REAL_EXCHANGES.include?(symbol_entry[:real_exchange])
       return false unless SYMBOL_INCLUDED_TYPES.include?(symbol_entry[:type])
 
+      true
+    end
+
+    def should_fetch_intraday?(symbol_entry)
+      return false unless should_fetch_symbol?(symbol_entry)
+      return false unless SYMBOLS_INCLUDED_INTRADAY.include?(symbol_entry[:symbol])
       true
     end
 

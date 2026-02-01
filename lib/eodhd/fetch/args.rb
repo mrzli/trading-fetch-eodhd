@@ -7,7 +7,7 @@ module Eodhd
   class FetchArgs
     Result = Data.define(:subcommand, :force, :parallel, :workers)
 
-    VALID_SUBCOMMANDS = %w[exchanges symbols meta eod].freeze
+    VALID_SUBCOMMANDS = %w[exchanges symbols meta eod intraday].freeze
 
     def initialize(container:)
       @cfg = container.config
