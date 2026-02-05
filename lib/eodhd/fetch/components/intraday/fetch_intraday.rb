@@ -73,7 +73,7 @@ module Eodhd
 
           if !last_ts.nil? && to <= last_ts
             latest_to_formatted = DateUtil.seconds_to_datetime(last_ts)
-            @log.info("Stopping intraday fetch (already have newer data): #{symbol_with_exchange} (from=#{DateUtil.seconds_to_datetime(from)} <= latest_to=#{latest_to_formatted})")
+            @log.info("Stopping intraday fetch (already have fetched data): #{symbol_with_exchange} (from=#{DateUtil.seconds_to_datetime(from)} <= latest_to=#{latest_to_formatted})")
             break
           end
 
