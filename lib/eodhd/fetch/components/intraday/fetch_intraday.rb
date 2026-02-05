@@ -71,7 +71,8 @@ module Eodhd
 
         last_ts = last_existing_timestamp(exchange, symbol)
 
-        min_ts = Time.utc(2025, 1, 1).to_i # 0
+        # The farthest back we can fetch is around 1900, so use that as a hard cutoff.
+        min_ts = Time.utc(1900, 1, 1).to_i
 
         to = Time.now.to_i
         while to > min_ts do
