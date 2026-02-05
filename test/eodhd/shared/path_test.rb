@@ -172,6 +172,40 @@ describe Eodhd::Path do
   )
 
   test_equals(
+    ".raw_intraday_processed_symbol_data_dir",
+    [
+      {
+        description: "symbol with exchange",
+        input: { exchange: "US", symbol: "AAPL" },
+        expected: File.join("raw", "intraday", "processed", "us", "aapl")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B" },
+        expected: File.join("raw", "intraday", "processed", "us", "brk-b")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.raw_intraday_processed_symbol_data_dir(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
+    ".raw_intraday_processed_symbol_year_month",
+    [
+      {
+        description: "year and month file",
+        input: { exchange: "US", symbol: "AAPL", year: 2025, month: 6 },
+        expected: File.join("raw", "intraday", "processed", "us", "aapl", "2025-06.csv")
+      },
+      {
+        description: "symbol with dot class",
+        input: { exchange: "US", symbol: "BRK.B", year: 2024, month: 12 },
+        expected: File.join("raw", "intraday", "processed", "us", "brk-b", "2024-12.csv")
+      }
+    ],
+    call: ->(input) { Eodhd::Path.raw_intraday_processed_symbol_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
+  )
+
+  test_equals(
     ".processed_eod_data",
     [
       {

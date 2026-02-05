@@ -66,6 +66,18 @@ module Eodhd
       def raw_intraday_processed_dir
         File.join(raw_intraday_dir, "processed")
       end
+
+      def raw_intraday_processed_symbol_data_dir(exchange, symbol)
+        exchange, symbol = process_exchange_and_symbol(exchange, symbol)
+        File.join(raw_intraday_processed_dir, exchange, symbol)
+      end
+
+      def raw_intraday_processed_symbol_year_month(exchange, symbol, year, month)
+        dir = raw_intraday_processed_symbol_data_dir(exchange, symbol)
+        year = Validate.integer("year", year)
+        month = Validate.integer("month", month)
+        File.join(dir, "#{year}-#{format('%02d', month)}.csv")
+      end
       # Raw intraday - end
 
       # Processed eod - start
