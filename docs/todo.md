@@ -5,7 +5,6 @@
   - steps
     - delete fetched (raw) intraday intervals directory
     - if no processed files exist
-      - delete start date file if exists
       - just start downloading from now backwards
       - process data after downloading all into moonly files
     - if any processed files exist
