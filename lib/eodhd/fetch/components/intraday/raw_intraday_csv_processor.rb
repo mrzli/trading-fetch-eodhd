@@ -4,6 +4,7 @@ require_relative "../../../util"
 require_relative "../../shared/path"
 require_relative "../../parsing/intraday_csv_parser"
 require_relative "intraday_csv_merger"
+require_relative "intraday_csv_grouper"
 
 module Eodhd
   class RawIntradayCsvProcessor
@@ -46,26 +47,13 @@ module Eodhd
 
       return if rows.empty?
 
-      # Group rows by year-month
-      rows_by_month = group_rows_by_month(rows)
+      # Group rows by year-month using binary search
+      rows_by_month = IntradayCsvGrouper.group_by_month(rows)
 
       rows_by_month.each do |year_month, month_rows|
         year, month = year_month
         process_month(exchange, symbol, year, month, month_rows)
       end
-    end
-
-    def group_rows_by_month(rows)
-      grouped = {}
-      rows.each do |row|
-        time = Time.at(row[:timestamp])
-        year = time.year
-        month = time.month
-        key = [year, month]
-        grouped[key] ||= []
-        grouped[key] << row
-      end
-      grouped.sort.to_h
     end
 
     def process_month(exchange, symbol, year, month, new_rows)
