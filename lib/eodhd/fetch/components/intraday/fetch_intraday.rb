@@ -44,6 +44,9 @@ module Eodhd
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
       begin
+        fetched_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+        @io.delete_dir(fetched_dir)
+
         latest_timestamp = latest_existing_timestamp(exchange, symbol)
 
         to = Time.now.to_i
