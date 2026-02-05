@@ -79,11 +79,11 @@ module Eodhd
         # No existing file, just write new data
         write_processed_file(processed_file_path, new_rows)
       else
-        # Crop existing rows for overlapping timestamps
-        cropped_rows = crop_rows(existing_rows, file_start_ts, file_end_ts)
+        # Get rows before and after the overlap range
+        rows_before, rows_after = split_rows_around_range(existing_rows, file_start_ts, file_end_ts)
         
-        # Merge cropped and new rows, sort by timestamp
-        merged_rows = (cropped_rows + new_rows).sort_by { |row| row[:timestamp] }
+        # Merge: before + new + after (all already sorted, no need to sort)
+        merged_rows = rows_before + new_rows + rows_after
         
         write_processed_file(processed_file_path, merged_rows)
       end
@@ -96,20 +96,20 @@ module Eodhd
       IntradayCsvParser.parse(csv_content)
     end
 
-    def crop_rows(rows, exclude_start_ts, exclude_end_ts)
-      return rows if rows.empty?
+    def split_rows_around_range(rows, exclude_start_ts, exclude_end_ts)
+      return [[], []] if rows.empty?
 
-      # Find the index where we should start cropping (first row >= exclude_start_ts)
-      start_crop_idx = BinarySearch.lower_bound(rows, exclude_start_ts) { |row| row[:timestamp] }
+      # Find the index where we should start excluding (first row >= exclude_start_ts)
+      start_idx = BinarySearch.lower_bound(rows, exclude_start_ts) { |row| row[:timestamp] }
 
-      # Find the index where we should end cropping (first row > exclude_end_ts)
-      end_crop_idx = BinarySearch.upper_bound(rows, exclude_end_ts) { |row| row[:timestamp] }
+      # Find the index where we should end excluding (first row > exclude_end_ts)
+      end_idx = BinarySearch.upper_bound(rows, exclude_end_ts) { |row| row[:timestamp] }
 
-      # Return rows before start_crop_idx and rows from end_crop_idx onwards
-      result = []
-      result += rows[0...start_crop_idx] if start_crop_idx > 0
-      result += rows[end_crop_idx..-1] if end_crop_idx < rows.length
-      result
+      # Return rows before and after the excluded range
+      rows_before = start_idx > 0 ? rows[0...start_idx] : []
+      rows_after = end_idx < rows.length ? rows[end_idx..-1] : []
+      
+      [rows_before, rows_after]
     end
 
     def write_processed_file(file_path, rows)
