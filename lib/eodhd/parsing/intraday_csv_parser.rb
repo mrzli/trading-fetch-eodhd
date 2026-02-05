@@ -32,6 +32,7 @@ module Eodhd
 
           {
             timestamp: timestamp,
+            gmtoffset: gmtoffset,
             datetime: datetime,
             open: open,
             high: high,

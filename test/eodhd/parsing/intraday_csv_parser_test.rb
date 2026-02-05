@@ -17,6 +17,7 @@ describe Eodhd::IntradayCsvParser do
     expected = [
       {
         timestamp: 100,
+        gmtoffset: 0,
         datetime: "2000-01-01 00:00:00",
         open: 1.0,
         high: 2.0,
@@ -26,6 +27,7 @@ describe Eodhd::IntradayCsvParser do
       },
       {
         timestamp: 200,
+        gmtoffset: 0,
         datetime: "2000-01-01 00:01:00",
         open: 5.5,
         high: 6.5,
