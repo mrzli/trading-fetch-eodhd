@@ -4,6 +4,7 @@ require_relative "../../../../util"
 require_relative "../../../shared/path"
 require_relative "../../../parsing/intraday_csv_parser"
 require_relative "fetch_intraday_shared"
+require_relative "raw_intraday_csv_processor"
 
 module Eodhd
   class FetchIntraday
@@ -20,6 +21,7 @@ module Eodhd
       @shared = shared
 
       @intraday_shared = FetchIntradayShared.new(container: container)
+      @processor = RawIntradayCsvProcessor.new(container: container)
     end
 
     def fetch(recheck_start_date:, parallel:, workers:)
@@ -69,7 +71,7 @@ module Eodhd
 
         last_ts = last_existing_timestamp(exchange, symbol)
 
-        min_ts = Time.utc(2024, 1, 1).to_i # 0
+        min_ts = Time.utc(2025, 1, 1).to_i # 0
 
         to = Time.now.to_i
         while to > min_ts do
@@ -86,6 +88,13 @@ module Eodhd
 
           to = to - STRIDE_SECONDS
         end
+
+        # Process fetched data into monthly files
+        @processor.process(exchange, symbol)
+
+        # Delete fetched directory after processing
+        @io.delete_dir(fetched_dir)
+        @log.info("Deleted fetched intraday files for #{symbol_with_exchange} after processing")
       rescue StandardError => e
         @log.warn("Failed intraday for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       end
