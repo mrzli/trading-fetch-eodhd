@@ -26,18 +26,23 @@ module Eodhd
       symbol_entries = @data_reader.symbols
       filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol_intraday?(entry) }
 
-      fetch_intraday_for_symbols(filtered_entries, parallel: parallel, workers: workers)
+      fetch_intraday_for_symbols(
+        filtered_entries,
+        recheck_start_date: recheck_start_date,
+        parallel: parallel,
+        workers: workers
+      )
     end
 
     private
 
-    def fetch_intraday_for_symbols(symbol_entries, parallel:, workers:)
+    def fetch_intraday_for_symbols(symbol_entries, recheck_start_date:, parallel:, workers:)
       ParallelExecutor.execute(symbol_entries, parallel: parallel, workers: workers) do |entry|
-        fetch_single_symbol(entry)
+        fetch_single_symbol(entry, recheck_start_date: recheck_start_date)
       end
     end
 
-    def fetch_single_symbol(symbol_entry)
+    def fetch_single_symbol(symbol_entry, recheck_start_date:)
       exchange = symbol_entry[:exchange]
       symbol = symbol_entry[:symbol]
 
@@ -47,7 +52,16 @@ module Eodhd
         fetched_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
         @io.delete_dir(fetched_dir)
 
-        latest_timestamp = latest_existing_timestamp(exchange, symbol)
+        processed_start_ts = earliest_processed_timestamp(exchange, symbol)
+
+        if !processed_start_ts.nil? && recheck_start_date
+          if should_restart_from_scratch?(exchange, symbol, processed_start_ts, symbol_with_exchange)
+            delete_all_processed_files(exchange, symbol, symbol_with_exchange)
+            processed_start_ts = nil
+          end
+        end
+
+        latest_timestamp = processed_start_ts || latest_existing_timestamp(exchange, symbol)
 
         to = Time.now.to_i
         while to > 0 do
@@ -69,23 +83,6 @@ module Eodhd
       end
     end
 
-    def latest_existing_timestamp(exchange, symbol)
-      raw_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
-      raw_paths = @io.list_relative_files(raw_dir)
-      if raw_paths.empty?
-        return nil
-      end
-
-      raw_paths
-        .filter { |path| path.end_with?(".csv") }
-        .map do |path|
-          base_name = File.basename(path, ".csv")
-          to_str = base_name.split("__", 2).last
-          DateUtil.datetime_to_seconds(to_str)
-        end
-        .max
-    end
-
     def fetch_intraday_interval(exchange, symbol, from, to)
       csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, from, to)
       return false if csv.nil?
@@ -104,6 +101,70 @@ module Eodhd
       @log.info("Wrote #{saved_path}")
 
       true
+    end
+
+    def earliest_processed_timestamp(exchange, symbol)
+      processed_dir = Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
+      processed_files = @io.list_relative_files(processed_dir)
+        .filter { |path| path.end_with?(".csv") }
+        .sort
+
+      return nil if processed_files.empty?
+
+      first_file = processed_files.first
+      csv_content = @io.read_text(first_file)
+      rows = IntradayCsvParser.parse(csv_content)
+
+      return nil if rows.empty?
+
+      rows.first[:timestamp]
+    end
+
+    def latest_existing_timestamp(exchange, symbol)
+      raw_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+      raw_paths = @io.list_relative_files(raw_dir)
+      if raw_paths.empty?
+        return nil
+      end
+
+      raw_paths
+        .filter { |path| path.end_with?(".csv") }
+        .map do |path|
+          base_name = File.basename(path, ".csv")
+          to_str = base_name.split("__", 2).last
+          DateUtil.datetime_to_seconds(to_str)
+        end
+        .max
+    end
+
+    def should_restart_from_scratch?(exchange, symbol, processed_start_ts, symbol_with_exchange)
+      # Fetch a range around the processed start date to check if the start date has changed
+      check_from = [0, processed_start_ts - RANGE_SECONDS / 2].max
+      check_to = processed_start_ts + RANGE_SECONDS
+
+      @log.info("Rechecking start date for #{symbol_with_exchange} around #{DateUtil.seconds_to_datetime(processed_start_ts)}")
+
+      csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, check_from, check_to)
+      return false if csv.nil?
+
+      rows = IntradayCsvParser.parse(csv)
+      return false if rows.empty?
+
+      new_start_ts = rows.first[:timestamp]
+
+      if new_start_ts != processed_start_ts
+        @log.warn("Start date changed for #{symbol_with_exchange}: old=#{DateUtil.seconds_to_datetime(processed_start_ts)}, new=#{DateUtil.seconds_to_datetime(new_start_ts)}")
+        return true
+      end
+
+      @log.info("Start date unchanged for #{symbol_with_exchange}")
+      false
+    end
+
+    def delete_all_processed_files(exchange, symbol, symbol_with_exchange)
+      processed_dir = Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
+      @io.delete_dir(processed_dir)
+      @log.info("Deleted all processed files for #{symbol_with_exchange} due to start date change")
     end
 
   end
