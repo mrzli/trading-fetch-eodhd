@@ -53,6 +53,7 @@ module Eodhd
 
         # Delete any old fetched data.
         # This does not delete processed by-year-month 'raw' data, which is in a separate dir.
+        @log.info("Deleting old fetched intraday files for #{symbol_with_exchange} in #{fetched_dir}...")
         @io.delete_dir(fetched_dir)
 
         if recheck_start_date
@@ -61,15 +62,18 @@ module Eodhd
 
           if should_refetch?(exchange, symbol, first_ts, symbol_with_exchange)
             # Delete all processed data to force refecth for symbol.
+            @log.info("Deleting all processed intraday files for #{symbol_with_exchange} to force refetch...")  
             delete_all_processed_files(exchange, symbol, symbol_with_exchange)
           end
         end
 
         last_ts = last_existing_timestamp(exchange, symbol)
 
+        min_ts = Time.utc(2024, 1, 1).to_i # 0
+
         to = Time.now.to_i
-        while to > 0 do
-          from = [0, to - RANGE_SECONDS].max
+        while to > min_ts do
+          from = [min_ts, to - RANGE_SECONDS].max
 
           if !last_ts.nil? && to <= last_ts
             latest_to_formatted = DateUtil.seconds_to_datetime(last_ts)
