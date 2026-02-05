@@ -63,10 +63,6 @@ module Eodhd
         File.join(dir_for_intraday_raw, "#{from_formatted}__#{to_formatted}.csv")
       end
 
-      def raw_intraday_meta_dir
-        File.join(raw_intraday_dir, "meta")
-      end
-
       def raw_intraday_processed_dir
         File.join(raw_intraday_dir, "processed")
       end

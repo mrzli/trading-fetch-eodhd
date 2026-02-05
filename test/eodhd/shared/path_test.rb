@@ -160,18 +160,6 @@ describe Eodhd::Path do
   )
 
   test_equals(
-    ".raw_intraday_meta_dir",
-    [
-      {
-        description: "hardcoded meta root",
-        input: nil,
-        expected: File.join("raw", "intraday", "meta")
-      }
-    ],
-    call: ->(_input) { Eodhd::Path.raw_intraday_meta_dir }
-  )
-
-  test_equals(
     ".raw_intraday_processed_dir",
     [
       {
