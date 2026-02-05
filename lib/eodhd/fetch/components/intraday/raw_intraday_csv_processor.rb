@@ -3,6 +3,7 @@
 require_relative "../../../util"
 require_relative "../../shared/path"
 require_relative "../../parsing/intraday_csv_parser"
+require_relative "intraday_csv_merger"
 
 module Eodhd
   class RawIntradayCsvProcessor
@@ -74,19 +75,9 @@ module Eodhd
       processed_file_path = Path.raw_intraday_processed_symbol_year_month(exchange, symbol, year, month)
 
       existing_rows = load_existing_processed_file(processed_file_path)
+      merged_rows = IntradayCsvMerger.merge(existing_rows, new_rows, file_start_ts, file_end_ts)
 
-      if existing_rows.nil?
-        # No existing file, just write new data
-        write_processed_file(processed_file_path, new_rows)
-      else
-        # Get rows before and after the overlap range
-        rows_before, rows_after = split_rows_around_range(existing_rows, file_start_ts, file_end_ts)
-        
-        # Merge: before + new + after (all already sorted, no need to sort)
-        merged_rows = rows_before + new_rows + rows_after
-        
-        write_processed_file(processed_file_path, merged_rows)
-      end
+      write_processed_file(processed_file_path, merged_rows)
     end
 
     def load_existing_processed_file(file_path)
@@ -94,22 +85,6 @@ module Eodhd
 
       csv_content = @io.read_text(file_path)
       IntradayCsvParser.parse(csv_content)
-    end
-
-    def split_rows_around_range(rows, exclude_start_ts, exclude_end_ts)
-      return [[], []] if rows.empty?
-
-      # Find the index where we should start excluding (first row >= exclude_start_ts)
-      start_idx = BinarySearch.lower_bound(rows, exclude_start_ts) { |row| row[:timestamp] }
-
-      # Find the index where we should end excluding (first row > exclude_end_ts)
-      end_idx = BinarySearch.upper_bound(rows, exclude_end_ts) { |row| row[:timestamp] }
-
-      # Return rows before and after the excluded range
-      rows_before = start_idx > 0 ? rows[0...start_idx] : []
-      rows_after = end_idx < rows.length ? rows[end_idx..-1] : []
-      
-      [rows_before, rows_after]
     end
 
     def write_processed_file(file_path, rows)
