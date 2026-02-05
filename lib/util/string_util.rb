@@ -21,6 +21,18 @@ module Eodhd
         parts.map!(&:downcase)
         parts.join("-")
       end
+
+      def truncate_middle(str, max_length = 80)
+        return str if str.length <= max_length
+
+        # Reserve 3 chars for "..."
+        available = max_length - 3
+        # Split available space, preferring to show more at the end
+        start_length = available / 2
+        end_length = available - start_length
+
+        "#{str[0...start_length]}...#{str[-end_length..]}"
+      end
     end
   end
 end

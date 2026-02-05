@@ -47,7 +47,7 @@ module Eodhd
         @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})#{force ? ' (forced)' : ''}...")
         csv = @api.get_eod_data_csv(exchange, symbol)
         saved_path = @io.write_csv(relative_path, csv)
-        @log.info("Wrote #{saved_path}")
+        @log.info("Wrote #{StringUtil.truncate_middle(saved_path)}")
       rescue StandardError => e
         @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
       end

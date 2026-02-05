@@ -21,7 +21,7 @@ module Eodhd
         @log.info("Fetching exchanges list#{force ? ' (forced)' : ''}...")
         fetched = @api.get_exchanges_list_json
         saved_path = @io.write_json(relative_path, fetched, true)
-        @log.info("Wrote #{saved_path}")
+        @log.info("Wrote #{StringUtil.truncate_middle(saved_path)}")
       else
         @log.info("Skipping exchanges list (fresh): #{relative_path}.")
       end

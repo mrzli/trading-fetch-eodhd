@@ -52,7 +52,7 @@ module Eodhd
       @log.info("Fetching #{type} JSON: #{symbol_with_exchange}#{force ? ' (forced)' : ''}...")
       data = api_method.call(exchange, symbol)
       saved_path = @io.write_json(path, data, true)
-      @log.info("Wrote #{saved_path}")
+      @log.info("Wrote #{StringUtil.truncate_middle(saved_path)}")
     rescue StandardError => e
       @log.warn("Failed #{type} for #{symbol_with_exchange}: #{e.class}: #{e.message}")
     end
