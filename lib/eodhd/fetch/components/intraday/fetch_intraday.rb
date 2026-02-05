@@ -52,23 +52,23 @@ module Eodhd
         fetched_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
         @io.delete_dir(fetched_dir)
 
-        processed_start_ts = earliest_processed_timestamp(exchange, symbol)
+        first_ts = first_existing_timestamp(exchange, symbol)
 
-        if !processed_start_ts.nil? && recheck_start_date
-          if should_restart_from_scratch?(exchange, symbol, processed_start_ts, symbol_with_exchange)
+        if !first_ts.nil? && recheck_start_date
+          if should_restart_from_scratch?(exchange, symbol, first_ts, symbol_with_exchange)
             delete_all_processed_files(exchange, symbol, symbol_with_exchange)
-            processed_start_ts = nil
+            first_ts = nil
           end
         end
 
-        latest_timestamp = processed_start_ts || latest_existing_timestamp(exchange, symbol)
+        last_ts = first_ts || last_existing_timestamp(exchange, symbol)
 
         to = Time.now.to_i
         while to > 0 do
           from = [0, to - RANGE_SECONDS].max
 
-          if !latest_timestamp.nil? && to <= latest_timestamp
-            latest_to_formatted = DateUtil.seconds_to_datetime(latest_timestamp)
+          if !last_ts.nil? && to <= last_ts
+            latest_to_formatted = DateUtil.seconds_to_datetime(last_ts)
             @log.info("Stopping intraday fetch (already have newer data): #{symbol_with_exchange} (from=#{DateUtil.seconds_to_datetime(from)} <= latest_to=#{latest_to_formatted})")
             break
           end
@@ -103,38 +103,44 @@ module Eodhd
       true
     end
 
-    def earliest_processed_timestamp(exchange, symbol)
-      processed_dir = Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
-      processed_files = @io.list_relative_files(processed_dir)
-        .filter { |path| path.end_with?(".csv") }
-        .sort
+    def first_existing_timestamp(exchange, symbol)
+      files = sorted_processed_files(exchange, symbol)
+      return nil if files.empty?
 
-      return nil if processed_files.empty?
+      first_file = files.first
+      # Extract year-month from filename (format: YYYY-MM.csv)
+      base_name = File.basename(first_file, ".csv")
+      year, month = base_name.split("-").map(&:to_i)
 
-      first_file = processed_files.first
-      csv_content = @io.read_text(first_file)
-      rows = IntradayCsvParser.parse(csv_content)
-
-      return nil if rows.empty?
-
-      rows.first[:timestamp]
+      # Return first second of that month
+      Time.new(year, month, 1, 0, 0, 0, "+00:00").to_i
     end
 
-    def latest_existing_timestamp(exchange, symbol)
-      raw_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
-      raw_paths = @io.list_relative_files(raw_dir)
-      if raw_paths.empty?
-        return nil
+    def last_existing_timestamp(exchange, symbol)
+      files = sorted_processed_files(exchange, symbol)
+      return nil if files.empty?
+
+      last_file = files.last
+      # Extract year-month from filename (format: YYYY-MM.csv)
+      base_name = File.basename(last_file, ".csv")
+      year, month = base_name.split("-").map(&:to_i)
+
+      # Return last second of that month
+      next_month = month + 1
+      next_year = year
+      if next_month > 12
+        next_month = 1
+        next_year += 1
       end
 
-      raw_paths
+      Time.new(next_year, next_month, 1, 0, 0, 0, "+00:00").to_i - 1
+    end
+
+    def sorted_processed_files(exchange, symbol)
+      processed_dir = Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
+      @io.list_relative_files(processed_dir)
         .filter { |path| path.end_with?(".csv") }
-        .map do |path|
-          base_name = File.basename(path, ".csv")
-          to_str = base_name.split("__", 2).last
-          DateUtil.datetime_to_seconds(to_str)
-        end
-        .max
+        .sort
     end
 
     def should_restart_from_scratch?(exchange, symbol, processed_start_ts, symbol_with_exchange)
