@@ -50,18 +50,22 @@ module Eodhd
 
       begin
         fetched_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+
+        # Delete any old fetched data.
+        # This does not delete processed by-year-month 'raw' data, which is in a separate dir.
         @io.delete_dir(fetched_dir)
 
-        first_ts = first_existing_timestamp(exchange, symbol)
+        if recheck_start_date
+          # Find earliest existing timestamp from processed files.
+          first_ts = first_existing_timestamp(exchange, symbol)
 
-        if !first_ts.nil? && recheck_start_date
-          if should_restart_from_scratch?(exchange, symbol, first_ts, symbol_with_exchange)
+          if should_refetch?(exchange, symbol, first_ts, symbol_with_exchange)
+            # Delete all processed data to force refecth for symbol.
             delete_all_processed_files(exchange, symbol, symbol_with_exchange)
-            first_ts = nil
           end
         end
 
-        last_ts = first_ts || last_existing_timestamp(exchange, symbol)
+        last_ts = last_existing_timestamp(exchange, symbol)
 
         to = Time.now.to_i
         while to > 0 do
@@ -108,12 +112,12 @@ module Eodhd
       return nil if files.empty?
 
       first_file = files.first
-      # Extract year-month from filename (format: YYYY-MM.csv)
-      base_name = File.basename(first_file, ".csv")
-      year, month = base_name.split("-").map(&:to_i)
+      csv_content = @io.read_text(first_file)
+      rows = IntradayCsvParser.parse(csv_content)
 
-      # Return first second of that month
-      Time.new(year, month, 1, 0, 0, 0, "+00:00").to_i
+      return nil if rows.empty?
+
+      rows.first[:timestamp]
     end
 
     def last_existing_timestamp(exchange, symbol)
@@ -121,19 +125,12 @@ module Eodhd
       return nil if files.empty?
 
       last_file = files.last
-      # Extract year-month from filename (format: YYYY-MM.csv)
-      base_name = File.basename(last_file, ".csv")
-      year, month = base_name.split("-").map(&:to_i)
+      csv_content = @io.read_text(last_file)
+      rows = IntradayCsvParser.parse(csv_content)
 
-      # Return last second of that month
-      next_month = month + 1
-      next_year = year
-      if next_month > 12
-        next_month = 1
-        next_year += 1
-      end
+      return nil if rows.empty?
 
-      Time.new(next_year, next_month, 1, 0, 0, 0, "+00:00").to_i - 1
+      rows.last[:timestamp]
     end
 
     def sorted_processed_files(exchange, symbol)
@@ -143,23 +140,28 @@ module Eodhd
         .sort
     end
 
-    def should_restart_from_scratch?(exchange, symbol, processed_start_ts, symbol_with_exchange)
-      # Fetch a range around the processed start date to check if the start date has changed
-      check_from = [0, processed_start_ts - RANGE_SECONDS / 2].max
-      check_to = processed_start_ts + RANGE_SECONDS
+    def should_refetch?(exchange, symbol, first_ts, symbol_with_exchange)
+      if first_ts.nil?
+        @log.info("No existing processed intraday data for #{symbol_with_exchange}, refetching all intraday data")
+        return true
+      end
 
-      @log.info("Rechecking start date for #{symbol_with_exchange} around #{DateUtil.seconds_to_datetime(processed_start_ts)}")
+      # Fetch a range around the processed start date to check if the start date has changed
+      check_from = [0, first_ts - RANGE_SECONDS / 2].max
+      check_to = first_ts + RANGE_SECONDS
+
+      @log.info("Rechecking start date for #{symbol_with_exchange} around #{DateUtil.seconds_to_datetime(first_ts)}")
 
       csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, check_from, check_to)
-      return false if csv.nil?
+      return true if csv.nil?
 
       rows = IntradayCsvParser.parse(csv)
-      return false if rows.empty?
+      return true if rows.empty?
 
       new_start_ts = rows.first[:timestamp]
 
-      if new_start_ts != processed_start_ts
-        @log.warn("Start date changed for #{symbol_with_exchange}: old=#{DateUtil.seconds_to_datetime(processed_start_ts)}, new=#{DateUtil.seconds_to_datetime(new_start_ts)}")
+      if new_start_ts != first_ts
+        @log.warn("Start date changed for #{symbol_with_exchange}: old=#{DateUtil.seconds_to_datetime(first_ts)}, new=#{DateUtil.seconds_to_datetime(new_start_ts)}")
         return true
       end
 
