@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "../../../util"
-require_relative "../../shared/path"
-require_relative "../../parsing/intraday_csv_parser"
+require_relative "../../../../util"
+require_relative "../../../shared/path"
+require_relative "../../../parsing/intraday_csv_parser"
 require_relative "intraday_csv_merger"
 require_relative "intraday_csv_grouper"
 
