@@ -46,15 +46,12 @@ module Eodhd
 
       return if rows.empty?
 
-      first_timestamp = rows.first[:timestamp]
-      last_timestamp = rows.last[:timestamp]
-
       # Group rows by year-month
       rows_by_month = group_rows_by_month(rows)
 
       rows_by_month.each do |year_month, month_rows|
         year, month = year_month
-        process_month(exchange, symbol, year, month, month_rows, first_timestamp, last_timestamp)
+        process_month(exchange, symbol, year, month, month_rows)
       end
     end
 
@@ -71,11 +68,11 @@ module Eodhd
       grouped.sort.to_h
     end
 
-    def process_month(exchange, symbol, year, month, new_rows, file_start_ts, file_end_ts)
+    def process_month(exchange, symbol, year, month, new_rows)
       processed_file_path = Path.raw_intraday_processed_symbol_year_month(exchange, symbol, year, month)
 
       existing_rows = load_existing_processed_file(processed_file_path)
-      merged_rows = IntradayCsvMerger.merge(existing_rows, new_rows, file_start_ts, file_end_ts)
+      merged_rows = IntradayCsvMerger.merge(existing_rows, new_rows)
 
       write_processed_file(processed_file_path, merged_rows)
     end
