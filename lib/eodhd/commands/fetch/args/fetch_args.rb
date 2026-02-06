@@ -15,7 +15,7 @@ module Eodhd
     end
 
     def parse(argv)
-      Args.with_exception_handling { parse_args(argv) }
+      Shared::Args.with_exception_handling { parse_args(argv) }
     end
 
     private
@@ -28,7 +28,7 @@ module Eodhd
 
       FetchArgsShared.handle_parse_error(parser) do
         if argv.empty?
-          raise Args::Error.new("Missing required subcommand.", usage: parser.to_s)
+          raise Shared::Args::Error.new("Missing required subcommand.", usage: parser.to_s)
         end
 
         # Check if first arg is a valid subcommand
@@ -43,12 +43,12 @@ module Eodhd
           
           # If we get here, argv should have the subcommand now
           if argv.empty?
-            raise Args::Error.new("Missing required subcommand.", usage: parser.to_s)
+            raise Shared::Args::Error.new("Missing required subcommand.", usage: parser.to_s)
           end
           
           subcommand = argv.shift.to_s.strip.downcase
           unless VALID_SUBCOMMANDS.include?(subcommand)
-            raise Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected one of: #{VALID_SUBCOMMANDS.join(', ')}.", usage: parser.to_s)
+            raise Shared::Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected one of: #{VALID_SUBCOMMANDS.join(', ')}.", usage: parser.to_s)
           end
           
           Result.new(subcommand: subcommand)

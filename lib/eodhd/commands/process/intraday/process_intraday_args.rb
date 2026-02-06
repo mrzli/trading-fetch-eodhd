@@ -13,7 +13,7 @@ module Eodhd
     end
 
     def parse(argv)
-      Args.with_exception_handling { parse_args(argv) }
+      Shared::Args.with_exception_handling { parse_args(argv) }
     end
 
     private
