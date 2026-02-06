@@ -14,7 +14,7 @@ module Eodhd
     module_function
 
     def run
-      container = Container.new(command: "process")
+      container = Shared::Container.new(command: "process")
       strategy = ProcessStrategy.new(container: container)
       process_args_parser = ProcessArgs.new(container: container)
 

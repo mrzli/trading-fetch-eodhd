@@ -17,7 +17,7 @@ module Eodhd
     module_function
 
     def run
-      container = Container.new(command: "fetch")
+      container = Shared::Container.new(command: "fetch")
       strategy = FetchStrategy.new(container: container)
       fetch_args_parser = FetchArgs.new(container: container)
 

@@ -4,7 +4,7 @@ require_relative "../../test_helper"
 
 require_relative "../../../lib/eodhd/shared/path"
 
-describe Eodhd::Path do
+describe Eodhd::Shared::Path do
   test_equals(
     ".exchanges_list",
     [
@@ -13,7 +13,7 @@ describe Eodhd::Path do
         expected: "exchanges-list.json"
       }
     ],
-    call: ->(_input) { Eodhd::Path.exchanges_list }
+    call: ->(_input) { Eodhd::Shared::Path.exchanges_list }
   )
 
   test_equals(
@@ -35,7 +35,7 @@ describe Eodhd::Path do
         expected: File.join("symbols", "foo-bar", "mutual-fund.json")
       }
     ],
-    call: ->(input) { Eodhd::Path.exchange_symbol_list(input[:exchange_code], input[:type]) }
+    call: ->(input) { Eodhd::Shared::Path.exchange_symbol_list(input[:exchange_code], input[:type]) }
   )
 
   test_equals(
@@ -52,7 +52,7 @@ describe Eodhd::Path do
         expected: File.join("meta", "us", "brk-b", "splits.json")
       }
     ],
-    call: ->(input) { Eodhd::Path.splits(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.splits(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
@@ -69,7 +69,7 @@ describe Eodhd::Path do
         expected: File.join("meta", "us", "brk-b", "dividends.json")
       }
     ],
-    call: ->(input) { Eodhd::Path.dividends(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.dividends(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
@@ -81,7 +81,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "eod")
       }
     ],
-    call: ->(_input) { Eodhd::Path.raw_eod_dir }
+    call: ->(_input) { Eodhd::Shared::Path.raw_eod_dir }
   )
 
   test_equals(
@@ -98,7 +98,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "eod", "us", "brk-b.csv")
       }
     ],
-    call: ->(input) { Eodhd::Path.raw_eod_data(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.raw_eod_data(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
@@ -110,7 +110,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "intraday")
       }
     ],
-    call: ->(_input) { Eodhd::Path.raw_intraday_dir }
+    call: ->(_input) { Eodhd::Shared::Path.raw_intraday_dir }
   )
 
   test_equals(
@@ -122,7 +122,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "intraday", "fetched")
       }
     ],
-    call: ->(_input) { Eodhd::Path.raw_intraday_fetched_dir }
+    call: ->(_input) { Eodhd::Shared::Path.raw_intraday_fetched_dir }
   )
 
   test_equals(
@@ -139,7 +139,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "intraday", "fetched", "us", "brk-b")
       }
     ],
-    call: ->(input) { Eodhd::Path.raw_intraday_fetched_symbol_data_dir(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.raw_intraday_fetched_symbol_data_dir(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
@@ -156,7 +156,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "intraday", "fetched", "us", "brk-b", "1970-01-01_00-02-03__1970-01-01_00-07-36.csv")
       }
     ],
-    call: ->(input) { Eodhd::Path.raw_intraday_fetched_symbol_data(input[:exchange], input[:symbol], input[:from], input[:to]) }
+    call: ->(input) { Eodhd::Shared::Path.raw_intraday_fetched_symbol_data(input[:exchange], input[:symbol], input[:from], input[:to]) }
   )
 
   test_equals(
@@ -168,7 +168,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "intraday", "processed")
       }
     ],
-    call: ->(_input) { Eodhd::Path.raw_intraday_processed_dir }
+    call: ->(_input) { Eodhd::Shared::Path.raw_intraday_processed_dir }
   )
 
   test_equals(
@@ -185,7 +185,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "intraday", "processed", "us", "brk-b")
       }
     ],
-    call: ->(input) { Eodhd::Path.raw_intraday_processed_symbol_data_dir(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.raw_intraday_processed_symbol_data_dir(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
@@ -202,7 +202,7 @@ describe Eodhd::Path do
         expected: File.join("raw", "intraday", "processed", "us", "brk-b", "2024-12.csv")
       }
     ],
-    call: ->(input) { Eodhd::Path.raw_intraday_processed_symbol_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
+    call: ->(input) { Eodhd::Shared::Path.raw_intraday_processed_symbol_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
   )
 
   test_equals(
@@ -219,7 +219,7 @@ describe Eodhd::Path do
         expected: File.join("data", "eod", "us", "brk-b.csv")
       }
     ],
-    call: ->(input) { Eodhd::Path.processed_eod_data(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.processed_eod_data(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
@@ -236,7 +236,7 @@ describe Eodhd::Path do
         expected: File.join("data", "intraday", "us", "brk-b")
       }
     ],
-    call: ->(input) { Eodhd::Path.processed_intraday_data_dir(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.processed_intraday_data_dir(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
@@ -248,6 +248,6 @@ describe Eodhd::Path do
         expected: File.join("data", "intraday", "us", "aapl", "2003-01.csv")
       }
     ],
-    call: ->(input) { Eodhd::Path.processed_intraday_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
+    call: ->(input) { Eodhd::Shared::Path.processed_intraday_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
   )
 end

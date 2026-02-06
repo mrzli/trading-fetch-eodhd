@@ -57,7 +57,7 @@ module Eodhd
         end
 
         symbols_by_type.each do |type, items|
-          relative_path = Path.exchange_symbol_list(exchange, type)
+          relative_path = Shared::Path.exchange_symbol_list(exchange, type)
           saved_path = @io.write_json(relative_path, JSON.generate(items), true)
           @log.info("Wrote #{StringUtil.truncate_middle(saved_path)}")
         end

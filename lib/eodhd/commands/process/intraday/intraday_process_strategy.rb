@@ -13,7 +13,7 @@ module Eodhd
     end
 
     def process
-      raw_root = @io.output_path(Path.raw_intraday_dir)
+      raw_root = @io.output_path(Shared::Path.raw_intraday_dir)
       unless Dir.exist?(raw_root)
         @log.info("No raw intraday directory found: #{raw_root}")
         return
@@ -51,9 +51,9 @@ module Eodhd
 
       raw_rels = raw_abs_files.map { |abs| @io.relative_path(abs) }
 
-      splits_rel = Path.splits(exchange, symbol)
-      dividends_rel = Path.dividends(exchange, symbol)
-      processed_dir_rel = Path.processed_intraday_data_dir(exchange, symbol)
+      splits_rel = Shared::Path.splits(exchange, symbol)
+      dividends_rel = Shared::Path.dividends(exchange, symbol)
+      processed_dir_rel = Shared::Path.processed_intraday_data_dir(exchange, symbol)
 
       unless should_process?(raw_rels: raw_rels, splits_rel: splits_rel, processed_dir_rel: processed_dir_rel)
         @log.info("Skipping processed intraday (fresh): #{processed_dir_rel}")
@@ -75,7 +75,7 @@ module Eodhd
 
       outputs.each do |item|
         item in { key: key, csv: csv }
-        processed_rel = Path.processed_intraday_year_month(exchange, symbol, key.year, key.month)
+        processed_rel = Shared::Path.processed_intraday_year_month(exchange, symbol, key.year, key.month)
         saved_path = @io.write_csv(processed_rel, csv)
         @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
       end

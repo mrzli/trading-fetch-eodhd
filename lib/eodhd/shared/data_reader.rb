@@ -7,50 +7,51 @@ require_relative "../../util"
 require_relative "path"
 
 module Eodhd
-  class DataReader
-    UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
+  module Shared
+    class DataReader
+      UNSUPPORTED_EXCHANGE_CODES = Set.new(["MONEY"]).freeze
 
-    def initialize(io:)
-      @io = io
-    end
-
-    def exchanges
-      exchanges_text = @io.read_text(Path.exchanges_list)
-      exchanges = JSON.parse(exchanges_text)
-      exchanges.filter_map do |exchange|
-        code = exchange["Code"].to_s.strip
-        next if UNSUPPORTED_EXCHANGE_CODES.include?(code)
-        code
+      def initialize(io:)
+        @io = io
       end
-    end
 
-    def symbols
-      exchanges.flat_map do |exchange|
-        relative_dir = File.join("symbols", Util::String.kebab_case(exchange))
-        
-        next [] unless @io.dir_exists?(relative_dir)
+      def exchanges
+        exchanges_text = @io.read_text(Path.exchanges_list)
+        exchanges = JSON.parse(exchanges_text)
+        exchanges.filter_map do |exchange|
+          code = exchange["Code"].to_s.strip
+          next if UNSUPPORTED_EXCHANGE_CODES.include?(code)
+          code
+        end
+      end
 
-        @io
-          .list_relative_files(relative_dir)
-          .select { |path| path.end_with?(".json") }
-          .sort
-          .flat_map do |relative_path|
-            type = File.basename(relative_path, ".json")
+      def symbols
+        exchanges.flat_map do |exchange|
+          relative_dir = File.join("symbols", Util::String.kebab_case(exchange))
+          
+          next [] unless @io.dir_exists?(relative_dir)
 
-            symbols_file_text = @io.read_text(relative_path)
-            symbol_entries = JSON.parse(symbols_file_text)
+          @io
+            .list_relative_files(relative_dir)
+            .select { |path| path.end_with?(".json") }
+            .sort
+            .flat_map do |relative_path|
+              type = File.basename(relative_path, ".json")
 
-            symbol_entries.map do |entry|
-              {
-                exchange: exchange,
-                real_exchange: entry["Exchange"],
-                type: type,
-                symbol: entry["Code"]
-              }
+              symbols_file_text = @io.read_text(relative_path)
+              symbol_entries = JSON.parse(symbols_file_text)
+
+              symbol_entries.map do |entry|
+                {
+                  exchange: exchange,
+                  real_exchange: entry["Exchange"],
+                  type: type,
+                  symbol: entry["Code"]
+                }
+              end
             end
-          end
+        end
       end
     end
-
   end
 end

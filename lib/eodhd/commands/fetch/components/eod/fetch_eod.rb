@@ -36,7 +36,7 @@ module Eodhd
       symbol = symbol_entry[:symbol]
 
       symbol_with_exchange = "#{symbol}.#{exchange}"
-      relative_path = Path.raw_eod_data(exchange, symbol)
+      relative_path = Shared::Path.raw_eod_data(exchange, symbol)
 
       unless force || @shared.file_stale?(relative_path)
         @log.info("Skipping EOD (fresh): #{relative_path}")

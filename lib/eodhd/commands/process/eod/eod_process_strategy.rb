@@ -13,7 +13,7 @@ module Eodhd
     end
 
     def process
-      raw_root = @io.output_path(Path.raw_eod_dir)
+      raw_root = @io.output_path(Shared::Path.raw_eod_dir)
       unless Dir.exist?(raw_root)
         @log.info("No raw EOD directory found: #{raw_root}")
         return
@@ -60,9 +60,9 @@ module Eodhd
     end
 
     def process_symbol(exchange, symbol, raw_rel)
-      processed_rel = Path.processed_eod_data(exchange, symbol)
-      splits_rel = Path.splits(exchange, symbol)
-      dividends_rel = Path.dividends(exchange, symbol)
+      processed_rel = Shared::Path.processed_eod_data(exchange, symbol)
+      splits_rel = Shared::Path.splits(exchange, symbol)
+      dividends_rel = Shared::Path.dividends(exchange, symbol)
 
       unless should_process?(raw_rel: raw_rel, splits_rel: splits_rel, processed_rel: processed_rel)
         @log.info("Skipping processed EOD (fresh): #{processed_rel}")

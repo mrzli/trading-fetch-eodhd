@@ -11,7 +11,7 @@ module Eodhd
     def run
       command, yes = CleanArgs.parse(ARGV).deconstruct
 
-      container = Container.new(command: "clean")
+      container = Shared::Container.new(command: "clean")
       strategy = CleanStrategy.new(container: container)
 
       case command

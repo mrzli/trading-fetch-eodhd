@@ -8,55 +8,57 @@ require_relative "../../util"
 require_relative "../../logging"
 
 module Eodhd
-  class Container
-    attr_reader :config, :logger, :api, :io, :data_reader
+  module Shared
+      class Container
+      attr_reader :config, :logger, :api, :io, :data_reader
 
-    def initialize(command: "fetch")
-      @command = command
-      @config = load_config
-      @logger = build_logger
-      @api = build_api
-      @io = build_io
-      @data_reader = build_data_reader
-    end
+      def initialize(command: "fetch")
+        @command = command
+        @config = load_config
+        @logger = build_logger
+        @api = build_api
+        @io = build_io
+        @data_reader = build_data_reader
+      end
 
-    private
+      private
 
-    def load_config
-      Config.eodhd
-    rescue Config::Error => e
-      abort e.message
-    end
+      def load_config
+        Config.eodhd
+      rescue Config::Error => e
+        abort e.message
+      end
 
-    def build_logger
-      sinks = [
-        Logging::ConsoleSink.new(
-          level: @config.log_level,
-          progname: @command
-        ),
-        Logging::FileSink.new(
-          command: @command,
-          output_dir: @config.output_dir,
-          level: @config.log_level,
-          progname: @command
+      def build_logger
+        sinks = [
+          Logging::ConsoleSink.new(
+            level: @config.log_level,
+            progname: @command
+          ),
+          Logging::FileSink.new(
+            command: @command,
+            output_dir: @config.output_dir,
+            level: @config.log_level,
+            progname: @command
+          )
+        ]
+        Logging::Logger.new(sinks: sinks)
+      end
+
+      def build_api
+        ::Eodhd::Shared::Api.new(
+          cfg: @config,
+          log: @logger
         )
-      ]
-      Logging::Logger.new(sinks: sinks)
-    end
+      end
 
-    def build_api
-      Api.new(
-        cfg: @config,
-        log: @logger
-      )
-    end
+      def build_io
+        ::Eodhd::Shared::Io.new(output_dir: @config.output_dir)
+      end
 
-    def build_io
-      Io.new(output_dir: @config.output_dir)
-    end
-
-    def build_data_reader
-      DataReader.new(io: @io)
+      def build_data_reader
+        ::Eodhd::Shared::DataReader.new(io: @io)
+      end
     end
   end
 end

@@ -17,7 +17,7 @@ module Eodhd
       symbol_with_exchange = "#{symbol}.#{exchange}"
       @log.info("Processing raw intraday for #{symbol_with_exchange}...")
 
-      fetched_dir = Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+      fetched_dir = Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
       fetched_files = list_and_sort_fetched_files(fetched_dir)
 
       if fetched_files.empty?
@@ -57,7 +57,7 @@ module Eodhd
     end
 
     def process_month(exchange, symbol, year, month, new_rows)
-      processed_file_path = Path.raw_intraday_processed_symbol_year_month(exchange, symbol, year, month)
+      processed_file_path = Shared::Path.raw_intraday_processed_symbol_year_month(exchange, symbol, year, month)
 
       existing_rows = load_existing_processed_file(processed_file_path)
       merged_rows = IntradayCsvMerger.merge(existing_rows, new_rows)
