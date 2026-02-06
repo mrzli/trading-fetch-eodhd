@@ -5,6 +5,11 @@
 - Always run `rake test` after making changes
 - Check Ruby syntax with `ruby -c` for modified files
 - Ensure proper 2-space indentation
+- After modifying bin/ scripts or lib/ code, verify commands work with help mode:
+  - `./bin/fetch --help` or `./bin/fetch <subcommand> --help`
+  - `./bin/process --help` or `./bin/process <subcommand> --help`
+  - `./bin/clean --help` or `./bin/clean <subcommand> --help`
+  - NEVER run commands without `--help` flag (to avoid actual data fetching/processing)
 
 ## Zeitwerk Conventions
 
