@@ -63,9 +63,9 @@ module Eodhd
       raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
 
       splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : nil
-      splits = splits_json ? SplitsParser.parse(splits_json) : []
+      splits = splits_json ? Parsing::SplitsParser.parse(splits_json) : []
       dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
-      dividends = DividendsParser.parse(dividends_json)
+      dividends = Parsing::DividendsParser.parse(dividends_json)
 
       outputs = @processor.process_csv_list(raw_csv_files, splits, dividends)
       if outputs.empty?

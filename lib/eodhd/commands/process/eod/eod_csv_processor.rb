@@ -20,13 +20,13 @@ module Eodhd
     end
 
     def process_csv(raw_csv, splits, dividends)
-      data = EodCsvParser.parse(raw_csv)
+      data = Parsing::EodCsvParser.parse(raw_csv)
       splits = SplitsProcessor.process(splits)
       dividends = DividendsProcessor.process(dividends, data)
       data = PriceAdjust.apply(data, splits, dividends)
       data = to_output(data)
       to_csv(data)
-    rescue EodCsvParser::Error => e
+    rescue Parsing::EodCsvParser::Error => e
       raise Error, e.message
     end
 

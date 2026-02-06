@@ -5,7 +5,7 @@ require_relative "../../test_helper"
 require "date"
 require_relative "../../../lib/eodhd/parsing/eod_csv_parser"
 
-describe Eodhd::EodCsvParser do
+describe Eodhd::Parsing::EodCsvParser do
   it "parses EOD rows" do
     raw = <<~CSV
       Date,Open,High,Low,Close,Adjusted_close,Volume
@@ -14,7 +14,7 @@ describe Eodhd::EodCsvParser do
       ,1,1,1,1,1,1
     CSV
 
-    result = Eodhd::EodCsvParser.parse(raw)
+    result = Eodhd::Parsing::EodCsvParser.parse(raw)
 
     expected = [
       {
@@ -46,7 +46,7 @@ describe Eodhd::EodCsvParser do
       2024-01-10,10,11,9,10.5,1000
     CSV
 
-    err = _ { Eodhd::EodCsvParser.parse(raw) }.must_raise(Eodhd::EodCsvParser::Error)
+    err = _ { Eodhd::Parsing::EodCsvParser.parse(raw) }.must_raise(Eodhd::Parsing::EodCsvParser::Error)
     _(err.message).must_match(/Missing required columns/i)
   end
 
@@ -56,7 +56,7 @@ describe Eodhd::EodCsvParser do
       not-a-date,10,11,9,10.5,10.3,1000
     CSV
 
-    err = _ { Eodhd::EodCsvParser.parse(raw) }.must_raise(Eodhd::EodCsvParser::Error)
+    err = _ { Eodhd::Parsing::EodCsvParser.parse(raw) }.must_raise(Eodhd::Parsing::EodCsvParser::Error)
     _(err.message).must_match(/Invalid data/i)
   end
 end

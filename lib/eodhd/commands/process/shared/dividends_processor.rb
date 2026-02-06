@@ -9,7 +9,7 @@ module Eodhd
     class << self
       # Builds dividend adjustment segments using unadjusted price data.
       #
-      # dividends: array of DividendsParser::Dividend objects (sorted or unsorted)
+      # dividends: array of Parsing::DividendsParser::Dividend objects (sorted or unsorted)
       # data: array of hashes with at least :timestamp and :close (unadjusted prices)
       #
       # Returns array of {timestamp:, multiplier:} sorted by timestamp. Each multiplier

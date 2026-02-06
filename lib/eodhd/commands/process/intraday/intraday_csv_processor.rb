@@ -26,7 +26,7 @@ module Eodhd
       end
 
       inputs = raw_csv_list.drop(0).map.with_index do |raw_csv, index|
-        parsed = IntradayCsvParser.parse(raw_csv)
+        parsed = Parsing::IntradayCsvParser.parse(raw_csv)
         if parsed.empty?
           @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")
           next
@@ -69,7 +69,7 @@ module Eodhd
           csv: csv
         }
       end
-    rescue IntradayCsvParser::Error => e
+    rescue Parsing::IntradayCsvParser::Error => e
       raise Error, e.message
     rescue ArgumentError => e
       raise Error, e.message

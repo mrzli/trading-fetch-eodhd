@@ -105,7 +105,7 @@ module Eodhd
       csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, from, to)
       return false if csv.nil?
 
-      rows = IntradayCsvParser.parse(csv)
+      rows = Parsing::IntradayCsvParser.parse(csv)
       if rows.empty?
         @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} #{from_to_message_fragment}")
         return nil
@@ -127,7 +127,7 @@ module Eodhd
 
       first_file = files.first
       csv_content = @io.read_text(first_file)
-      rows = IntradayCsvParser.parse(csv_content)
+      rows = Parsing::IntradayCsvParser.parse(csv_content)
 
       return nil if rows.empty?
 
@@ -140,7 +140,7 @@ module Eodhd
 
       last_file = files.last
       csv_content = @io.read_text(last_file)
-      rows = IntradayCsvParser.parse(csv_content)
+      rows = Parsing::IntradayCsvParser.parse(csv_content)
 
       return nil if rows.empty?
 
@@ -169,7 +169,7 @@ module Eodhd
       csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, check_from, check_to)
       return true if csv.nil?
 
-      rows = IntradayCsvParser.parse(csv)
+      rows = Parsing::IntradayCsvParser.parse(csv)
       return true if rows.empty?
 
       new_start_ts = rows.first[:timestamp]

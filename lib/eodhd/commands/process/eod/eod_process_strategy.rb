@@ -71,9 +71,9 @@ module Eodhd
 
       raw_csv = @io.read_text(raw_rel)
       splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
-      splits = SplitsParser.parse(splits_json)
+      splits = Parsing::SplitsParser.parse(splits_json)
       dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
-      dividends = DividendsParser.parse(dividends_json)
+      dividends = Parsing::DividendsParser.parse(dividends_json)
 
       processed_csv = @processor.process_csv(raw_csv, splits, dividends)
       saved_path = @io.write_csv(processed_rel, processed_csv)

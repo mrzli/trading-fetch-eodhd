@@ -88,7 +88,7 @@ describe Eodhd::DividendsProcessor do
   end
 
   def dividend(date_str, unadjusted_value)
-    Eodhd::DividendsParser::Dividend.new(
+    Eodhd::Parsing::DividendsParser::Dividend.new(
       date: Date.iso8601(date_str),
       declaration_date: nil,
       record_date: nil,

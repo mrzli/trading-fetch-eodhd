@@ -4,9 +4,9 @@ require_relative "../../test_helper"
 
 require_relative "../../../lib/eodhd/parsing/splits_parser"
 
-describe Eodhd::SplitsParser do
+describe Eodhd::Parsing::SplitsParser do
   it "returns [] for blank input" do
-    _(Eodhd::SplitsParser.parse(" ")).must_equal []
+    _( Eodhd::Parsing::SplitsParser.parse(" ")).must_equal []
   end
 
   it "parses, sorts by date, and builds rational factors" do
@@ -17,14 +17,14 @@ describe Eodhd::SplitsParser do
       ]
     JSON
 
-    splits = Eodhd::SplitsParser.parse(json, sorted: false)
+    splits = Eodhd::Parsing::SplitsParser.parse(json, sorted: false)
 
     expected = [
-      Eodhd::SplitsParser::Split.new(
+      Eodhd::Parsing::SplitsParser::Split.new(
         date: Date.iso8601("2000-06-21"),
         factor: 2.0
       ),
-      Eodhd::SplitsParser::Split.new(
+      Eodhd::Parsing::SplitsParser::Split.new(
         date: Date.iso8601("2024-01-10"),
         factor: 4.0
       )
@@ -34,12 +34,12 @@ describe Eodhd::SplitsParser do
   end
 
   it "raises for invalid JSON" do
-    err = _(-> { Eodhd::SplitsParser.parse("not json") }).must_raise(Eodhd::SplitsParser::Error)
+    err = _(-> { Eodhd::Parsing::SplitsParser.parse("not json") }).must_raise(Eodhd::Parsing::SplitsParser::Error)
     _(err.message).must_match(/Invalid splits_json/i)
   end
 
   it "raises if top-level is not an array" do
-    _(-> { Eodhd::SplitsParser.parse("{}") }).must_raise(Eodhd::SplitsParser::Error)
+    _(-> { Eodhd::Parsing::SplitsParser.parse("{}") }).must_raise(Eodhd::Parsing::SplitsParser::Error)
   end
 
   it "raises for invalid split format" do
@@ -47,7 +47,7 @@ describe Eodhd::SplitsParser do
       [{"date":"2024-01-10","split":"4"}]
     JSON
 
-    _(-> { Eodhd::SplitsParser.parse(json) }).must_raise(Eodhd::SplitsParser::Error)
+    _(-> { Eodhd::Parsing::SplitsParser.parse(json) }).must_raise(Eodhd::Parsing::SplitsParser::Error)
   end
 
   it "raises for zero/negative split ratio" do
@@ -59,6 +59,6 @@ describe Eodhd::SplitsParser do
       ]
     JSON
 
-    _(-> { Eodhd::SplitsParser.parse(json) }).must_raise(Eodhd::SplitsParser::Error)
+    _(-> { Eodhd::Parsing::SplitsParser.parse(json) }).must_raise(Eodhd::Parsing::SplitsParser::Error)
   end
 end
