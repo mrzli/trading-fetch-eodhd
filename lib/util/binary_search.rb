@@ -6,7 +6,7 @@ module Util
       # Finds the smallest index i where array[i] >= value (using the provided comparison)
       # If block given, uses block to extract comparable value: block.call(array[i]) >= value
       # Returns array.length if all elements are < value
-        def lower_bound(array, value, &block)
+      def lower_bound(array, value, &block)
         return 0 if array.nil? || array.empty?
 
         lo = 0
