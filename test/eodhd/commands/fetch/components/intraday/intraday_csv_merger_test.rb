@@ -20,7 +20,7 @@ def rowsn(*timestamps)
   timestamps.map { |ts| rown(ts) }
 end
 
-describe Eodhd::IntradayCsvMerger do
+describe Eodhd::Commands::IntradayCsvMerger do
   test_equals(
     ".merge",
     [
@@ -153,6 +153,6 @@ describe Eodhd::IntradayCsvMerger do
         expected: rowse(100, 200) + rowsn(400, 500) + rowse(700, 800)
       }
     ],
-    call: ->(input) { Eodhd::IntradayCsvMerger.merge(input[:existing_csv], input[:new_csv]) }
+    call: ->(input) { Eodhd::Commands::IntradayCsvMerger.merge(input[:existing_csv], input[:new_csv]) }
   )
 end

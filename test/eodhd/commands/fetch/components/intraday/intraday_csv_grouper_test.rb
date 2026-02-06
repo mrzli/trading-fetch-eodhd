@@ -26,7 +26,7 @@ def ts(year, month, day, hour = 0, minute = 0, second = 0)
   Time.new(year, month, day, hour, minute, second, "+00:00").to_i
 end
 
-describe Eodhd::IntradayCsvGrouper do
+describe Eodhd::Commands::IntradayCsvGrouper do
   test_equals(
     ".group_by_month",
     [
@@ -153,6 +153,6 @@ describe Eodhd::IntradayCsvGrouper do
         }
       }
     ],
-    call: ->(input) { Eodhd::IntradayCsvGrouper.group_by_month(input) }
+    call: ->(input) { Eodhd::Commands::IntradayCsvGrouper.group_by_month(input) }
   )
 end

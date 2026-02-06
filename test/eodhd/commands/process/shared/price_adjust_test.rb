@@ -9,13 +9,13 @@ require_relative "../../../../../lib/eodhd/parsing/splits_parser"
 require_relative "../../../../../lib/eodhd/commands/process/shared/price_adjust"
 require_relative "../../../../../lib/eodhd/commands/process/shared/splits_processor"
 
-describe Eodhd::PriceAdjust do
+describe Eodhd::Commands::PriceAdjust do
   it "returns rows unchanged when no splits and no dividends" do
     rows = [
       { timestamp: Time.utc(2024, 1, 10).to_i, date: Date.new(2024, 1, 10), open: 10.0, high: 11.0, low: 9.0, close: 10.5, volume: 100 }
     ]
 
-    adjusted = Eodhd::PriceAdjust.apply(rows, [], [])
+    adjusted = Eodhd::Commands::PriceAdjust.apply(rows, [], [])
 
     _(adjusted).must_equal rows
   end
@@ -41,9 +41,9 @@ describe Eodhd::PriceAdjust do
     JSON
 
     raw_splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
-    segments = Eodhd::SplitsProcessor.process(raw_splits)
+    segments = Eodhd::Commands::SplitsProcessor.process(raw_splits)
 
-    adjusted = Eodhd::PriceAdjust.apply(rows, segments, [])
+    adjusted = Eodhd::Commands::PriceAdjust.apply(rows, segments, [])
 
     expected = [
       drow("1999-11-18", "1.0", "1.0", "1.0", "1.0", 560),
@@ -70,7 +70,7 @@ describe Eodhd::PriceAdjust do
     multiplier = (110.0 - 2.0) / 110.0
     dividends = [ { timestamp: Date.parse("2024-01-11").to_time.to_i, multiplier: multiplier } ]
 
-    adjusted = Eodhd::PriceAdjust.apply(rows, [], dividends)
+    adjusted = Eodhd::Commands::PriceAdjust.apply(rows, [], dividends)
 
     expected = [
       drow("2024-01-09", (100.0 * multiplier).to_s, (100.0 * multiplier).to_s, (100.0 * multiplier).to_s, (100.0 * multiplier).to_s, 10),
@@ -95,7 +95,7 @@ describe Eodhd::PriceAdjust do
     # One dividend on 2024-01-11 with prev close 120 and value 10 -> multiplier = (120-10)/120 = 0.9166...
     dividends = [ { timestamp: Date.parse("2024-01-11").to_time.to_i, multiplier: (120.0 - 10.0) / 120.0 } ]
 
-    adjusted = Eodhd::PriceAdjust.apply(rows, splits, dividends)
+    adjusted = Eodhd::Commands::PriceAdjust.apply(rows, splits, dividends)
 
     expected = [
       drow("2024-01-08", "45.83333333333333", "45.83333333333333", "45.83333333333333", "45.83333333333333", 20),
