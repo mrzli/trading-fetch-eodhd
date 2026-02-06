@@ -3,8 +3,10 @@
 require "json"
 
 require_relative "../../util"
-require_relative "../process/args"
+require_relative "../process/args/process_args"
 require_relative "../process/process_strategy"
+require_relative "../process/eod/process_eod_args"
+require_relative "../process/intraday/process_intraday_args"
 require_relative "../shared/container"
 
 module Eodhd
@@ -12,16 +14,23 @@ module Eodhd
     module_function
 
     def run
-      mode, exchange_filters, symbol_filters = ProcessArgs.parse(ARGV).deconstruct
       container = Container.new(command: "process")
-
       strategy = ProcessStrategy.new(container: container)
+      process_args_parser = ProcessArgs.new(container: container)
 
-      case mode
+      subcommand, = process_args_parser.parse(ARGV).deconstruct
+
+      case subcommand
       when "eod"
-        strategy.process_eod(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
+        args_parser = ProcessEodArgs.new(container: container)
+        args_parser.parse(ARGV)
+        strategy.process_eod
       when "intraday"
-        strategy.process_intraday(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
+        args_parser = ProcessIntradayArgs.new(container: container)
+        args_parser.parse(ARGV)
+        strategy.process_intraday
+      else
+        raise "Unknown subcommand: #{subcommand}"
       end
     end
   end

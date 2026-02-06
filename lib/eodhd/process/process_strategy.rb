@@ -13,12 +13,12 @@ module Eodhd
       @intraday_strategy = IntradayProcessStrategy.new(log: @log, io: @io)
     end
 
-    def process_eod(exchange_filters:, symbol_filters:)
-      @eod_strategy.process(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
+    def process_eod
+      @eod_strategy.process
     end
 
-    def process_intraday(exchange_filters:, symbol_filters:)
-      @intraday_strategy.process(exchange_filters: exchange_filters, symbol_filters: symbol_filters)
+    def process_intraday
+      @intraday_strategy.process
     end
   end
 end

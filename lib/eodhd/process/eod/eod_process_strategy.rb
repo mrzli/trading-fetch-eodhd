@@ -12,9 +12,7 @@ module Eodhd
       @processor = EodCsvProcessor.new(log: log)
     end
 
-    def process(exchange_filters:, symbol_filters:)
-      exchange_filters = normalize_filters(exchange_filters)
-      symbol_filters = normalize_filters(symbol_filters)
+    def process
       raw_root = @io.output_path(Path.raw_eod_dir)
       unless Dir.exist?(raw_root)
         @log.info("No raw EOD directory found: #{raw_root}")
@@ -22,7 +20,6 @@ module Eodhd
       end
 
       exchanges = Dir.children(raw_root).select { |name| Dir.exist?(File.join(raw_root, name)) }
-      exchanges.select! { |ex| matches_filter?(ex, exchange_filters) }
       exchanges.sort!
       if exchanges.empty?
         @log.info("No exchange directories found under: #{raw_root}")
@@ -31,7 +28,7 @@ module Eodhd
 
       exchanges.each do |exchange|
         exchange_dir = File.join(raw_root, exchange)
-        process_exchange(exchange, exchange_dir, symbol_filters)
+        process_exchange(exchange, exchange_dir)
       end
     end
 
@@ -50,13 +47,12 @@ module Eodhd
       false
     end
 
-    def process_exchange(exchange, exchange_dir, symbol_filters)
+    def process_exchange(exchange, exchange_dir)
       raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv")).sort
       return if raw_abs_files.empty?
 
       raw_abs_files.each do |raw_abs|
         symbol = File.basename(raw_abs, ".csv")
-        next unless matches_filter?(symbol, symbol_filters)
 
         rel = @io.relative_path(raw_abs)
         process_symbol(exchange, symbol, rel)
@@ -84,17 +80,6 @@ module Eodhd
       @log.info("Wrote #{StringUtil.truncate_middle(saved_path)}")
     rescue StandardError => e
       @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
-    end
-
-    def matches_filter?(name, filters)
-      return true if filters.nil? || filters.empty?
-
-      down = name.to_s.downcase
-      filters.any? { |f| down.include?(f) }
-    end
-
-    def normalize_filters(filters)
-      (filters || []).map { |f| f.to_s.strip.downcase }.reject(&:empty?)
     end
   end
 end
