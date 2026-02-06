@@ -50,13 +50,13 @@ module Eodhd
       end
 
       def too_many_requests_pause_ms
-        Validate.integer_non_negative("TOO_MANY_REQUESTS_PAUSE", ENV.fetch("TOO_MANY_REQUESTS_PAUSE", "60000"))
+        Util::Validate.integer_non_negative("TOO_MANY_REQUESTS_PAUSE", ENV.fetch("TOO_MANY_REQUESTS_PAUSE", "60000"))
       rescue ArgumentError
         raise Error, "TOO_MANY_REQUESTS_PAUSE must be a non-negative integer."
       end
 
       def default_workers
-        Validate.integer_positive("DEFAULT_WORKERS", ENV.fetch("DEFAULT_WORKERS", "4"))
+        Util::Validate.integer_positive("DEFAULT_WORKERS", ENV.fetch("DEFAULT_WORKERS", "4"))
       rescue ArgumentError
         raise Error, "DEFAULT_WORKERS must be a positive integer."
       end
@@ -66,14 +66,14 @@ module Eodhd
       end
 
       def min_file_age_minutes
-        Validate.integer_non_negative("MIN_FILE_AGE_MINUTES", ENV.fetch("MIN_FILE_AGE_MINUTES", "60"))
+        Util::Validate.integer_non_negative("MIN_FILE_AGE_MINUTES", ENV.fetch("MIN_FILE_AGE_MINUTES", "60"))
       rescue ArgumentError
         raise Error, "MIN_FILE_AGE_MINUTES must be a non-negative integer."
       end
 
       # Read a required env var and return a stripped string.
       def required_env(key)
-        Validate.required_string(key, ENV[key])
+        Util::Validate.required_string(key, ENV[key])
       rescue ArgumentError
         raise Error, "Missing #{key} in environment (.env)"
       end

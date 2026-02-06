@@ -25,7 +25,7 @@ module Eodhd
     private
 
     def fetch_metadata_for_symbols(symbol_entries, force:, parallel:, workers:)
-      ParallelExecutor.execute(symbol_entries, parallel: parallel, workers: workers) do |entry|
+      Util::ParallelExecutor.execute(symbol_entries, parallel: parallel, workers: workers) do |entry|
         fetch_single(entry, force: force)
       end
     end

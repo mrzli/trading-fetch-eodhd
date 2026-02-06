@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 require_relative "../../lib/util"
 
-describe Eodhd::DateUtil do
+describe Util::DateUtil do
   test_equals(
     ".seconds_to_datetime",
     [
@@ -29,7 +29,7 @@ describe Eodhd::DateUtil do
         expected: "1970-01-01_00-00-07"
       }
     ],
-    call: ->(input) { Eodhd::DateUtil.seconds_to_datetime(input) }
+    call: ->(input) { Util::DateUtil.seconds_to_datetime(input) }
   )
 
   test_raises(
@@ -46,7 +46,7 @@ describe Eodhd::DateUtil do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::DateUtil.seconds_to_datetime(input) }
+    call: ->(input) { Util::DateUtil.seconds_to_datetime(input) }
   )
 
   test_equals(
@@ -69,11 +69,11 @@ describe Eodhd::DateUtil do
       },
       {
         description: "round trip (no timezone ambiguity)",
-        input: Eodhd::DateUtil.seconds_to_datetime(1_700_000_000),
+        input: Util::DateUtil.seconds_to_datetime(1_700_000_000),
         expected: 1_700_000_000
       }
     ],
-    call: ->(input) { Eodhd::DateUtil.datetime_to_seconds(input) }
+    call: ->(input) { Util::DateUtil.datetime_to_seconds(input) }
   )
 
   test_raises(
@@ -95,6 +95,6 @@ describe Eodhd::DateUtil do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::DateUtil.datetime_to_seconds(input) }
+    call: ->(input) { Util::DateUtil.datetime_to_seconds(input) }
   )
 end

@@ -32,10 +32,10 @@ module Eodhd
         return [[], []] if rows.empty?
 
         # Find first row >= exclude_start_ts
-        start_idx = BinarySearch.lower_bound(rows, exclude_start_ts) { |row| row[:timestamp] }
+        start_idx = Util::BinarySearch.lower_bound(rows, exclude_start_ts) { |row| row[:timestamp] }
 
         # Find first row > exclude_end_ts
-        end_idx = BinarySearch.upper_bound(rows, exclude_end_ts) { |row| row[:timestamp] }
+        end_idx = Util::BinarySearch.upper_bound(rows, exclude_end_ts) { |row| row[:timestamp] }
 
         rows_before = start_idx > 0 ? rows[0...start_idx] : []
         rows_after = end_idx < rows.length ? rows[end_idx..-1] : []

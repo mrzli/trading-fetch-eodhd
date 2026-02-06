@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 require_relative "../../lib/util"
 
-describe Eodhd::Validate do
+describe Util::Validate do
   test_equals(
     ".required_string",
     [
@@ -13,7 +13,7 @@ describe Eodhd::Validate do
         expected: "abc"
       }
     ],
-    call: ->(input) { Eodhd::Validate.required_string(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.required_string(input[:name], input[:value]) }
   )
 
   test_raises(
@@ -28,7 +28,7 @@ describe Eodhd::Validate do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::Validate.required_string(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.required_string(input[:name], input[:value]) }
   )
 
   test_equals(
@@ -43,7 +43,7 @@ describe Eodhd::Validate do
         expected: "http://example.com/api"
       }
     ],
-    call: ->(input) { Eodhd::Validate.http_url(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.http_url(input[:name], input[:value]) }
   )
 
   test_raises(
@@ -59,13 +59,13 @@ describe Eodhd::Validate do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::Validate.http_url(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.http_url(input[:name], input[:value]) }
   )
 
   describe "http_url error message" do
     it "includes scheme hint" do
       err = assert_raises(ArgumentError) do
-        Eodhd::Validate.http_url("base", "ftp://example.com")
+        Util::Validate.http_url("base", "ftp://example.com")
       end
       assert_match(/must start with http:\/\/ or https:\/\//, err.message)
     end
@@ -90,7 +90,7 @@ describe Eodhd::Validate do
         expected: 7
       }
     ],
-    call: ->(input) { Eodhd::Validate.integer(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.integer(input[:name], input[:value]) }
   )
 
   test_raises(
@@ -112,7 +112,7 @@ describe Eodhd::Validate do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::Validate.integer(input[:name], input[:value]) }  )
+    call: ->(input) { Util::Validate.integer(input[:name], input[:value]) }  )
 
   test_equals(
     ".integer_non_negative",
@@ -128,7 +128,7 @@ describe Eodhd::Validate do
         expected: 42
       }
     ],
-    call: ->(input) { Eodhd::Validate.integer_non_negative(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.integer_non_negative(input[:name], input[:value]) }
   )
 
   test_raises(
@@ -150,7 +150,7 @@ describe Eodhd::Validate do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::Validate.integer_non_negative(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.integer_non_negative(input[:name], input[:value]) }
   )
 
   test_equals(
@@ -167,7 +167,7 @@ describe Eodhd::Validate do
         expected: 42
       }
     ],
-    call: ->(input) { Eodhd::Validate.integer_positive(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.integer_positive(input[:name], input[:value]) }
   )
 
   test_raises(
@@ -194,6 +194,6 @@ describe Eodhd::Validate do
         exception: ArgumentError
       }
     ],
-    call: ->(input) { Eodhd::Validate.integer_positive(input[:name], input[:value]) }
+    call: ->(input) { Util::Validate.integer_positive(input[:name], input[:value]) }
   )
 end

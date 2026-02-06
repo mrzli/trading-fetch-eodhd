@@ -79,8 +79,8 @@ module Eodhd
           from = [min_ts, to - RANGE_SECONDS].max
 
           if !last_ts.nil? && to <= last_ts
-            latest_to_formatted = DateUtil.seconds_to_datetime(last_ts)
-            @log.info("Stopping intraday fetch (already have fetched data): #{symbol_with_exchange} (from=#{DateUtil.seconds_to_datetime(from)} <= latest_to=#{latest_to_formatted})")
+            latest_to_formatted = Util::DateUtil.seconds_to_datetime(last_ts)
+            @log.info("Stopping intraday fetch (already have fetched data): #{symbol_with_exchange} (from=#{Util::DateUtil.seconds_to_datetime(from)} <= latest_to=#{latest_to_formatted})")
             break
           end
 
@@ -116,7 +116,7 @@ module Eodhd
 
       relative_path = Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
       saved_path = @io.write_csv(relative_path, csv)
-      @log.info("Wrote #{StringUtil.truncate_middle(saved_path)}")
+      @log.info("Wrote #{Util::StringUtil.truncate_middle(saved_path)}")
 
       true
     end
@@ -164,7 +164,7 @@ module Eodhd
       check_from = [0, first_ts - RANGE_SECONDS / 2].max
       check_to = first_ts + RANGE_SECONDS
 
-      @log.info("Rechecking start date for #{symbol_with_exchange} around #{DateUtil.seconds_to_datetime(first_ts)}")
+      @log.info("Rechecking start date for #{symbol_with_exchange} around #{Util::DateUtil.seconds_to_datetime(first_ts)}")
 
       csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, check_from, check_to)
       return true if csv.nil?
@@ -175,7 +175,7 @@ module Eodhd
       new_start_ts = rows.first[:timestamp]
 
       if new_start_ts != first_ts
-        @log.warn("Start date changed for #{symbol_with_exchange}: old=#{DateUtil.seconds_to_datetime(first_ts)}, new=#{DateUtil.seconds_to_datetime(new_start_ts)}")
+        @log.warn("Start date changed for #{symbol_with_exchange}: old=#{Util::DateUtil.seconds_to_datetime(first_ts)}, new=#{Util::DateUtil.seconds_to_datetime(new_start_ts)}")
         return true
       end
 

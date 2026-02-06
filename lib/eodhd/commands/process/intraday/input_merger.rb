@@ -34,7 +34,7 @@ module Eodhd
           return
         end
 
-        idx = BinarySearch.lower_bound(merged_rows, next_first) { |row| row[:timestamp] }
+        idx = Util::BinarySearch.lower_bound(merged_rows, next_first) { |row| row[:timestamp] }
         merged_rows.slice!(idx, merged_rows.length - idx)
         merged_rows.concat(next_rows)
       end

@@ -54,11 +54,11 @@ module Eodhd
       def raw_intraday_fetched_symbol_data(exchange, symbol, from, to)
         dir_for_intraday_raw = raw_intraday_fetched_symbol_data_dir(exchange, symbol)
 
-        from = Validate.integer("from", from)
-        from_formatted = DateUtil.seconds_to_datetime(from)
+        from = Util::Validate.integer("from", from)
+        from_formatted = Util::DateUtil.seconds_to_datetime(from)
 
-        to = Validate.integer("to", to)
-        to_formatted = DateUtil.seconds_to_datetime(to)
+        to = Util::Validate.integer("to", to)
+        to_formatted = Util::DateUtil.seconds_to_datetime(to)
 
         File.join(dir_for_intraday_raw, "#{from_formatted}__#{to_formatted}.csv")
       end
@@ -74,8 +74,8 @@ module Eodhd
 
       def raw_intraday_processed_symbol_year_month(exchange, symbol, year, month)
         dir = raw_intraday_processed_symbol_data_dir(exchange, symbol)
-        year = Validate.integer("year", year)
-        month = Validate.integer("month", month)
+        year = Util::Validate.integer("year", year)
+        month = Util::Validate.integer("month", month)
         File.join(dir, "#{year}-#{format('%02d', month)}.csv")
       end
       # Raw intraday - end
@@ -95,8 +95,8 @@ module Eodhd
 
       def processed_intraday_year_month(exchange, symbol, year, month)
         dir = processed_intraday_data_dir(exchange, symbol)
-        year = Validate.integer("year", year)
-        month = Validate.integer("month", month)
+        year = Util::Validate.integer("year", year)
+        month = Util::Validate.integer("month", month)
         File.join(dir, "#{year}-#{format('%02d', month)}.csv")
       end
       # Processed intraday - end
@@ -104,22 +104,22 @@ module Eodhd
       private
 
       def process_exchange_and_type(exchange, type)
-        exchange = Validate.required_string("exchange", exchange)
-        type = Validate.required_string("type", type)
+        exchange = Util::Validate.required_string("exchange", exchange)
+        type = Util::Validate.required_string("type", type)
 
-        exchange = StringUtil.kebab_case(exchange)
-        type = StringUtil.kebab_case(type)
+        exchange = Util::StringUtil.kebab_case(exchange)
+        type = Util::StringUtil.kebab_case(type)
         type = "unknown" if type.empty?
 
         [exchange, type]
       end
 
       def process_exchange_and_symbol(exchange, symbol)
-        exchange = Validate.required_string("exchange", exchange)
-        symbol = Validate.required_string("symbol", symbol)
+        exchange = Util::Validate.required_string("exchange", exchange)
+        symbol = Util::Validate.required_string("symbol", symbol)
 
-        exchange = StringUtil.kebab_case(exchange)
-        symbol = StringUtil.kebab_case(symbol)
+        exchange = Util::StringUtil.kebab_case(exchange)
+        symbol = Util::StringUtil.kebab_case(symbol)
 
         [exchange, symbol]
       end

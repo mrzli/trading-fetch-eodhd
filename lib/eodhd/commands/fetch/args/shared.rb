@@ -34,7 +34,7 @@ module Eodhd
 
     def add_workers_option(opts, default_workers, &block)
       opts.on("-w", "--workers N", Integer, "Number of parallel workers (default: #{default_workers})") do |v|
-        workers = Validate.integer_positive("workers", v)
+        workers = Util::Validate.integer_positive("workers", v)
         block.call(workers)
       end
     end

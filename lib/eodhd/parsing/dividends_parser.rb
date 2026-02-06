@@ -35,7 +35,7 @@ module Eodhd
             raise Error, "Each dividend entry must be a hash"
           end
 
-          date_str = Validate.required_string("dividend.date", entry["date"])
+          date_str = Util::Validate.required_string("dividend.date", entry["date"])
 
           Dividend.new(
             date: parse_date(date_str),
@@ -45,7 +45,7 @@ module Eodhd
             period: entry["period"],
             value: parse_float_value("dividend.value", entry["value"]),
             unadjusted_value: parse_float_value("dividend.unadjustedValue", entry["unadjustedValue"]),
-            currency: Validate.required_string("dividend.currency", entry["currency"])
+            currency: Util::Validate.required_string("dividend.currency", entry["currency"])
           )
         rescue ArgumentError => e
           raise Error, e.message

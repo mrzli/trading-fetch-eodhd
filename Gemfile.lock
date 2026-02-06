@@ -11,6 +11,7 @@ GEM
     parallel (1.27.0)
     prism (1.7.0)
     rake (13.3.1)
+    zeitwerk (2.7.4)
 
 PLATFORMS
   ruby
@@ -25,6 +26,7 @@ DEPENDENCIES
   ostruct (~> 0.5)
   parallel (~> 1.26)
   rake (~> 13.0)
+  zeitwerk (~> 2.7)
 
 RUBY VERSION
    ruby 3.4.7p58

@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 require_relative "../../lib/util"
 
-describe Eodhd::StringUtil do
+describe Util::StringUtil do
   test_equals(
     ".kebab_case",
     [
@@ -54,7 +54,7 @@ describe Eodhd::StringUtil do
         expected: ""
       }
     ],
-    call: ->(input) { Eodhd::StringUtil.kebab_case(input) }
+    call: ->(input) { Util::StringUtil.kebab_case(input) }
   )
 
   test_equals(
@@ -122,9 +122,9 @@ describe Eodhd::StringUtil do
     ],
     call: ->(input) {
       if input.key?(:max_length)
-        Eodhd::StringUtil.truncate_middle(input[:str], input[:max_length])
+        Util::StringUtil.truncate_middle(input[:str], input[:max_length])
       else
-        Eodhd::StringUtil.truncate_middle(input[:str])
+        Util::StringUtil.truncate_middle(input[:str])
       end
     }
   )

@@ -14,9 +14,9 @@ module Eodhd
 
     def initialize(cfg:, log:)
       @log = log
-      @base_url = Validate.http_url("base_url", cfg.base_url)
-      @api_token = Validate.required_string("api_token", cfg.api_token)
-      @too_many_requests_pause_ms = Validate.integer_non_negative(
+      @base_url = Util::Validate.http_url("base_url", cfg.base_url)
+      @api_token = Util::Validate.required_string("api_token", cfg.api_token)
+      @too_many_requests_pause_ms = Util::Validate.integer_non_negative(
         "too_many_requests_pause_ms",
         cfg.too_many_requests_pause_ms
       )
@@ -36,7 +36,7 @@ module Eodhd
     end
 
     def get_exchange_symbol_list_json(exchange)
-      exchange = Validate.required_string("exchange", exchange)
+      exchange = Util::Validate.required_string("exchange", exchange)
 
       uri = get_full_url("exchange-symbol-list/#{exchange}")
       uri.query = URI.encode_www_form(
@@ -63,10 +63,10 @@ module Eodhd
     end
 
     def get_intraday_csv(exchange, symbol, from:, to:)
-      exchange = Validate.required_string("exchange", exchange)
-      symbol = Validate.required_string("symbol", symbol)
-      from = Validate.integer("from", from)
-      to = Validate.integer("to", to)
+      exchange = Util::Validate.required_string("exchange", exchange)
+      symbol = Util::Validate.required_string("symbol", symbol)
+      from = Util::Validate.integer("from", from)
+      to = Util::Validate.integer("to", to)
 
       uri = get_full_url("intraday/#{symbol}.#{exchange}")
       uri.query = URI.encode_www_form(

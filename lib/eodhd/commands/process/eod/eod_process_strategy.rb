@@ -77,7 +77,7 @@ module Eodhd
 
       processed_csv = @processor.process_csv(raw_csv, splits, dividends)
       saved_path = @io.write_csv(processed_rel, processed_csv)
-      @log.info("Wrote #{StringUtil.truncate_middle(saved_path)}")
+      @log.info("Wrote #{Util::StringUtil.truncate_middle(saved_path)}")
     rescue StandardError => e
       @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
     end

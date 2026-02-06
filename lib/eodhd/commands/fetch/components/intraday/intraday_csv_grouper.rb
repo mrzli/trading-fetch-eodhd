@@ -65,8 +65,8 @@ module Eodhd
         start_ts = Time.new(year, month, 1, 0, 0, 0, "+00:00").to_i
         end_ts = month_end_timestamp(year, month)
 
-        start_idx = BinarySearch.lower_bound(rows, start_ts) { |row| row[:timestamp] }
-        end_idx = BinarySearch.upper_bound(rows, end_ts) { |row| row[:timestamp] }
+        start_idx = Util::BinarySearch.lower_bound(rows, start_ts) { |row| row[:timestamp] }
+        end_idx = Util::BinarySearch.upper_bound(rows, end_ts) { |row| row[:timestamp] }
 
         return [] if start_idx >= rows.length || end_idx <= start_idx
 

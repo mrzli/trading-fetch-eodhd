@@ -25,8 +25,8 @@ module Eodhd
           date_str = entry.is_a?(Hash) ? entry["date"] : nil
           split_str = entry.is_a?(Hash) ? entry["split"] : nil
 
-          date_str = Validate.required_string("split.date", date_str)
-          split_str = Validate.required_string("split.split", split_str)
+          date_str = Util::Validate.required_string("split.date", date_str)
+          split_str = Util::Validate.required_string("split.split", split_str)
 
           Split.new(
             date: Date.iso8601(date_str),

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "util/binary_search"
-require_relative "util/logger"
-require_relative "util/parallel_executor"
-require_relative "util/validate"
-require_relative "util/string_util"
-require_relative "util/date_util"
+require "zeitwerk"
+
+module Util
+end
+
+loader = Zeitwerk::Loader.new
+loader.push_dir(File.join(__dir__, "util"), namespace: Util)
+loader.setup

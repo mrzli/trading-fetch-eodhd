@@ -25,7 +25,7 @@ module Eodhd
 
         events = sorted_dividends.filter_map do |dividend|
           ts = dividend.date.to_time.to_i
-          idx = BinarySearch.last_lt(sorted_data, ts) { |row| row[:timestamp] }
+          idx = Util::BinarySearch.last_lt(sorted_data, ts) { |row| row[:timestamp] }
 
           next if idx.nil?
 

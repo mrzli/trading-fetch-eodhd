@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Eodhd
+module Util
   module Validate
     module_function
 

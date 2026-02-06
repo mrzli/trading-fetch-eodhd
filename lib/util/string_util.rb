@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Eodhd
+module Util
   class StringUtil
     class << self
       def kebab_case(value)
