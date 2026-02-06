@@ -6,6 +6,7 @@ require "minitest/autorun"
 require "minitest/spec"
 require "eodhd"
 require "util"
+require "logging"
 
 require_relative "test_util/data_driven"
 include TestSupport::DataDriven

@@ -5,6 +5,7 @@ require_relative "io"
 require_relative "data_reader"
 require_relative "api"
 require_relative "../../util"
+require_relative "../../logging"
 
 module Eodhd
   class Container
@@ -29,18 +30,18 @@ module Eodhd
 
     def build_logger
       sinks = [
-        Util::Logger::ConsoleSink.new(
+        Logging::ConsoleSink.new(
           level: @config.log_level,
           progname: @command
         ),
-        Util::Logger::FileSink.new(
+        Logging::FileSink.new(
           command: @command,
           output_dir: @config.output_dir,
           level: @config.log_level,
           progname: @command
         )
       ]
-      Util::Logger::Logger.new(sinks: sinks)
+      Logging::Logger.new(sinks: sinks)
     end
 
     def build_api

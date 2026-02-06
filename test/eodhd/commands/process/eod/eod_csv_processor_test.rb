@@ -32,7 +32,7 @@ describe Eodhd::EodCsvProcessor do
       OpenStruct.new(date: Date.new(2024, 1, 11), unadjusted_value: 1.4)
     ]
 
-    processor = Eodhd::EodCsvProcessor.new(log: Util::Logger::NullLogger.new)
+    processor = Eodhd::EodCsvProcessor.new(log: Logging::NullLogger.new)
     out = processor.process_csv(raw_csv, splits, dividends)
 
     # Dividend on 2024-01-11 uses previous close (2024-01-10 close=7)
