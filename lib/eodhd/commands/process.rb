@@ -3,10 +3,10 @@
 require "json"
 
 require_relative "../../util"
-require_relative "../process/args/process_args"
-require_relative "../process/process_strategy"
-require_relative "../process/eod/process_eod_args"
-require_relative "../process/intraday/process_intraday_args"
+require_relative "process/args/process_args"
+require_relative "process/process_strategy"
+require_relative "process/eod/process_eod_args"
+require_relative "process/intraday/process_intraday_args"
 require_relative "../shared/container"
 
 module Eodhd

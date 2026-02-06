@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../clean/args"
-require_relative "../clean/clean_strategy"
+require_relative "clean/args"
+require_relative "clean/clean_strategy"
 require_relative "../shared/container"
 
 module Eodhd

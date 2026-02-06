@@ -3,13 +3,13 @@
 require "json"
 
 require_relative "../../util"
-require_relative "../fetch/args/fetch_args"
-require_relative "../fetch/fetch_strategy"
-require_relative "../fetch/components/exchanges/fetch_exchanges_args"
-require_relative "../fetch/components/symbols/fetch_symbols_args"
-require_relative "../fetch/components/meta/fetch_meta_args"
-require_relative "../fetch/components/eod/fetch_eod_args"
-require_relative "../fetch/components/intraday/fetch_intraday_args"
+require_relative "fetch/args/fetch_args"
+require_relative "fetch/fetch_strategy"
+require_relative "fetch/components/exchanges/fetch_exchanges_args"
+require_relative "fetch/components/symbols/fetch_symbols_args"
+require_relative "fetch/components/meta/fetch_meta_args"
+require_relative "fetch/components/eod/fetch_eod_args"
+require_relative "fetch/components/intraday/fetch_intraday_args"
 require_relative "../shared/container"
 
 module Eodhd
