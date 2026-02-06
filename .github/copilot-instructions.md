@@ -9,8 +9,9 @@
 ## Zeitwerk Conventions
 
 - Files in `lib/util/` map to `Util::*` namespace
-- Files in `lib/logger/` map to `Logger::*` namespace
+- Files in `lib/logging/` map to `Logging::*` namespace (loaded via `lib/logging.rb`)
 - Class names must match file names (e.g., `date.rb` → `Util::Date`)
+- `lib/logging.rb` (not `logger.rb`) to avoid conflict with stdlib `logger` gem
 
 ## Before Completing Tasks
 
