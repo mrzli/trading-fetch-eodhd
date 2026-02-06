@@ -16,8 +16,8 @@ module Eodhd
     def fetch_intraday_interval_csv(exchange, symbol, from, to)
       symbol_with_exchange = "#{symbol}.#{exchange}"
 
-      from_formatted = Util::DateUtil.seconds_to_datetime(from)
-      to_formatted = Util::DateUtil.seconds_to_datetime(to)
+      from_formatted = Util::Date.seconds_to_datetime(from)
+      to_formatted = Util::Date.seconds_to_datetime(to)
       from_to_message_fragment = "(from=#{from_formatted} to=#{to_formatted})"
       @log.info("Fetching intraday CSV: #{symbol_with_exchange} #{from_to_message_fragment}...")
 

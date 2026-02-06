@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Util
-  class StringUtil
+  class String
     class << self
       def kebab_case(value)
         str = value.to_s.strip

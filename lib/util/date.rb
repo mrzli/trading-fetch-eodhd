@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Util
-  class DateUtil
+  class Date
     class << self
       # Formats unix epoch seconds as UTC "YYYY-MM-DD_HH-MM-SS".
       def seconds_to_datetime(value)

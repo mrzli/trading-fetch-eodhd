@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 require_relative "../../lib/util"
 
-describe Util::StringUtil do
+describe Util::String do
   test_equals(
     ".kebab_case",
     [
@@ -54,7 +54,7 @@ describe Util::StringUtil do
         expected: ""
       }
     ],
-    call: ->(input) { Util::StringUtil.kebab_case(input) }
+    call: ->(input) { Util::String.kebab_case(input) }
   )
 
   test_equals(
@@ -122,9 +122,9 @@ describe Util::StringUtil do
     ],
     call: ->(input) {
       if input.key?(:max_length)
-        Util::StringUtil.truncate_middle(input[:str], input[:max_length])
+        Util::String.truncate_middle(input[:str], input[:max_length])
       else
-        Util::StringUtil.truncate_middle(input[:str])
+        Util::String.truncate_middle(input[:str])
       end
     }
   )

@@ -77,7 +77,7 @@ module Eodhd
         item in { key: key, csv: csv }
         processed_rel = Path.processed_intraday_year_month(exchange, symbol, key.year, key.month)
         saved_path = @io.write_csv(processed_rel, csv)
-        @log.info("Wrote #{Util::StringUtil.truncate_middle(saved_path)}")
+        @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
       end
     rescue StandardError => e
       @log.warn("Failed processing intraday for #{exchange}/#{symbol}: #{e.class}: #{e.message}")

@@ -26,7 +26,7 @@ module Eodhd
 
     def symbols
       exchanges.flat_map do |exchange|
-        relative_dir = File.join("symbols", Util::StringUtil.kebab_case(exchange))
+        relative_dir = File.join("symbols", Util::String.kebab_case(exchange))
         
         next [] unless @io.dir_exists?(relative_dir)
 

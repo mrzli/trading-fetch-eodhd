@@ -55,10 +55,10 @@ module Eodhd
         dir_for_intraday_raw = raw_intraday_fetched_symbol_data_dir(exchange, symbol)
 
         from = Util::Validate.integer("from", from)
-        from_formatted = Util::DateUtil.seconds_to_datetime(from)
+        from_formatted = Util::Date.seconds_to_datetime(from)
 
         to = Util::Validate.integer("to", to)
-        to_formatted = Util::DateUtil.seconds_to_datetime(to)
+        to_formatted = Util::Date.seconds_to_datetime(to)
 
         File.join(dir_for_intraday_raw, "#{from_formatted}__#{to_formatted}.csv")
       end
@@ -107,8 +107,8 @@ module Eodhd
         exchange = Util::Validate.required_string("exchange", exchange)
         type = Util::Validate.required_string("type", type)
 
-        exchange = Util::StringUtil.kebab_case(exchange)
-        type = Util::StringUtil.kebab_case(type)
+        exchange = Util::String.kebab_case(exchange)
+        type = Util::String.kebab_case(type)
         type = "unknown" if type.empty?
 
         [exchange, type]
@@ -118,8 +118,8 @@ module Eodhd
         exchange = Util::Validate.required_string("exchange", exchange)
         symbol = Util::Validate.required_string("symbol", symbol)
 
-        exchange = Util::StringUtil.kebab_case(exchange)
-        symbol = Util::StringUtil.kebab_case(symbol)
+        exchange = Util::String.kebab_case(exchange)
+        symbol = Util::String.kebab_case(symbol)
 
         [exchange, symbol]
       end
