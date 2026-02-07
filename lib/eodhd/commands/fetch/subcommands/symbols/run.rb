@@ -10,7 +10,7 @@ module Eodhd
     module Fetch
       module Subcommands
         module Symbols
-          class Symbols
+          class Run
             def initialize(container:, shared:)
               @log = container.logger
               @api = container.api

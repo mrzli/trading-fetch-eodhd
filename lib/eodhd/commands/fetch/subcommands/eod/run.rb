@@ -8,7 +8,7 @@ module Eodhd
     module Fetch
       module Subcommands
         module Eod
-          class Eod
+          class Run
 
             def initialize(container:, shared:)
               @log = container.logger
