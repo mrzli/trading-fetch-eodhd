@@ -2,9 +2,13 @@
 
 module Eodhd
   module Commands
-    class Constants
-      # Maximum decimal places for Float output formatting in CSV
-      OUTPUT_DECIMALS = 6
+    module Process
+      module Shared
+        class Constants
+          # Maximum decimal places for Float output formatting in CSV
+          OUTPUT_DECIMALS = 6
+        end
+      end
     end
   end
 end

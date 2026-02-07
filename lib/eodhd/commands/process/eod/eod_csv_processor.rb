@@ -22,9 +22,9 @@ module Eodhd
 
       def process_csv(raw_csv, splits, dividends)
         data = Parsing::EodCsvParser.parse(raw_csv)
-        splits = SplitsProcessor.process(splits)
-        dividends = DividendsProcessor.process(dividends, data)
-        data = PriceAdjust.apply(data, splits, dividends)
+        splits = Process::Shared::SplitsProcessor.process(splits)
+        dividends = Process::Shared::DividendsProcessor.process(dividends, data)
+        data = Process::Shared::PriceAdjust.apply(data, splits, dividends)
         data = to_output(data)
         to_csv(data)
       rescue Parsing::EodCsvParser::Error => e
@@ -47,7 +47,7 @@ module Eodhd
       end
 
       def format_price(price)
-        price.round(Constants::OUTPUT_DECIMALS).to_s
+        price.round(Process::Shared::Constants::OUTPUT_DECIMALS).to_s
       end
 
       def to_csv(rows)

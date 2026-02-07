@@ -7,14 +7,14 @@ require "date"
 require_relative "../../../../../lib/eodhd/parsing/dividends_parser"
 require_relative "../../../../../lib/eodhd/commands/process/shared/dividends_processor"
 
-describe Eodhd::Commands::DividendsProcessor do
+describe Eodhd::Commands::Process::Shared::DividendsProcessor do
   it "returns empty array for nil dividends" do
-    result = Eodhd::Commands::DividendsProcessor.process(nil, [])
+    result = Eodhd::Commands::Process::Shared::DividendsProcessor.process(nil, [])
     _(result).must_equal []
   end
 
   it "returns empty array for empty dividends" do
-    result = Eodhd::Commands::DividendsProcessor.process([], [])
+    result = Eodhd::Commands::Process::Shared::DividendsProcessor.process([], [])
     _(result).must_equal []
   end
 
@@ -22,7 +22,7 @@ describe Eodhd::Commands::DividendsProcessor do
     dividends = [dividend("2024-01-11", 1.0)]
     data = [row("2024-01-12", 104), row("2024-01-10", 100), row("2024-01-11", 102)]
 
-    result = Eodhd::Commands::DividendsProcessor.process(dividends, data)
+    result = Eodhd::Commands::Process::Shared::DividendsProcessor.process(dividends, data)
 
     expected = [
       { timestamp: date_to_ts("2024-01-11"), multiplier: 0.99 }
@@ -45,7 +45,7 @@ describe Eodhd::Commands::DividendsProcessor do
       row("2024-01-12", 130)
     ]
 
-    result = Eodhd::Commands::DividendsProcessor.process(dividends, data)
+    result = Eodhd::Commands::Process::Shared::DividendsProcessor.process(dividends, data)
 
     m1 = (100.0 - 2.0) / 100.0
     m2 = (120.0 - 3.0) / 120.0
@@ -62,7 +62,7 @@ describe Eodhd::Commands::DividendsProcessor do
     dividends = [dividend("2024-01-10", 1.0)]
     data = [row("2024-01-10", 100)]
 
-    result = Eodhd::Commands::DividendsProcessor.process(dividends, data)
+    result = Eodhd::Commands::Process::Shared::DividendsProcessor.process(dividends, data)
     _(result).must_equal []
   end
 
@@ -70,7 +70,7 @@ describe Eodhd::Commands::DividendsProcessor do
     dividends = [dividend("2024-01-11", 1.0)]
     data = [row("2024-01-10", 0)]
 
-    err = _(-> { Eodhd::Commands::DividendsProcessor.process(dividends, data) }).must_raise(Eodhd::Commands::DividendsProcessor::Error)
+    err = _(-> { Eodhd::Commands::Process::Shared::DividendsProcessor.process(dividends, data) }).must_raise(Eodhd::Commands::Process::Shared::DividendsProcessor::Error)
     _(err.message).must_match(/must be positive/)
   end
 
@@ -78,7 +78,7 @@ describe Eodhd::Commands::DividendsProcessor do
     dividends = [dividend("2024-01-11", 5.0)]
     data = [row("2024-01-10", 5.0)]
 
-    err = _(-> { Eodhd::Commands::DividendsProcessor.process(dividends, data) }).must_raise(Eodhd::Commands::DividendsProcessor::Error)
+    err = _(-> { Eodhd::Commands::Process::Shared::DividendsProcessor.process(dividends, data) }).must_raise(Eodhd::Commands::Process::Shared::DividendsProcessor::Error)
     _(err.message).must_match(/too large/)
   end
 

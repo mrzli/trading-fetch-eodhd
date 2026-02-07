@@ -44,12 +44,12 @@ module Eodhd
 
         @log.info("Merged intraday rows. Total rows: #{data.size}.")
 
-        splits = SplitsProcessor.process(splits)
-        dividends = DividendsProcessor.process(dividends, data)
+        splits = Process::Shared::SplitsProcessor.process(splits)
+        dividends = Process::Shared::DividendsProcessor.process(dividends, data)
 
         @log.info("Processed splits and dividends.")
 
-        data = PriceAdjust.apply(data, splits, dividends)
+        data = Process::Shared::PriceAdjust.apply(data, splits, dividends)
 
         @log.info("Applied price adjustments.")
 
@@ -93,7 +93,7 @@ module Eodhd
       end
 
       def format_price(price)
-        price.round(Constants::OUTPUT_DECIMALS).to_s
+        price.round(Process::Shared::Constants::OUTPUT_DECIMALS).to_s
       end
 
       def to_csv(rows)
