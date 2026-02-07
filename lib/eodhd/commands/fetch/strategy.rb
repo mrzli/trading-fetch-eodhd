@@ -11,7 +11,7 @@ require_relative "components/exchanges/exchanges"
 require_relative "components/symbols/symbols"
 require_relative "components/meta/meta"
 require_relative "components/eod/eod"
-require_relative "components/intraday/fetch_intraday"
+require_relative "components/intraday/intraday"
 
 module Eodhd
   module Commands
@@ -27,7 +27,7 @@ module Eodhd
           @fetch_symbols = Components::Symbols::Symbols.new(container: container, shared: shared)
           @fetch_meta = Components::Meta::Meta.new(container: container, shared: shared)
           @fetch_eod = Components::Eod::Eod.new(container: container, shared: shared)
-          @fetch_intraday = FetchIntraday.new(container: container, shared: shared)
+          @fetch_intraday = Components::Intraday::Intraday.new(container: container, shared: shared)
 
           @data_reader = container.data_reader
         end

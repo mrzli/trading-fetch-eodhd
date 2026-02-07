@@ -3,56 +3,59 @@
 require_relative "../../../../../util"
 require_relative "../../../../shared/path"
 require_relative "../../../../parsing/intraday_csv_parser"
-require_relative "fetch_intraday_shared"
+require_relative "shared"
 require_relative "raw_intraday_csv_processor"
 
 module Eodhd
   module Commands
-    class FetchIntraday
-      DAYS_TO_SECONDS = 24 * 60 * 60
-      RANGE_SECONDS = 118 * DAYS_TO_SECONDS
-      STRIDE_SECONDS = 110 * DAYS_TO_SECONDS
+    module Fetch
+      module Components
+        module Intraday
+          class Intraday
+            DAYS_TO_SECONDS = 24 * 60 * 60
+            RANGE_SECONDS = 118 * DAYS_TO_SECONDS
+            STRIDE_SECONDS = 110 * DAYS_TO_SECONDS
 
-      def initialize(container:, shared:)
-        @log = container.logger
-        @api = container.api
-        @io = container.io
-        @data_reader = container.data_reader
+            def initialize(container:, shared:)
+              @log = container.logger
+              @api = container.api
+              @io = container.io
+              @data_reader = container.data_reader
 
-        @shared = shared
+              @shared = shared
 
-        @intraday_shared = FetchIntradayShared.new(container: container)
-        @processor = RawIntradayCsvProcessor.new(container: container)
+              @intraday_shared = Shared.new(container: container)
+              @processor = RawIntradayCsvProcessor.new(container: container)
       end
 
-      def fetch(recheck_start_date:, parallel:, workers:)
-        symbol_entries = @data_reader.symbols
-        filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol_intraday?(entry) }
+            def fetch(recheck_start_date:, parallel:, workers:)
+              symbol_entries = @data_reader.symbols
+              filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol_intraday?(entry) }
 
-        fetch_intraday_for_symbols(
-          filtered_entries,
-          recheck_start_date: recheck_start_date,
-          parallel: parallel,
-          workers: workers
-        )
-      end
+              fetch_intraday_for_symbols(
+                filtered_entries,
+                recheck_start_date: recheck_start_date,
+                parallel: parallel,
+                workers: workers
+              )
+            end
 
-      private
+            private
 
-      def fetch_intraday_for_symbols(symbol_entries, recheck_start_date:, parallel:, workers:)
-        ParallelExecutor.execute(symbol_entries, parallel: parallel, workers: workers) do |entry|
-          fetch_single_symbol(entry, recheck_start_date: recheck_start_date)
-        end
-      end
+            def fetch_intraday_for_symbols(symbol_entries, recheck_start_date:, parallel:, workers:)
+              Util::ParallelExecutor.execute(symbol_entries, parallel: parallel, workers: workers) do |entry|
+                fetch_single_symbol(entry, recheck_start_date: recheck_start_date)
+              end
+            end
 
-      def fetch_single_symbol(symbol_entry, recheck_start_date:)
-        exchange = symbol_entry[:exchange]
-        symbol = symbol_entry[:symbol]
+            def fetch_single_symbol(symbol_entry, recheck_start_date:)
+              exchange = symbol_entry[:exchange]
+              symbol = symbol_entry[:symbol]
 
-        symbol_with_exchange = "#{symbol}.#{exchange}"
+              symbol_with_exchange = "#{symbol}.#{exchange}"
 
-        begin
-          fetched_dir = Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+              begin
+                fetched_dir = ::Eodhd::Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
 
           # Delete any old fetched data.
           # This does not delete processed by-year-month 'raw' data, which is in a separate dir.
@@ -186,10 +189,13 @@ module Eodhd
 
       def delete_all_processed_files(exchange, symbol, symbol_with_exchange)
         processed_dir = Shared::Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
-        @io.delete_dir(processed_dir)
-        @log.info("Deleted all processed files for #{symbol_with_exchange} due to start date change")
-      end
+              @io.delete_dir(processed_dir)
+              @log.info("Deleted all processed files for #{symbol_with_exchange} due to start date change")
+            end
 
+          end
+        end
+      end
     end
   end
 end

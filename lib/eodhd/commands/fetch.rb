@@ -9,7 +9,7 @@ require_relative "fetch/components/exchanges/args"
 require_relative "fetch/components/symbols/args"
 require_relative "fetch/components/meta/args"
 require_relative "fetch/components/eod/args"
-require_relative "fetch/components/intraday/fetch_intraday_args"
+require_relative "fetch/components/intraday/args"
 require_relative "../shared/container"
 
 module Eodhd
@@ -42,7 +42,7 @@ module Eodhd
           force, parallel, workers = args_parser.parse(ARGV).deconstruct
           strategy.run_eod(force: force, parallel: parallel, workers: workers)
         when "intraday"
-          args_parser = FetchIntradayArgs.new(container: container)
+          args_parser = Components::Intraday::Args.new(container: container)
           recheck_start_date, parallel, workers = args_parser.parse(ARGV).deconstruct
           strategy.run_intraday(recheck_start_date: recheck_start_date, parallel: parallel, workers: workers)
         else
