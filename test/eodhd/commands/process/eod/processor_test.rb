@@ -4,7 +4,7 @@ require "ostruct"
 
 require_relative "../../../../test_helper"
 
-describe Eodhd::Commands::Process::Eod::Processor do
+describe Eodhd::Commands::Process::Subcommands::Eod::Processor do
   it "omits Adjusted_close and split-adjusts prior rows" do
     raw_csv = <<~CSV
       Date,Open,High,Low,Close,Adjusted_close,Volume
@@ -30,7 +30,7 @@ describe Eodhd::Commands::Process::Eod::Processor do
       OpenStruct.new(date: Date.new(2024, 1, 11), unadjusted_value: 1.4)
     ]
 
-    processor = Eodhd::Commands::Process::Eod::Processor.new(log: Logging::NullLogger.new)
+    processor = Eodhd::Commands::Process::Subcommands::Eod::Processor.new(log: Logging::NullLogger.new)
     out = processor.process_csv(raw_csv, splits, dividends)
 
     # Dividend on 2024-01-11 uses previous close (2024-01-10 close=7)

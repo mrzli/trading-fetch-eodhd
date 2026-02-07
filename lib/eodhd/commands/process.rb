@@ -16,11 +16,11 @@ module Eodhd
 
         case subcommand
         when "eod"
-          args_parser = Eod::Args.new(container: container)
+          args_parser = Subcommands::Eod::Args.new(container: container)
           args_parser.parse(ARGV)
           strategy.process_eod
         when "intraday"
-          args_parser = Intraday::Args.new(container: container)
+          args_parser = Subcommands::Intraday::Args.new(container: container)
           args_parser.parse(ARGV)
           strategy.process_intraday
         else

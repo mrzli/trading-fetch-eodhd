@@ -8,8 +8,8 @@ module Eodhd
           @log = container.logger
           @cfg = container.config
           @io = container.io
-          @eod_strategy = Eod::Run.new(log: @log, io: @io)
-          @intraday_strategy = Intraday::Run.new(log: @log, io: @io)
+          @eod_strategy = Subcommands::Eod::Run.new(log: @log, io: @io)
+          @intraday_strategy = Subcommands::Intraday::Run.new(log: @log, io: @io)
         end
 
         def process_eod

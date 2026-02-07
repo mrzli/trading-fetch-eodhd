@@ -2,7 +2,7 @@
 
 require_relative "../../../../test_helper"
 
-describe Eodhd::Commands::Process::Intraday::Merger do
+describe Eodhd::Commands::Process::Subcommands::Intraday::Merger do
   it "concats when disjoint" do
     a = [
       { timestamp: 100, v: :a1 },
@@ -12,7 +12,7 @@ describe Eodhd::Commands::Process::Intraday::Merger do
       { timestamp: 300, v: :b1 }
     ]
 
-    merged = Eodhd::Commands::Process::Intraday::Merger.merge([a, b])
+    merged = Eodhd::Commands::Process::Subcommands::Intraday::Merger.merge([a, b])
 
     _(merged).must_equal [
       { timestamp: 100, v: :a1 },
@@ -32,7 +32,7 @@ describe Eodhd::Commands::Process::Intraday::Merger do
       { timestamp: 300, v: :b2 }
     ]
 
-    merged = Eodhd::Commands::Process::Intraday::Merger.merge([a, b])
+    merged = Eodhd::Commands::Process::Subcommands::Intraday::Merger.merge([a, b])
 
     _(merged).must_equal [
       { timestamp: 100, v: :a1 },
@@ -42,7 +42,7 @@ describe Eodhd::Commands::Process::Intraday::Merger do
   end
 
   it "handles nil and empty inputs" do
-    merged = Eodhd::Commands::Process::Intraday::Merger.merge([nil, [], [{ timestamp: 1, v: :x }]])
+    merged = Eodhd::Commands::Process::Subcommands::Intraday::Merger.merge([nil, [], [{ timestamp: 1, v: :x }]])
     _(merged).must_equal [{ timestamp: 1, v: :x }]
   end
 end
