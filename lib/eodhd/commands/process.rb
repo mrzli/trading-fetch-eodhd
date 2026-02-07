@@ -3,8 +3,8 @@
 require "json"
 
 require_relative "../../util"
-require_relative "process/args/process_args"
-require_relative "process/process_strategy"
+require_relative "process/args/args"
+require_relative "process/run"
 require_relative "process/eod/process_eod_args"
 require_relative "process/intraday/process_intraday_args"
 require_relative "../shared/container"
@@ -15,9 +15,9 @@ module Eodhd
       module_function
 
       def run
-        container = Shared::Container.new(command: "process")
-        strategy = ProcessStrategy.new(container: container)
-        process_args_parser = ProcessArgs.new(container: container)
+        container = Eodhd::Shared::Container.new(command: "process")
+        strategy = Run.new(container: container)
+        process_args_parser = Args::Args.new(container: container)
 
         subcommand, = process_args_parser.parse(ARGV).deconstruct
 
