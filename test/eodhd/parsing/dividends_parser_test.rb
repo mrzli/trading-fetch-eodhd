@@ -2,7 +2,6 @@
 
 require_relative "../../test_helper"
 
-
 describe Eodhd::Parsing::DividendsParser do
   it "returns [] for blank input" do
     _( Eodhd::Parsing::DividendsParser.parse(" ")).must_equal []

@@ -2,7 +2,6 @@
 
 require_relative "../../../../test_helper"
 
-
 describe Eodhd::Commands::Process::Intraday::Splitter do
   describe "YearMonth" do
     it "formats as YYYY-MM" do

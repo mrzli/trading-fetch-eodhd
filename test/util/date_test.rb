@@ -2,7 +2,6 @@
 
 require_relative "../test_helper"
 
-
 describe Util::Date do
   test_equals(
     ".seconds_to_datetime",

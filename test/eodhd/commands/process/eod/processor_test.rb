@@ -4,7 +4,6 @@ require "ostruct"
 
 require_relative "../../../../test_helper"
 
-
 describe Eodhd::Commands::Process::Eod::Processor do
   it "omits Adjusted_close and split-adjusts prior rows" do
     raw_csv = <<~CSV

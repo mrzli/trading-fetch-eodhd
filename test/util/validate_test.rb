@@ -2,7 +2,6 @@
 
 require_relative "../test_helper"
 
-
 describe Util::Validate do
   test_equals(
     ".required_string",

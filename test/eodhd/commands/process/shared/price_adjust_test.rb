@@ -5,7 +5,6 @@ require_relative "../../../../test_helper"
 
 require "date"
 
-
 describe Eodhd::Commands::Process::Shared::PriceAdjust do
   it "returns rows unchanged when no splits and no dividends" do
     rows = [

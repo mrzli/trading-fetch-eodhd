@@ -2,7 +2,6 @@
 
 require_relative "../../test_helper"
 
-
 describe Eodhd::Parsing::IntradayCsvParser do
   it "parses intraday rows" do
     raw = <<~CSV

@@ -2,7 +2,6 @@
 
 require_relative "../../../../test_helper"
 
-
 describe Eodhd::Commands::Process::Shared::SplitsProcessor do
   it "returns empty array for nil splits" do
     result = Eodhd::Commands::Process::Shared::SplitsProcessor.process(nil)

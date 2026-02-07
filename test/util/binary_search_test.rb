@@ -2,7 +2,6 @@
 
 require_relative "../test_helper"
 
-
 describe Util::BinarySearch do
   describe ".lower_bound" do
     it "returns 0 for empty array" do

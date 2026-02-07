@@ -4,7 +4,6 @@ require_relative "../../../../test_helper"
 
 require "date"
 
-
 describe Eodhd::Commands::Process::Shared::DividendsProcessor do
   it "returns empty array for nil dividends" do
     result = Eodhd::Commands::Process::Shared::DividendsProcessor.process(nil, [])

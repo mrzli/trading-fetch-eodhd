@@ -2,7 +2,6 @@
 
 require_relative "../test_helper"
 
-
 describe Util::String do
   test_equals(
     ".kebab_case",
