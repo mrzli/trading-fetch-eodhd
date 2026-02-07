@@ -5,10 +5,10 @@ require "json"
 require_relative "../../util"
 require_relative "fetch/args/args"
 require_relative "fetch/strategy"
-require_relative "fetch/components/exchanges/fetch_exchanges_args"
+require_relative "fetch/components/exchanges/args"
 require_relative "fetch/components/symbols/fetch_symbols_args"
 require_relative "fetch/components/meta/fetch_meta_args"
-require_relative "fetch/components/eod/fetch_eod_args"
+require_relative "fetch/components/eod/args"
 require_relative "fetch/components/intraday/fetch_intraday_args"
 require_relative "../shared/container"
 
@@ -26,7 +26,7 @@ module Eodhd
 
         case subcommand
         when "exchanges"
-          args_parser = FetchExchangesArgs.new(container: container)
+          args_parser = Components::Exchanges::Args.new(container: container)
           force, = args_parser.parse(ARGV).deconstruct
           strategy.run_exchanges(force: force)
         when "symbols"
@@ -38,7 +38,7 @@ module Eodhd
           force, parallel, workers = args_parser.parse(ARGV).deconstruct
           strategy.run_meta(force: force, parallel: parallel, workers: workers)
         when "eod"
-          args_parser = FetchEodArgs.new(container: container)
+          args_parser = Components::Eod::Args.new(container: container)
           force, parallel, workers = args_parser.parse(ARGV).deconstruct
           strategy.run_eod(force: force, parallel: parallel, workers: workers)
         when "intraday"

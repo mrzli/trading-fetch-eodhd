@@ -7,10 +7,10 @@ require "time"
 require_relative "../../../util"
 require_relative "../../shared/path"
 require_relative "shared"
-require_relative "components/exchanges/fetch_exchanges"
+require_relative "components/exchanges/exchanges"
 require_relative "components/symbols/fetch_symbols"
 require_relative "components/meta/fetch_meta"
-require_relative "components/eod/fetch_eod"
+require_relative "components/eod/eod"
 require_relative "components/intraday/fetch_intraday"
 
 module Eodhd
@@ -23,10 +23,10 @@ module Eodhd
         def initialize(container:)
           shared = Shared.new(container: container)
 
-          @fetch_exchanges = FetchExchanges.new(container: container, shared: shared)
+          @fetch_exchanges = Components::Exchanges::Exchanges.new(container: container, shared: shared)
           @fetch_symbols = FetchSymbols.new(container: container, shared: shared)
           @fetch_meta = FetchMeta.new(container: container, shared: shared)
-          @fetch_eod = FetchEod.new(container: container, shared: shared)
+          @fetch_eod = Components::Eod::Eod.new(container: container, shared: shared)
           @fetch_intraday = FetchIntraday.new(container: container, shared: shared)
 
           @data_reader = container.data_reader
