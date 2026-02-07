@@ -8,8 +8,8 @@ require_relative "../../../util"
 require_relative "../../shared/path"
 require_relative "shared"
 require_relative "components/exchanges/exchanges"
-require_relative "components/symbols/fetch_symbols"
-require_relative "components/meta/fetch_meta"
+require_relative "components/symbols/symbols"
+require_relative "components/meta/meta"
 require_relative "components/eod/eod"
 require_relative "components/intraday/fetch_intraday"
 
@@ -24,8 +24,8 @@ module Eodhd
           shared = Shared.new(container: container)
 
           @fetch_exchanges = Components::Exchanges::Exchanges.new(container: container, shared: shared)
-          @fetch_symbols = FetchSymbols.new(container: container, shared: shared)
-          @fetch_meta = FetchMeta.new(container: container, shared: shared)
+          @fetch_symbols = Components::Symbols::Symbols.new(container: container, shared: shared)
+          @fetch_meta = Components::Meta::Meta.new(container: container, shared: shared)
           @fetch_eod = Components::Eod::Eod.new(container: container, shared: shared)
           @fetch_intraday = FetchIntraday.new(container: container, shared: shared)
 

@@ -6,8 +6,8 @@ require_relative "../../util"
 require_relative "fetch/args/args"
 require_relative "fetch/strategy"
 require_relative "fetch/components/exchanges/args"
-require_relative "fetch/components/symbols/fetch_symbols_args"
-require_relative "fetch/components/meta/fetch_meta_args"
+require_relative "fetch/components/symbols/args"
+require_relative "fetch/components/meta/args"
 require_relative "fetch/components/eod/args"
 require_relative "fetch/components/intraday/fetch_intraday_args"
 require_relative "../shared/container"
@@ -30,11 +30,11 @@ module Eodhd
           force, = args_parser.parse(ARGV).deconstruct
           strategy.run_exchanges(force: force)
         when "symbols"
-          args_parser = FetchSymbolsArgs.new(container: container)
+          args_parser = Components::Symbols::Args.new(container: container)
           force, parallel, workers = args_parser.parse(ARGV).deconstruct
           strategy.run_symbols(force: force, parallel: parallel, workers: workers)
         when "meta"
-          args_parser = FetchMetaArgs.new(container: container)
+          args_parser = Components::Meta::Args.new(container: container)
           force, parallel, workers = args_parser.parse(ARGV).deconstruct
           strategy.run_meta(force: force, parallel: parallel, workers: workers)
         when "eod"
