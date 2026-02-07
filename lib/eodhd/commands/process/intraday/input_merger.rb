@@ -4,8 +4,10 @@ require_relative "../../../../util"
 
 module Eodhd
   module Commands
-    class InputMerger
-      class << self
+    module Process
+      module Intraday
+        class InputMerger
+          class << self
         def merge(list)
           merged = []
           Array(list).each do |rows|
@@ -38,6 +40,8 @@ module Eodhd
           idx = Util::BinarySearch.lower_bound(merged_rows, next_first) { |row| row[:timestamp] }
           merged_rows.slice!(idx, merged_rows.length - idx)
           merged_rows.concat(next_rows)
+        end
+          end
         end
       end
     end

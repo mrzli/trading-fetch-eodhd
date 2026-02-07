@@ -6,12 +6,14 @@ require_relative "intraday_csv_processor"
 
 module Eodhd
   module Commands
-    class IntradayProcessStrategy
-      def initialize(log:, io:)
-        @log = log
-        @io = io
-        @processor = IntradayCsvProcessor.new(log: log)
-      end
+    module Process
+      module Intraday
+        class Run
+          def initialize(log:, io:)
+            @log = log
+            @io = io
+            @processor = IntradayCsvProcessor.new(log: log)
+          end
 
       def process
         raw_root = @io.output_path(Shared::Path.raw_intraday_dir)
@@ -52,9 +54,9 @@ module Eodhd
 
         raw_rels = raw_abs_files.map { |abs| @io.relative_path(abs) }
 
-        splits_rel = Shared::Path.splits(exchange, symbol)
-        dividends_rel = Shared::Path.dividends(exchange, symbol)
-        processed_dir_rel = Shared::Path.processed_intraday_data_dir(exchange, symbol)
+        splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
+        dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
+        processed_dir_rel = Eodhd::Shared::Path.processed_intraday_data_dir(exchange, symbol)
 
         unless should_process?(raw_rels: raw_rels, splits_rel: splits_rel, processed_dir_rel: processed_dir_rel)
           @log.info("Skipping processed intraday (fresh): #{processed_dir_rel}")
@@ -64,9 +66,9 @@ module Eodhd
         raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
 
         splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : nil
-        splits = splits_json ? Parsing::SplitsParser.parse(splits_json) : []
+        splits = splits_json ? Eodhd::Parsing::SplitsParser.parse(splits_json) : []
         dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
-        dividends = Parsing::DividendsParser.parse(dividends_json)
+        dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
         outputs = @processor.process_csv_list(raw_csv_files, splits, dividends)
         if outputs.empty?
@@ -76,7 +78,7 @@ module Eodhd
 
         outputs.each do |item|
           item in { key: key, csv: csv }
-          processed_rel = Shared::Path.processed_intraday_year_month(exchange, symbol, key.year, key.month)
+          processed_rel = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, key.year, key.month)
           saved_path = @io.write_csv(processed_rel, csv)
           @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
         end
@@ -96,6 +98,8 @@ module Eodhd
         return true if splits_mtime && splits_mtime > processed_mtime
 
         false
+      end
+        end
       end
     end
   end

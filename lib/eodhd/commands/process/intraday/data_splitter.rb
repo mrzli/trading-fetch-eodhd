@@ -4,8 +4,10 @@ require "date"
 
 module Eodhd
   module Commands
-    class DataSplitter
-      YearMonth = Data.define(:year, :month) do
+    module Process
+      module Intraday
+        class DataSplitter
+          YearMonth = Data.define(:year, :month) do
         def to_s
           "#{year}-#{month.to_s.rjust(2, "0")}"
         end
@@ -25,6 +27,8 @@ module Eodhd
           grouped
             .sort_by { |year_month, _| [year_month.year, year_month.month] }
             .map { |year_month, rows| { key: year_month, value: rows } }
+        end
+          end
         end
       end
     end

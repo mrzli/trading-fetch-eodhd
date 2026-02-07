@@ -12,10 +12,12 @@ require_relative "input_merger"
 
 module Eodhd
   module Commands
-    class IntradayCsvProcessor
-      OUTPUT_HEADERS = ["Timestamp", "Datetime", "Open", "High", "Low", "Close", "Volume"].freeze
+    module Process
+      module Intraday
+        class IntradayCsvProcessor
+          OUTPUT_HEADERS = ["Timestamp", "Datetime", "Open", "High", "Low", "Close", "Volume"].freeze
 
-      class Error < StandardError; end
+          class Error < StandardError; end
 
       def initialize(log:)
         @log = log
@@ -27,7 +29,7 @@ module Eodhd
         end
 
         inputs = raw_csv_list.drop(0).map.with_index do |raw_csv, index|
-          parsed = Parsing::IntradayCsvParser.parse(raw_csv)
+          parsed = Eodhd::Parsing::IntradayCsvParser.parse(raw_csv)
           if parsed.empty?
             @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")
             next
@@ -70,7 +72,7 @@ module Eodhd
             csv: csv
           }
         end
-      rescue Parsing::IntradayCsvParser::Error => e
+      rescue Eodhd::Parsing::IntradayCsvParser::Error => e
         raise Error, e.message
       rescue ArgumentError => e
         raise Error, e.message
@@ -111,6 +113,8 @@ module Eodhd
               row[:volume]
             ]
           end
+        end
+      end
         end
       end
     end

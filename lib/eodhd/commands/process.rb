@@ -6,7 +6,7 @@ require_relative "../../util"
 require_relative "process/args/args"
 require_relative "process/run"
 require_relative "process/eod/args"
-require_relative "process/intraday/process_intraday_args"
+require_relative "process/intraday/args"
 require_relative "../shared/container"
 
 module Eodhd
@@ -27,7 +27,7 @@ module Eodhd
           args_parser.parse(ARGV)
           strategy.process_eod
         when "intraday"
-          args_parser = ProcessIntradayArgs.new(container: container)
+          args_parser = Intraday::Args.new(container: container)
           args_parser.parse(ARGV)
           strategy.process_intraday
         else
