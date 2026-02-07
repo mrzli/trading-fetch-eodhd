@@ -4,7 +4,6 @@ require "fileutils"
 require "json"
 require "pathname"
 
-
 module Eodhd
   module Shared
     class Io

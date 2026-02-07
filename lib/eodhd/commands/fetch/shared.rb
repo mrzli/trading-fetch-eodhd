@@ -2,7 +2,6 @@
 
 require "set"
 
-
 module Eodhd
   module Commands
     module Fetch

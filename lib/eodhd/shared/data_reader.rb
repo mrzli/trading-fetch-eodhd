@@ -3,7 +3,6 @@
 require "json"
 require "set"
 
-
 module Eodhd
   module Shared
     class DataReader

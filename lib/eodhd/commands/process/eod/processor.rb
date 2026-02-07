@@ -3,7 +3,6 @@
 require "csv"
 require "date"
 
-
 module Eodhd
   module Commands
     module Process

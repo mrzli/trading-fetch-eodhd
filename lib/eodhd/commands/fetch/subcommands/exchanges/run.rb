@@ -2,7 +2,6 @@
 
 require "json"
 
-
 module Eodhd
   module Commands
     module Fetch

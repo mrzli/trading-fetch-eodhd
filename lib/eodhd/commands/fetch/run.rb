@@ -4,7 +4,6 @@ require "json"
 require "set"
 require "time"
 
-
 module Eodhd
   module Commands
     module Fetch

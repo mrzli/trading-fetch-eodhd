@@ -3,7 +3,6 @@
 require "net/http"
 require "uri"
 
-
 module Eodhd
   module Shared
     class Api
