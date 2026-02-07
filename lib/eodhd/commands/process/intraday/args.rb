@@ -22,12 +22,12 @@ module Eodhd
           def parse_args(argv)
             parser = OptionParser.new do |opts|
               opts.banner = "Usage: bin/process intraday [options]"
-              Args::Shared.add_help_option(opts)
+              Eodhd::Args::Shared.add_help_option(opts)
             end
 
-            Args::Shared.handle_parse_error(parser) do
+            Eodhd::Args::Shared.handle_parse_error(parser) do
               parser.parse!(argv)
-              Args::Shared.check_args(argv, parser)
+              Eodhd::Args::Shared.check_args(argv, parser)
               Result.new
             end
           end
