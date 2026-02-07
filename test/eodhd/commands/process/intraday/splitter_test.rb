@@ -2,7 +2,6 @@
 
 require_relative "../../../../test_helper"
 
-require_relative "../../../../../lib/eodhd/commands/process/intraday/splitter"
 
 describe Eodhd::Commands::Process::Intraday::Splitter do
   describe "YearMonth" do

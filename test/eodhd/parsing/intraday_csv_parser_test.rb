@@ -2,7 +2,6 @@
 
 require_relative "../../test_helper"
 
-require_relative "../../../lib/eodhd/parsing/intraday_csv_parser"
 
 describe Eodhd::Parsing::IntradayCsvParser do
   it "parses intraday rows" do

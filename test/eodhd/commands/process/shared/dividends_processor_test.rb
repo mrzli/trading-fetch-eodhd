@@ -4,8 +4,6 @@ require_relative "../../../../test_helper"
 
 require "date"
 
-require_relative "../../../../../lib/eodhd/parsing/dividends_parser"
-require_relative "../../../../../lib/eodhd/commands/process/shared/dividends_processor"
 
 describe Eodhd::Commands::Process::Shared::DividendsProcessor do
   it "returns empty array for nil dividends" do

@@ -4,7 +4,6 @@ require "ostruct"
 
 require_relative "../../../../test_helper"
 
-require_relative "../../../../../lib/eodhd/commands/process/intraday/processor"
 
 describe Eodhd::Commands::Process::Intraday::Processor do
   it "processes multiple CSV inputs with splits and dividends" do

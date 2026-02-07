@@ -4,7 +4,6 @@ require "ostruct"
 
 require_relative "../../../../test_helper"
 
-require_relative "../../../../../lib/eodhd/commands/process/eod/processor"
 
 describe Eodhd::Commands::Process::Eod::Processor do
   it "omits Adjusted_close and split-adjusts prior rows" do

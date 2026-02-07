@@ -2,7 +2,6 @@
 
 require_relative "../../test_helper"
 
-require_relative "../../../lib/eodhd/parsing/dividends_parser"
 
 describe Eodhd::Parsing::DividendsParser do
   it "returns [] for blank input" do

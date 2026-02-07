@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "../../../../../test_helper"
-require_relative "../../../../../../lib/eodhd/commands/fetch/subcommands/intraday/merger"
 
 # Helper methods at module level
 def rowe(timestamp)

@@ -3,7 +3,6 @@
 require_relative "../../test_helper"
 
 require "date"
-require_relative "../../../lib/eodhd/parsing/eod_csv_parser"
 
 describe Eodhd::Parsing::EodCsvParser do
   it "parses EOD rows" do

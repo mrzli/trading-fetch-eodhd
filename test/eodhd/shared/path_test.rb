@@ -2,7 +2,6 @@
 
 require_relative "../../test_helper"
 
-require_relative "../../../lib/eodhd/shared/path"
 
 describe Eodhd::Shared::Path do
   test_equals(

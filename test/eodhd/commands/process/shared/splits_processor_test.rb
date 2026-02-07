@@ -2,8 +2,6 @@
 
 require_relative "../../../../test_helper"
 
-require_relative "../../../../../lib/eodhd/parsing/splits_parser"
-require_relative "../../../../../lib/eodhd/commands/process/shared/splits_processor"
 
 describe Eodhd::Commands::Process::Shared::SplitsProcessor do
   it "returns empty array for nil splits" do

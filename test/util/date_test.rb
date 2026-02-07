@@ -2,7 +2,6 @@
 
 require_relative "../test_helper"
 
-require_relative "../../lib/util"
 
 describe Util::Date do
   test_equals(

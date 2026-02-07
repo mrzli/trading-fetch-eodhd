@@ -5,9 +5,6 @@ require_relative "../../../../test_helper"
 
 require "date"
 
-require_relative "../../../../../lib/eodhd/parsing/splits_parser"
-require_relative "../../../../../lib/eodhd/commands/process/shared/price_adjust"
-require_relative "../../../../../lib/eodhd/commands/process/shared/splits_processor"
 
 describe Eodhd::Commands::Process::Shared::PriceAdjust do
   it "returns rows unchanged when no splits and no dividends" do
