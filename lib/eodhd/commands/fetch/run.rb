@@ -16,7 +16,7 @@ require_relative "subcommands/intraday/run"
 module Eodhd
   module Commands
     module Fetch
-      class Strategy
+      class Run
         INTRADAY_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
         INTRADAY_INCLUDED_SYMBOLS = Set.new(["AAPL"]).freeze
 

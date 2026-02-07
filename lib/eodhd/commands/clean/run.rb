@@ -3,7 +3,7 @@
 module Eodhd
   module Commands
     module Clean
-      class Strategy
+      class Run
         def initialize(container:)
           @log = container.logger
           @io = container.io

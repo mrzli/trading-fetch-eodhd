@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "clean/args"
-require_relative "clean/strategy"
+require_relative "clean/run"
 require_relative "../shared/container"
 
 module Eodhd
@@ -13,7 +13,7 @@ module Eodhd
         command, yes = Args.parse(ARGV).deconstruct
 
         container = ::Eodhd::Shared::Container.new(command: "clean")
-        strategy = Strategy.new(container: container)
+        strategy = Run.new(container: container)
 
         case command
         when "exchanges"
