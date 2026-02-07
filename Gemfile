@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-ruby "~> 3.4"
+ruby "~> 4.0"
 
 gem "colorize", "~> 1.1"
 gem "csv", "~> 3.3"
