@@ -3,8 +3,8 @@
 require "json"
 
 require_relative "../../util"
-require_relative "fetch/args/fetch_args"
-require_relative "fetch/fetch_strategy"
+require_relative "fetch/args/args"
+require_relative "fetch/strategy"
 require_relative "fetch/components/exchanges/fetch_exchanges_args"
 require_relative "fetch/components/symbols/fetch_symbols_args"
 require_relative "fetch/components/meta/fetch_meta_args"
@@ -18,9 +18,9 @@ module Eodhd
       module_function
 
       def run
-        container = Shared::Container.new(command: "fetch")
-        strategy = FetchStrategy.new(container: container)
-        fetch_args_parser = FetchArgs.new(container: container)
+        container = ::Eodhd::Shared::Container.new(command: "fetch")
+        strategy = Strategy.new(container: container)
+        fetch_args_parser = Args::Args.new(container: container)
 
         subcommand, = fetch_args_parser.parse(ARGV).deconstruct
 
