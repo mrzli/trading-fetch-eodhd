@@ -4,9 +4,9 @@ require "ostruct"
 
 require_relative "../../../../test_helper"
 
-require_relative "../../../../../lib/eodhd/commands/process/intraday/intraday_csv_processor"
+require_relative "../../../../../lib/eodhd/commands/process/intraday/processor"
 
-describe Eodhd::Commands::Process::Intraday::IntradayCsvProcessor do
+describe Eodhd::Commands::Process::Intraday::Processor do
   it "processes multiple CSV inputs with splits and dividends" do
     # First CSV file with earlier data
     raw_csv_1 = <<~CSV
@@ -35,7 +35,7 @@ describe Eodhd::Commands::Process::Intraday::IntradayCsvProcessor do
       OpenStruct.new(date: Date.new(2024, 1, 21), unadjusted_value: 1.4)
     ]
 
-    processor = Eodhd::Commands::Process::Intraday::IntradayCsvProcessor.new(log: Logging::NullLogger.new)
+    processor = Eodhd::Commands::Process::Intraday::Processor.new(log: Logging::NullLogger.new)
     result = processor.process_csv_list([raw_csv_1, raw_csv_2], splits, dividends)
 
     # Should have data split by month
@@ -108,7 +108,7 @@ describe Eodhd::Commands::Process::Intraday::IntradayCsvProcessor do
       946688400,0,2000-01-01 01:00:00,20,20,20,20,200
     CSV
 
-    processor = Eodhd::Commands::Process::Intraday::IntradayCsvProcessor.new(log: Logging::NullLogger.new)
+    processor = Eodhd::Commands::Process::Intraday::Processor.new(log: Logging::NullLogger.new)
     result = processor.process_csv_list([raw_csv_1, raw_csv_2, raw_csv_3], [], [])
 
     # Should merge the non-empty CSVs
@@ -129,7 +129,7 @@ describe Eodhd::Commands::Process::Intraday::IntradayCsvProcessor do
       946684800,0,2000-01-01 00:00:00,1.123456789,2.987654321,0.555555555,1.999999999,100
     CSV
 
-    processor = Eodhd::Commands::Process::Intraday::IntradayCsvProcessor.new(log: Logging::NullLogger.new)
+    processor = Eodhd::Commands::Process::Intraday::Processor.new(log: Logging::NullLogger.new)
     result = processor.process_csv_list([raw_csv], [], [])
 
     # Should round to OUTPUT_DECIMALS (6)
@@ -142,9 +142,9 @@ describe Eodhd::Commands::Process::Intraday::IntradayCsvProcessor do
   end
 
   it "raises error for non-array input" do
-    processor = Eodhd::Commands::Process::Intraday::IntradayCsvProcessor.new(log: Logging::NullLogger.new)
+    processor = Eodhd::Commands::Process::Intraday::Processor.new(log: Logging::NullLogger.new)
     
-    err = _ { processor.process_csv_list("not an array", [], []) }.must_raise(Eodhd::Commands::Process::Intraday::IntradayCsvProcessor::Error)
+    err = _ { processor.process_csv_list("not an array", [], []) }.must_raise(Eodhd::Commands::Process::Intraday::Processor::Error)
     _(err.message).must_match(/must be an Array/i)
   end
 
@@ -159,7 +159,7 @@ describe Eodhd::Commands::Process::Intraday::IntradayCsvProcessor do
       OpenStruct.new(date: Date.new(2000, 6, 21), factor: 2.0)
     ]
 
-    processor = Eodhd::Commands::Process::Intraday::IntradayCsvProcessor.new(log: Logging::NullLogger.new)
+    processor = Eodhd::Commands::Process::Intraday::Processor.new(log: Logging::NullLogger.new)
     result = processor.process_csv_list([raw_csv], splits, [])
 
     # Both rows are before the split on 2000-06-21
@@ -185,7 +185,7 @@ describe Eodhd::Commands::Process::Intraday::IntradayCsvProcessor do
       OpenStruct.new(date: Date.new(2000, 1, 2), unadjusted_value: 20.0)
     ]
 
-    processor = Eodhd::Commands::Process::Intraday::IntradayCsvProcessor.new(log: Logging::NullLogger.new)
+    processor = Eodhd::Commands::Process::Intraday::Processor.new(log: Logging::NullLogger.new)
     result = processor.process_csv_list([raw_csv], [], dividends)
 
     # Dividend on 2000-01-02 uses previous close (2000-01-01 close=100)

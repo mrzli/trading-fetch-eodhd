@@ -6,7 +6,7 @@ module Eodhd
   module Commands
     module Process
       module Intraday
-        class InputMerger
+        class Merger
           class << self
         def merge(list)
           merged = []

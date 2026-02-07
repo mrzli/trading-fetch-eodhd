@@ -13,7 +13,7 @@ module Eodhd
   module Commands
     module Process
       module Eod
-        class EodCsvProcessor
+        class Processor
           OUTPUT_HEADERS = ["Date", "Open", "High", "Low", "Close", "Volume"].freeze
 
           class Error < StandardError; end

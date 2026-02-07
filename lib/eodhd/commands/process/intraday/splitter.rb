@@ -6,7 +6,7 @@ module Eodhd
   module Commands
     module Process
       module Intraday
-        class DataSplitter
+        class Splitter
           YearMonth = Data.define(:year, :month) do
         def to_s
           "#{year}-#{month.to_s.rjust(2, "0")}"

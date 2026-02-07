@@ -7,14 +7,14 @@ require_relative "../../../parsing/intraday_csv_parser"
 require_relative "../shared/constants"
 require_relative "../shared/price_adjust"
 require_relative "../shared/splits_processor"
-require_relative "data_splitter"
-require_relative "input_merger"
+require_relative "splitter"
+require_relative "merger"
 
 module Eodhd
   module Commands
     module Process
       module Intraday
-        class IntradayCsvProcessor
+        class Processor
           OUTPUT_HEADERS = ["Timestamp", "Datetime", "Open", "High", "Low", "Close", "Volume"].freeze
 
           class Error < StandardError; end
@@ -42,7 +42,7 @@ module Eodhd
           parsed
         end
 
-        data = InputMerger.merge(inputs)
+        data = Merger.merge(inputs)
 
         @log.info("Merged intraday rows. Total rows: #{data.size}.")
 
@@ -55,7 +55,7 @@ module Eodhd
 
         @log.info("Applied price adjustments.")
 
-        data_items = DataSplitter.by_month(data)
+        data_items = Splitter.by_month(data)
 
         @log.info("Split intraday data into #{data_items.size} month(s).")
 

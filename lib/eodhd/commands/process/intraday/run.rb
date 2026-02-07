@@ -2,7 +2,7 @@
 
 require_relative "../../../parsing/dividends_parser"
 require_relative "../../../parsing/splits_parser"
-require_relative "intraday_csv_processor"
+require_relative "processor"
 
 module Eodhd
   module Commands
@@ -12,7 +12,7 @@ module Eodhd
           def initialize(log:, io:)
             @log = log
             @io = io
-            @processor = IntradayCsvProcessor.new(log: log)
+            @processor = Processor.new(log: log)
           end
 
       def process
