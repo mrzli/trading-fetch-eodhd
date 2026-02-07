@@ -5,7 +5,7 @@ require "json"
 require_relative "../../util"
 require_relative "process/args/args"
 require_relative "process/run"
-require_relative "process/eod/process_eod_args"
+require_relative "process/eod/args"
 require_relative "process/intraday/process_intraday_args"
 require_relative "../shared/container"
 
@@ -23,7 +23,7 @@ module Eodhd
 
         case subcommand
         when "eod"
-          args_parser = ProcessEodArgs.new(container: container)
+          args_parser = Eod::Args.new(container: container)
           args_parser.parse(ARGV)
           strategy.process_eod
         when "intraday"

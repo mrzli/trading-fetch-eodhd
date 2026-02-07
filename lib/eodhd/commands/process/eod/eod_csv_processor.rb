@@ -11,23 +11,25 @@ require_relative "../shared/splits_processor"
 
 module Eodhd
   module Commands
-    class EodCsvProcessor
-      OUTPUT_HEADERS = ["Date", "Open", "High", "Low", "Close", "Volume"].freeze
+    module Process
+      module Eod
+        class EodCsvProcessor
+          OUTPUT_HEADERS = ["Date", "Open", "High", "Low", "Close", "Volume"].freeze
 
-      class Error < StandardError; end
+          class Error < StandardError; end
 
       def initialize(log:)
         @log = log
       end
 
       def process_csv(raw_csv, splits, dividends)
-        data = Parsing::EodCsvParser.parse(raw_csv)
+        data = Eodhd::Parsing::EodCsvParser.parse(raw_csv)
         splits = Process::Shared::SplitsProcessor.process(splits)
         dividends = Process::Shared::DividendsProcessor.process(dividends, data)
         data = Process::Shared::PriceAdjust.apply(data, splits, dividends)
         data = to_output(data)
         to_csv(data)
-      rescue Parsing::EodCsvParser::Error => e
+      rescue Eodhd::Parsing::EodCsvParser::Error => e
         raise Error, e.message
       end
 
@@ -64,6 +66,8 @@ module Eodhd
               row[:volume]
             ]
           end
+        end
+      end
         end
       end
     end

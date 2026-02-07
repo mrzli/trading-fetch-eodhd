@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "eod/eod_process_strategy"
+require_relative "eod/run"
 require_relative "intraday/intraday_process_strategy"
 
 module Eodhd
@@ -11,7 +11,7 @@ module Eodhd
           @log = container.logger
           @cfg = container.config
           @io = container.io
-          @eod_strategy = EodProcessStrategy.new(log: @log, io: @io)
+          @eod_strategy = Eod::Run.new(log: @log, io: @io)
           @intraday_strategy = IntradayProcessStrategy.new(log: @log, io: @io)
         end
 

@@ -6,12 +6,14 @@ require_relative "eod_csv_processor"
 
 module Eodhd
   module Commands
-    class EodProcessStrategy
-      def initialize(log:, io:)
-        @log = log
-        @io = io
-        @processor = EodCsvProcessor.new(log: log)
-      end
+    module Process
+      module Eod
+        class Run
+          def initialize(log:, io:)
+            @log = log
+            @io = io
+            @processor = EodCsvProcessor.new(log: log)
+          end
 
       def process
         raw_root = @io.output_path(Shared::Path.raw_eod_dir)
@@ -61,9 +63,9 @@ module Eodhd
       end
 
       def process_symbol(exchange, symbol, raw_rel)
-        processed_rel = Shared::Path.processed_eod_data(exchange, symbol)
-        splits_rel = Shared::Path.splits(exchange, symbol)
-        dividends_rel = Shared::Path.dividends(exchange, symbol)
+        processed_rel = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
+        splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
+        dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
 
         unless should_process?(raw_rel: raw_rel, splits_rel: splits_rel, processed_rel: processed_rel)
           @log.info("Skipping processed EOD (fresh): #{processed_rel}")
@@ -72,15 +74,17 @@ module Eodhd
 
         raw_csv = @io.read_text(raw_rel)
         splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
-        splits = Parsing::SplitsParser.parse(splits_json)
+        splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
         dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
-        dividends = Parsing::DividendsParser.parse(dividends_json)
+        dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
         processed_csv = @processor.process_csv(raw_csv, splits, dividends)
         saved_path = @io.write_csv(processed_rel, processed_csv)
         @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
       rescue StandardError => e
         @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
+      end
+        end
       end
     end
   end
