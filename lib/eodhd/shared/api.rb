@@ -3,7 +3,6 @@
 require "net/http"
 require "uri"
 
-require_relative "../../util"
 
 module Eodhd
   module Shared

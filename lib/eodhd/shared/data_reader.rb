@@ -3,8 +3,6 @@
 require "json"
 require "set"
 
-require_relative "../../util"
-require_relative "path"
 
 module Eodhd
   module Shared

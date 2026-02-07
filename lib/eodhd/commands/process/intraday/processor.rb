@@ -3,12 +3,6 @@
 require "csv"
 require "date"
 
-require_relative "../../../parsing/intraday_csv_parser"
-require_relative "../shared/constants"
-require_relative "../shared/price_adjust"
-require_relative "../shared/splits_processor"
-require_relative "splitter"
-require_relative "merger"
 
 module Eodhd
   module Commands
@@ -29,7 +23,7 @@ module Eodhd
         end
 
         inputs = raw_csv_list.drop(0).map.with_index do |raw_csv, index|
-          parsed = Eodhd::Parsing::IntradayCsvParser.parse(raw_csv)
+          parsed = Parsing::IntradayCsvParser.parse(raw_csv)
           if parsed.empty?
             @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")
             next
@@ -46,12 +40,12 @@ module Eodhd
 
         @log.info("Merged intraday rows. Total rows: #{data.size}.")
 
-        splits = Process::Shared::SplitsProcessor.process(splits)
-        dividends = Process::Shared::DividendsProcessor.process(dividends, data)
+        splits = Shared::SplitsProcessor.process(splits)
+        dividends = Shared::DividendsProcessor.process(dividends, data)
 
         @log.info("Processed splits and dividends.")
 
-        data = Process::Shared::PriceAdjust.apply(data, splits, dividends)
+        data = Shared::PriceAdjust.apply(data, splits, dividends)
 
         @log.info("Applied price adjustments.")
 
@@ -72,7 +66,7 @@ module Eodhd
             csv: csv
           }
         end
-      rescue Eodhd::Parsing::IntradayCsvParser::Error => e
+      rescue Parsing::IntradayCsvParser::Error => e
         raise Error, e.message
       rescue ArgumentError => e
         raise Error, e.message
@@ -95,7 +89,7 @@ module Eodhd
       end
 
       def format_price(price)
-        price.round(Process::Shared::Constants::OUTPUT_DECIMALS).to_s
+        price.round(Shared::Constants::OUTPUT_DECIMALS).to_s
       end
 
       def to_csv(rows)

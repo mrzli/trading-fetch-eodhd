@@ -3,7 +3,6 @@
 require "date"
 require "json"
 
-require_relative "../../util"
 
 module Eodhd
   module Parsing

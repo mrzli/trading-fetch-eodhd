@@ -2,12 +2,6 @@
 
 require "json"
 
-require_relative "../../util"
-require_relative "process/args/args"
-require_relative "process/run"
-require_relative "process/eod/args"
-require_relative "process/intraday/args"
-require_relative "../shared/container"
 
 module Eodhd
   module Commands

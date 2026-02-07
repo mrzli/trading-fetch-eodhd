@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../../parsing/dividends_parser"
-require_relative "../../../parsing/splits_parser"
-require_relative "processor"
 
 module Eodhd
   module Commands
@@ -63,9 +60,9 @@ module Eodhd
       end
 
       def process_symbol(exchange, symbol, raw_rel)
-        processed_rel = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
-        splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
-        dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
+        processed_rel = Shared::Path.processed_eod_data(exchange, symbol)
+        splits_rel = Shared::Path.splits(exchange, symbol)
+        dividends_rel = Shared::Path.dividends(exchange, symbol)
 
         unless should_process?(raw_rel: raw_rel, splits_rel: splits_rel, processed_rel: processed_rel)
           @log.info("Skipping processed EOD (fresh): #{processed_rel}")
@@ -74,9 +71,9 @@ module Eodhd
 
         raw_csv = @io.read_text(raw_rel)
         splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
-        splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
+        splits = Parsing::SplitsParser.parse(splits_json)
         dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
-        dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
+        dividends = Parsing::DividendsParser.parse(dividends_json)
 
         processed_csv = @processor.process_csv(raw_csv, splits, dividends)
         saved_path = @io.write_csv(processed_rel, processed_csv)

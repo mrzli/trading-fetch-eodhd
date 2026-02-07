@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../../../../util"
-require_relative "../../../../shared/path"
 
 module Eodhd
   module Commands
@@ -47,7 +45,7 @@ module Eodhd
               symbol = symbol_entry[:symbol]
               symbol_with_exchange = "#{symbol}.#{exchange}"
 
-              path = ::Eodhd::Shared::Path.public_send(type, exchange, symbol)
+              path = ::Shared::Path.public_send(type, exchange, symbol)
               unless force || @shared.file_stale?(path)
                 @log.info("Skipping #{type} (fresh): #{path}")
                 return

@@ -2,15 +2,6 @@
 
 require "json"
 
-require_relative "../../util"
-require_relative "fetch/args/args"
-require_relative "fetch/run"
-require_relative "fetch/subcommands/exchanges/args"
-require_relative "fetch/subcommands/symbols/args"
-require_relative "fetch/subcommands/meta/args"
-require_relative "fetch/subcommands/eod/args"
-require_relative "fetch/subcommands/intraday/args"
-require_relative "../shared/container"
 
 module Eodhd
   module Commands
@@ -18,7 +9,7 @@ module Eodhd
       module_function
 
       def run
-        container = ::Eodhd::Shared::Container.new(command: "fetch")
+        container = Eodhd::Shared::Container.new(command: "fetch")
         strategy = Run.new(container: container)
         fetch_args_parser = Args::Args.new(container: container)
 

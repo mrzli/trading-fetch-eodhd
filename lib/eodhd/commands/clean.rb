@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "clean/args"
-require_relative "clean/run"
-require_relative "../shared/container"
 
 module Eodhd
   module Commands
@@ -12,7 +9,7 @@ module Eodhd
       def run
         command, yes = Args.parse(ARGV).deconstruct
 
-        container = ::Eodhd::Shared::Container.new(command: "clean")
+        container = Eodhd::Shared::Container.new(command: "clean")
         strategy = Run.new(container: container)
 
         case command

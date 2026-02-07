@@ -2,7 +2,6 @@
 
 require "set"
 
-require_relative "../../../util"
 
 module Eodhd
   module Commands

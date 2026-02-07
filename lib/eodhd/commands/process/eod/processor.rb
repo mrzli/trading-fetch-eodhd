@@ -3,11 +3,6 @@
 require "csv"
 require "date"
 
-require_relative "../../../parsing/eod_csv_parser"
-require_relative "../shared/constants"
-require_relative "../shared/dividends_processor"
-require_relative "../shared/price_adjust"
-require_relative "../shared/splits_processor"
 
 module Eodhd
   module Commands
@@ -23,13 +18,13 @@ module Eodhd
       end
 
       def process_csv(raw_csv, splits, dividends)
-        data = Eodhd::Parsing::EodCsvParser.parse(raw_csv)
-        splits = Process::Shared::SplitsProcessor.process(splits)
-        dividends = Process::Shared::DividendsProcessor.process(dividends, data)
-        data = Process::Shared::PriceAdjust.apply(data, splits, dividends)
+        data = Parsing::EodCsvParser.parse(raw_csv)
+        splits = Shared::SplitsProcessor.process(splits)
+        dividends = Shared::DividendsProcessor.process(dividends, data)
+        data = Shared::PriceAdjust.apply(data, splits, dividends)
         data = to_output(data)
         to_csv(data)
-      rescue Eodhd::Parsing::EodCsvParser::Error => e
+      rescue Parsing::EodCsvParser::Error => e
         raise Error, e.message
       end
 
@@ -49,7 +44,7 @@ module Eodhd
       end
 
       def format_price(price)
-        price.round(Process::Shared::Constants::OUTPUT_DECIMALS).to_s
+        price.round(Shared::Constants::OUTPUT_DECIMALS).to_s
       end
 
       def to_csv(rows)

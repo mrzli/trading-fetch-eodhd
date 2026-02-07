@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "config"
-require_relative "io"
-require_relative "data_reader"
-require_relative "api"
-require_relative "../../util"
-require_relative "../../logging"
 
 module Eodhd
   module Shared

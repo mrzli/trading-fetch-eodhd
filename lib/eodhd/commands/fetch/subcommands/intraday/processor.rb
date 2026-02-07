@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../../../../util"
-require_relative "../../../../shared/path"
-require_relative "../../../../parsing/intraday_csv_parser"
-require_relative "merger"
-require_relative "grouper"
 
 module Eodhd
   module Commands
@@ -21,7 +16,7 @@ module Eodhd
               symbol_with_exchange = "#{symbol}.#{exchange}"
               @log.info("Processing raw intraday for #{symbol_with_exchange}...")
 
-              fetched_dir = ::Eodhd::Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+              fetched_dir = ::Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
               fetched_files = list_and_sort_fetched_files(fetched_dir)
 
               if fetched_files.empty?
@@ -47,7 +42,7 @@ module Eodhd
 
             def process_file(exchange, symbol, file_path)
               csv_content = @io.read_text(file_path)
-              rows = Eodhd::Parsing::IntradayCsvParser.parse(csv_content)
+              rows = Parsing::IntradayCsvParser.parse(csv_content)
 
               return if rows.empty?
 
@@ -61,7 +56,7 @@ module Eodhd
             end
 
             def process_month(exchange, symbol, year, month, new_rows)
-              processed_file_path = ::Eodhd::Shared::Path.raw_intraday_processed_symbol_year_month(exchange, symbol, year, month)
+              processed_file_path = ::Shared::Path.raw_intraday_processed_symbol_year_month(exchange, symbol, year, month)
 
               existing_rows = load_existing_processed_file(processed_file_path)
               merged_rows = Merger.merge(existing_rows, new_rows)
@@ -73,7 +68,7 @@ module Eodhd
               return nil unless @io.file_exists?(file_path)
 
               csv_content = @io.read_text(file_path)
-              Eodhd::Parsing::IntradayCsvParser.parse(csv_content)
+              Parsing::IntradayCsvParser.parse(csv_content)
             end
 
             def write_processed_file(file_path, rows)

@@ -4,14 +4,6 @@ require "json"
 require "set"
 require "time"
 
-require_relative "../../../util"
-require_relative "../../shared/path"
-require_relative "shared"
-require_relative "subcommands/exchanges/run"
-require_relative "subcommands/symbols/run"
-require_relative "subcommands/meta/run"
-require_relative "subcommands/eod/run"
-require_relative "subcommands/intraday/run"
 
 module Eodhd
   module Commands

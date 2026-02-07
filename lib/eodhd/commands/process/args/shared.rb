@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "optparse"
-require_relative "../../../shared/args"
 
 module Eodhd
   module Commands

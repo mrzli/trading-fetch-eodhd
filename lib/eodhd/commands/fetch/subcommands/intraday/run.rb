@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../../../../../util"
-require_relative "../../../../shared/path"
-require_relative "../../../../parsing/intraday_csv_parser"
-require_relative "shared"
-require_relative "processor"
 
 module Eodhd
   module Commands
@@ -55,7 +50,7 @@ module Eodhd
               symbol_with_exchange = "#{symbol}.#{exchange}"
 
               begin
-                fetched_dir = ::Eodhd::Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+                fetched_dir = ::Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
 
                 # Delete any old fetched data.
                 # This does not delete processed by-year-month 'raw' data, which is in a separate dir.

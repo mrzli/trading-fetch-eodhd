@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "optparse"
-require_relative "../../../shared/args"
-require_relative "shared"
 
 module Eodhd
   module Commands
@@ -31,7 +29,7 @@ module Eodhd
 
             Shared.handle_parse_error(parser) do
               if argv.empty?
-                raise Eodhd::Shared::Args::Error.new("Missing required subcommand.", usage: parser.to_s)
+                raise Shared::Args::Error.new("Missing required subcommand.", usage: parser.to_s)
               end
 
               potential_subcommand = argv.first.to_s.strip.downcase
@@ -42,12 +40,12 @@ module Eodhd
                 parser.parse!(argv)
 
                 if argv.empty?
-                  raise Eodhd::Shared::Args::Error.new("Missing required subcommand.", usage: parser.to_s)
+                  raise Shared::Args::Error.new("Missing required subcommand.", usage: parser.to_s)
                 end
 
                 subcommand = argv.shift.to_s.strip.downcase
                 unless VALID_SUBCOMMANDS.include?(subcommand)
-                  raise Eodhd::Shared::Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected one of: #{VALID_SUBCOMMANDS.join(', ')}.", usage: parser.to_s)
+                  raise Shared::Args::Error.new("Unknown subcommand: #{subcommand.inspect}. Expected one of: #{VALID_SUBCOMMANDS.join(', ')}.", usage: parser.to_s)
                 end
 
                 Result.new(subcommand: subcommand)

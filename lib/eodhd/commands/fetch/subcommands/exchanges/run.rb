@@ -2,8 +2,6 @@
 
 require "json"
 
-require_relative "../../../../../util"
-require_relative "../../../../shared/path"
 
 module Eodhd
   module Commands
@@ -19,7 +17,7 @@ module Eodhd
             end
 
             def fetch(force:)
-              relative_path = ::Eodhd::Shared::Path.exchanges_list
+              relative_path = ::Shared::Path.exchanges_list
 
               if force || @shared.file_stale?(relative_path)
                 @log.info("Fetching exchanges list#{force ? ' (forced)' : ''}...")
