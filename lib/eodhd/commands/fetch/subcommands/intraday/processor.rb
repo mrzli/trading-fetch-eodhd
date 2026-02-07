@@ -9,7 +9,7 @@ require_relative "grouper"
 module Eodhd
   module Commands
     module Fetch
-      module Components
+      module Subcommands
         module Intraday
           class Processor
             def initialize(container:)

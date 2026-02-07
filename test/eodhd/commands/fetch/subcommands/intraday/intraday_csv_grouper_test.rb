@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../../../../test_helper"
-require_relative "../../../../../../lib/eodhd/commands/fetch/components/intraday/grouper"
+require_relative "../../../../../../lib/eodhd/commands/fetch/subcommands/intraday/grouper"
 
 # Helper methods at module level
 def row(timestamp)
@@ -26,7 +26,7 @@ def ts(year, month, day, hour = 0, minute = 0, second = 0)
   Time.new(year, month, day, hour, minute, second, "+00:00").to_i
 end
 
-module Eodhd::Commands::Fetch::Components::Intraday
+module Eodhd::Commands::Fetch::Subcommands::Intraday
   describe Grouper do
   test_equals(
     ".group_by_month",

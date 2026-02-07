@@ -5,7 +5,7 @@ require_relative "../../../../../util"
 module Eodhd
   module Commands
     module Fetch
-      module Components
+      module Subcommands
         module Intraday
           class Grouper
             class << self

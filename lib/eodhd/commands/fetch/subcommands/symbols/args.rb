@@ -7,8 +7,8 @@ require_relative "../../args/shared"
 module Eodhd
   module Commands
     module Fetch
-      module Components
-        module Meta
+      module Subcommands
+        module Symbols
           class Args
             Result = Data.define(:force, :parallel, :workers)
 
@@ -28,7 +28,7 @@ module Eodhd
               workers = @cfg.default_workers
 
               parser = OptionParser.new do |opts|
-                opts.banner = "Usage: bin/fetch meta [options]"
+                opts.banner = "Usage: bin/fetch symbols [options]"
 
                 Fetch::Args::Shared.add_force_option(opts) { |v| force = v }
                 Fetch::Args::Shared.add_parallel_option(opts) { |v| parallel = v }

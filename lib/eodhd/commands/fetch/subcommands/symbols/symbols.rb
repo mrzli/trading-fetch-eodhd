@@ -8,7 +8,7 @@ require_relative "../../../../shared/path"
 module Eodhd
   module Commands
     module Fetch
-      module Components
+      module Subcommands
         module Symbols
           class Symbols
             def initialize(container:, shared:)

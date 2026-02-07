@@ -6,7 +6,7 @@ require_relative "../../../../shared/path"
 module Eodhd
   module Commands
     module Fetch
-      module Components
+      module Subcommands
         module Eod
           class Eod
 

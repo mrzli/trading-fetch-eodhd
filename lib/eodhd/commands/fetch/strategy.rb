@@ -7,11 +7,11 @@ require "time"
 require_relative "../../../util"
 require_relative "../../shared/path"
 require_relative "shared"
-require_relative "components/exchanges/exchanges"
-require_relative "components/symbols/symbols"
-require_relative "components/meta/meta"
-require_relative "components/eod/eod"
-require_relative "components/intraday/intraday"
+require_relative "subcommands/exchanges/exchanges"
+require_relative "subcommands/symbols/symbols"
+require_relative "subcommands/meta/meta"
+require_relative "subcommands/eod/eod"
+require_relative "subcommands/intraday/intraday"
 
 module Eodhd
   module Commands
@@ -23,11 +23,11 @@ module Eodhd
         def initialize(container:)
           shared = Shared.new(container: container)
 
-          @fetch_exchanges = Components::Exchanges::Exchanges.new(container: container, shared: shared)
-          @fetch_symbols = Components::Symbols::Symbols.new(container: container, shared: shared)
-          @fetch_meta = Components::Meta::Meta.new(container: container, shared: shared)
-          @fetch_eod = Components::Eod::Eod.new(container: container, shared: shared)
-          @fetch_intraday = Components::Intraday::Intraday.new(container: container, shared: shared)
+          @fetch_exchanges = Subcommands::Exchanges::Exchanges.new(container: container, shared: shared)
+          @fetch_symbols = Subcommands::Symbols::Symbols.new(container: container, shared: shared)
+          @fetch_meta = Subcommands::Meta::Meta.new(container: container, shared: shared)
+          @fetch_eod = Subcommands::Eod::Eod.new(container: container, shared: shared)
+          @fetch_intraday = Subcommands::Intraday::Intraday.new(container: container, shared: shared)
 
           @data_reader = container.data_reader
         end

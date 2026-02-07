@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../../../../test_helper"
-require_relative "../../../../../../lib/eodhd/commands/fetch/components/intraday/merger"
+require_relative "../../../../../../lib/eodhd/commands/fetch/subcommands/intraday/merger"
 
 # Helper methods at module level
 def rowe(timestamp)
@@ -20,7 +20,7 @@ def rowsn(*timestamps)
   timestamps.map { |ts| rown(ts) }
 end
 
-module Eodhd::Commands::Fetch::Components::Intraday
+module Eodhd::Commands::Fetch::Subcommands::Intraday
   describe Merger do
   test_equals(
     ".merge",

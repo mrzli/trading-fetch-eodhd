@@ -7,7 +7,7 @@ require_relative "../../../../parsing/intraday_csv_parser"
 module Eodhd
   module Commands
     module Fetch
-      module Components
+      module Subcommands
         module Intraday
           class Shared
             MIN_CSV_LENGTH = 20

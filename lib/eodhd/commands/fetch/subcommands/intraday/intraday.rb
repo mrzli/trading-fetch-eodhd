@@ -9,7 +9,7 @@ require_relative "processor"
 module Eodhd
   module Commands
     module Fetch
-      module Components
+      module Subcommands
         module Intraday
           class Intraday
             DAYS_TO_SECONDS = 24 * 60 * 60
