@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../../../../test_helper"
-require_relative "../../../../../../lib/eodhd/commands/fetch/components/intraday/intraday_csv_merger"
+require_relative "../../../../../../lib/eodhd/commands/fetch/components/intraday/merger"
 
 # Helper methods at module level
 def rowe(timestamp)
@@ -20,7 +20,8 @@ def rowsn(*timestamps)
   timestamps.map { |ts| rown(ts) }
 end
 
-describe Eodhd::Commands::IntradayCsvMerger do
+module Eodhd::Commands::Fetch::Components::Intraday
+  describe Merger do
   test_equals(
     ".merge",
     [
@@ -153,6 +154,7 @@ describe Eodhd::Commands::IntradayCsvMerger do
         expected: rowse(100, 200) + rowsn(400, 500) + rowse(700, 800)
       }
     ],
-    call: ->(input) { Eodhd::Commands::IntradayCsvMerger.merge(input[:existing_csv], input[:new_csv]) }
+    call: ->(input) { Merger.merge(input[:existing_csv], input[:new_csv]) }
   )
+end
 end

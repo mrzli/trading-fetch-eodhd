@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "../../../../../test_helper"
-require_relative "../../../../../../lib/eodhd/commands/fetch/components/intraday/intraday_csv_grouper"
+require_relative "../../../../../../lib/eodhd/commands/fetch/components/intraday/grouper"
 
 # Helper methods at module level
 def row(timestamp)
@@ -26,7 +26,8 @@ def ts(year, month, day, hour = 0, minute = 0, second = 0)
   Time.new(year, month, day, hour, minute, second, "+00:00").to_i
 end
 
-describe Eodhd::Commands::IntradayCsvGrouper do
+module Eodhd::Commands::Fetch::Components::Intraday
+  describe Grouper do
   test_equals(
     ".group_by_month",
     [
@@ -153,6 +154,7 @@ describe Eodhd::Commands::IntradayCsvGrouper do
         }
       }
     ],
-    call: ->(input) { Eodhd::Commands::IntradayCsvGrouper.group_by_month(input) }
+    call: ->(input) { Grouper.group_by_month(input) }
   )
+end
 end
