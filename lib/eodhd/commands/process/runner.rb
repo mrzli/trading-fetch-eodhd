@@ -3,13 +3,13 @@
 module Eodhd
   module Commands
     module Process
-      class Run
+      class Runner
         def initialize(container:)
           @log = container.logger
           @cfg = container.config
           @io = container.io
-          @eod_strategy = Subcommands::Eod::Run.new(log: @log, io: @io)
-          @intraday_strategy = Subcommands::Intraday::Run.new(log: @log, io: @io)
+          @eod_strategy = Subcommands::Eod::Runner.new(log: @log, io: @io)
+          @intraday_strategy = Subcommands::Intraday::Runner.new(log: @log, io: @io)
         end
 
         def process_eod

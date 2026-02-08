@@ -5,7 +5,7 @@ module Eodhd
     module Process
       module Subcommands
         module Intraday
-          class Run
+          class Runner
             def initialize(log:, io:)
               @log = log
               @io = io

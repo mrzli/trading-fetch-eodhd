@@ -3,7 +3,7 @@
 module Eodhd
   module Commands
     module Clean
-      class Run
+      class Runner
         def initialize(container:)
           @log = container.logger
           @io = container.io

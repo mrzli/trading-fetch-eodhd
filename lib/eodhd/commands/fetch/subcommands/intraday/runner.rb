@@ -5,7 +5,7 @@ module Eodhd
     module Fetch
       module Subcommands
         module Intraday
-          class Run
+          class Runner
             DAYS_TO_SECONDS = 24 * 60 * 60
             RANGE_SECONDS = 118 * DAYS_TO_SECONDS
             STRIDE_SECONDS = 110 * DAYS_TO_SECONDS

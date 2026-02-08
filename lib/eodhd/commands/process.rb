@@ -9,7 +9,7 @@ module Eodhd
 
       def run
         container = Eodhd::Shared::Container.new(command: "process")
-        strategy = Run.new(container: container)
+        runner = Runner.new(container: container)
         process_args_parser = Eodhd::Args::SubcommandsArgs.new(
           container: container,
           command_name: "process",
@@ -22,11 +22,11 @@ module Eodhd
         when "eod"
           args_parser = Subcommands::Eod::Args.new(container: container)
           args_parser.parse(ARGV)
-          strategy.process_eod
+          runner.process_eod
         when "intraday"
           args_parser = Subcommands::Intraday::Args.new(container: container)
           args_parser.parse(ARGV)
-          strategy.process_intraday
+          runner.process_intraday
         else
           raise "Unknown subcommand: #{subcommand}"
         end

@@ -9,13 +9,13 @@ module Eodhd
         command, yes = Args.parse(ARGV).deconstruct
 
         container = Eodhd::Shared::Container.new(command: "clean")
-        strategy = Run.new(container: container)
+        runner = Runner.new(container: container)
 
         case command
         when "exchanges"
-          strategy.clean_exchanges(yes: yes)
+          runner.clean_exchanges(yes: yes)
         when "symbols"
-          strategy.clean_symbols(yes: yes)
+          runner.clean_symbols(yes: yes)
         end
       end
     end
