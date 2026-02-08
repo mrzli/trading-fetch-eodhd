@@ -19,8 +19,8 @@ module Eodhd
                 return
               end
 
-              exchanges = Dir.children(raw_root).select { |name| Dir.exist?(File.join(raw_root, name)) }
-              exchanges.sort!
+              exchanges = Dir.children(raw_root)
+                .filter { |name| Dir.exist?(File.join(raw_root, name)) }
               if exchanges.empty?
                 @log.info("No exchange directories found under: #{raw_root}")
                 return
