@@ -9,7 +9,7 @@ module Eodhd
           @io = container.io
         end
 
-        def clean_exchanges(yes:)
+        def exchanges(yes:)
           if confirm_clean("exchanges list", yes)
             @io.delete_dir("exchanges-list.json")
             @log.info("Deleted exchanges list")
@@ -18,7 +18,7 @@ module Eodhd
           end
         end
 
-        def clean_symbols(yes:)
+        def symbols(yes:)
           if confirm_clean("symbols", yes)
             @io.delete_dir("symbols")
             @log.info("Deleted symbols")

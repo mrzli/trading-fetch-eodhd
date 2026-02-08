@@ -13,9 +13,9 @@ module Eodhd
 
         case command
         when "exchanges"
-          runner.clean_exchanges(yes: yes)
+          runner.exchanges(yes: yes)
         when "symbols"
-          runner.clean_symbols(yes: yes)
+          runner.symbols(yes: yes)
         end
       end
     end

@@ -23,23 +23,23 @@ module Eodhd
           @data_reader = container.data_reader
         end
 
-        def run_exchanges(force:)
+        def exchanges(force:)
           @fetch_exchanges.fetch(force: force)
         end
 
-        def run_symbols(force:, parallel:, workers:)
+        def symbols(force:, parallel:, workers:)
           @fetch_symbols.fetch(force: force, parallel: parallel, workers: workers)
         end
 
-        def run_meta(force:, parallel:, workers:)
+        def meta(force:, parallel:, workers:)
           @fetch_meta.fetch(force: force, parallel: parallel, workers: workers)
         end
 
-        def run_eod(force:, parallel:, workers:)
+        def eod(force:, parallel:, workers:)
           @fetch_eod.fetch(force: force, parallel: parallel, workers: workers)
         end
 
-        def run_intraday(recheck_start_date:, parallel:, workers:)
+        def intraday(recheck_start_date:, parallel:, workers:)
           @fetch_intraday.fetch(recheck_start_date: recheck_start_date, parallel: parallel, workers: workers)
         end
 

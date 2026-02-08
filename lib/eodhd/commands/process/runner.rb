@@ -12,11 +12,11 @@ module Eodhd
           @intraday_strategy = Subcommands::Intraday::Runner.new(log: @log, io: @io)
         end
 
-        def process_eod
+        def eod
           @eod_strategy.process
         end
 
-        def process_intraday
+        def intraday
           @intraday_strategy.process
         end
       end

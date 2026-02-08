@@ -22,11 +22,11 @@ module Eodhd
         when "eod"
           args_parser = Subcommands::Eod::Args.new(container: container)
           args_parser.parse(ARGV)
-          runner.process_eod
+          runner.eod
         when "intraday"
           args_parser = Subcommands::Intraday::Args.new(container: container)
           args_parser.parse(ARGV)
-          runner.process_intraday
+          runner.intraday
         else
           raise "Unknown subcommand: #{subcommand}"
         end
