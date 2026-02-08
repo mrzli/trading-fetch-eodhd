@@ -8,16 +8,16 @@ module Eodhd
           @log = container.logger
           @cfg = container.config
           @io = container.io
-          @eod_strategy = Subcommands::Eod::Runner.new(log: @log, io: @io)
-          @intraday_strategy = Subcommands::Intraday::Runner.new(log: @log, io: @io)
+          @eod_runner = Subcommands::Eod::Runner.new(log: @log, io: @io)
+          @intraday_runner = Subcommands::Intraday::Runner.new(log: @log, io: @io)
         end
 
         def eod
-          @eod_strategy.process
+          @eod_runner.process
         end
 
         def intraday
-          @intraday_strategy.process
+          @intraday_runner.process
         end
       end
     end

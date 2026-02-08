@@ -14,33 +14,33 @@ module Eodhd
         def initialize(container:)
           shared = Shared.new(container: container)
 
-          @fetch_exchanges = Subcommands::Exchanges::Runner.new(container: container, shared: shared)
-          @fetch_symbols = Subcommands::Symbols::Runner.new(container: container, shared: shared)
-          @fetch_meta = Subcommands::Meta::Runner.new(container: container, shared: shared)
-          @fetch_eod = Subcommands::Eod::Runner.new(container: container, shared: shared)
-          @fetch_intraday = Subcommands::Intraday::Runner.new(container: container, shared: shared)
+          @exchanges_runner = Subcommands::Exchanges::Runner.new(container: container, shared: shared)
+          @symbols_runner = Subcommands::Symbols::Runner.new(container: container, shared: shared)
+          @meta_runner = Subcommands::Meta::Runner.new(container: container, shared: shared)
+          @eod_runner = Subcommands::Eod::Runner.new(container: container, shared: shared)
+          @intraday_runner = Subcommands::Intraday::Runner.new(container: container, shared: shared)
 
           @data_reader = container.data_reader
         end
 
         def exchanges(force:)
-          @fetch_exchanges.fetch(force: force)
+          @exchanges_runner.fetch(force: force)
         end
 
         def symbols(force:, parallel:, workers:)
-          @fetch_symbols.fetch(force: force, parallel: parallel, workers: workers)
+          @symbols_runner.fetch(force: force, parallel: parallel, workers: workers)
         end
 
         def meta(force:, parallel:, workers:)
-          @fetch_meta.fetch(force: force, parallel: parallel, workers: workers)
+          @meta_runner.fetch(force: force, parallel: parallel, workers: workers)
         end
 
         def eod(force:, parallel:, workers:)
-          @fetch_eod.fetch(force: force, parallel: parallel, workers: workers)
+          @eod_runner.fetch(force: force, parallel: parallel, workers: workers)
         end
 
         def intraday(recheck_start_date:, parallel:, workers:)
-          @fetch_intraday.fetch(recheck_start_date: recheck_start_date, parallel: parallel, workers: workers)
+          @intraday_runner.fetch(recheck_start_date: recheck_start_date, parallel: parallel, workers: workers)
         end
 
       end
