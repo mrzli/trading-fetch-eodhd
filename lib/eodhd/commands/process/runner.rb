@@ -12,8 +12,8 @@ module Eodhd
           @intraday_runner = Subcommands::Intraday::Runner.new(log: @log, io: @io)
         end
 
-        def eod
-          @eod_runner.process
+        def eod(parallel:, workers:)
+          @eod_runner.process(parallel: parallel, workers: workers)
         end
 
         def intraday

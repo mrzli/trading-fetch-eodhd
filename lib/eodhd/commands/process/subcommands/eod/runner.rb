@@ -12,7 +12,7 @@ module Eodhd
               @processor = Processor.new(log: log)
             end
 
-            def process
+            def process(parallel:, workers:)
               raw_root = @io.output_path(Shared::Path.raw_eod_dir)
               unless Dir.exist?(raw_root)
                 @log.info("No raw EOD directory found: #{raw_root}")
@@ -28,7 +28,7 @@ module Eodhd
 
               exchanges.each do |exchange|
                 exchange_dir = File.join(raw_root, exchange)
-                process_exchange(exchange, exchange_dir)
+                process_exchange(exchange, exchange_dir, parallel: parallel, workers: workers)
               end
             end
 
@@ -47,15 +47,20 @@ module Eodhd
               false
             end
 
-            def process_exchange(exchange, exchange_dir)
+            def process_exchange(exchange, exchange_dir, parallel:, workers:)
               raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv")).sort
               return if raw_abs_files.empty?
 
-              raw_abs_files.each do |raw_abs|
-                symbol = File.basename(raw_abs, ".csv")
+              file_data = raw_abs_files.map do |raw_abs|
+                {
+                  exchange: exchange,
+                  symbol: File.basename(raw_abs, ".csv"),
+                  raw_rel: @io.relative_path(raw_abs)
+                }
+              end
 
-                rel = @io.relative_path(raw_abs)
-                process_symbol(exchange, symbol, rel)
+              Util::ParallelExecutor.execute(file_data, parallel: parallel, workers: workers) do |data|
+                process_symbol(data[:exchange], data[:symbol], data[:raw_rel])
               end
             end
 
