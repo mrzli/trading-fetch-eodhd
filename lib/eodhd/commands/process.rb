@@ -21,8 +21,8 @@ module Eodhd
         case subcommand
         when "eod"
           args_parser = Subcommands::Eod::Args.new(container: container)
-          parallel, workers = args_parser.parse(ARGV).deconstruct
-          runner.eod(parallel: parallel, workers: workers)
+          force, parallel, workers = args_parser.parse(ARGV).deconstruct
+          runner.eod(force: force, parallel: parallel, workers: workers)
         when "intraday"
           args_parser = Subcommands::Intraday::Args.new(container: container)
           args_parser.parse(ARGV)

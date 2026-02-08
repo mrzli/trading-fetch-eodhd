@@ -12,7 +12,7 @@ module Eodhd
               @processor = Processor.new(log: log)
             end
 
-            def process(parallel:, workers:)
+            def process(force:, parallel:, workers:)
               raw_root = @io.output_path(Eodhd::Shared::Path.raw_eod_dir)
               unless Dir.exist?(raw_root)
                 @log.info("No raw EOD directory found: #{raw_root}")
@@ -28,13 +28,15 @@ module Eodhd
 
               exchanges.each do |exchange|
                 exchange_dir = File.join(raw_root, exchange)
-                process_exchange(exchange, exchange_dir, parallel: parallel, workers: workers)
+                process_exchange(exchange, exchange_dir, force: force, parallel: parallel, workers: workers)
               end
             end
 
             private
 
-            def should_process?(raw_rel:, splits_rel:, processed_rel:)
+            def should_process?(force:, raw_rel:, splits_rel:, processed_rel:)
+              return true if force
+
               processed_mtime = @io.file_last_updated_at(processed_rel)
               return true if processed_mtime.nil?
 
@@ -47,7 +49,7 @@ module Eodhd
               false
             end
 
-            def process_exchange(exchange, exchange_dir, parallel:, workers:)
+            def process_exchange(exchange, exchange_dir, force:, parallel:, workers:)
               raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv")).sort
               return if raw_abs_files.empty?
 
@@ -60,16 +62,16 @@ module Eodhd
               end
 
               Util::ParallelExecutor.execute(file_data, parallel: parallel, workers: workers) do |data|
-                process_symbol(data[:exchange], data[:symbol], data[:raw_rel])
+                process_symbol(data[:exchange], data[:symbol], data[:raw_rel], force: force)
               end
             end
 
-            def process_symbol(exchange, symbol, raw_rel)
+            def process_symbol(exchange, symbol, raw_rel, force:)
               processed_rel = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
               splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
               dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
 
-              unless should_process?(raw_rel: raw_rel, splits_rel: splits_rel, processed_rel: processed_rel)
+              unless should_process?(force: force, raw_rel: raw_rel, splits_rel: splits_rel, processed_rel: processed_rel)
                 @log.info("Skipping processed EOD (fresh): #{processed_rel}")
                 return
               end
