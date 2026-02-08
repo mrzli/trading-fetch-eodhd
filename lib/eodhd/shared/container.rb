@@ -2,7 +2,7 @@
 
 module Eodhd
   module Shared
-      class Container
+    class Container
       attr_reader :config, :logger, :api, :io, :data_reader
 
       def initialize(command: "fetch")
