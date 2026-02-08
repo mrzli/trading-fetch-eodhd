@@ -58,55 +58,64 @@ module Eodhd
               raw_abs_files = Dir.glob(File.join(symbol_dir, "*.csv")).sort
               return if raw_abs_files.empty?
 
-              raw_rels = raw_abs_files.map { |abs| @io.relative_path(abs) }
-
               splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
               dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
-              processed_dir_rel = Eodhd::Shared::Path.processed_intraday_data_dir(exchange, symbol)
-
-              unless should_process?(
-                force: force,
-                raw_rels: raw_rels,
-                splits_rel: splits_rel,
-                dividends_rel: dividends_rel,
-                processed_dir_rel: processed_dir_rel
-              )
-                @log.info("Skipping processed intraday (fresh): #{processed_dir_rel}")
-                return
-              end
-
-              raw_csv_files = raw_rels.map { |rel| @io.read_text(rel) }
 
               splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : nil
               splits = splits_json ? Eodhd::Parsing::SplitsParser.parse(splits_json) : []
               dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
               dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
-              outputs = @processor.process_csv_list(raw_csv_files, splits, dividends)
-              if outputs.empty?
-                @log.info("No intraday rows produced for #{exchange}/#{symbol}")
-                return
-              end
+              raw_abs_files.each do |raw_abs|
+                raw_rel = @io.relative_path(raw_abs)
+                filename = File.basename(raw_abs, ".csv")
+                
+                # Extract year-month from filename (e.g., "2020-01.csv" -> year=2020, month=1)
+                match = filename.match(/^(\d{4})-(\d{2})$/)
+                unless match
+                  @log.warn("Skipping file with invalid name format: #{filename}")
+                  next
+                end
+                
+                year = match[1].to_i
+                month = match[2].to_i
 
-              outputs.each do |item|
-                item in { key: key, csv: csv }
-                processed_rel = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, key.year, key.month)
-                saved_path = @io.write_csv(processed_rel, csv)
+                processed_rel = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, year, month)
+
+                unless should_process_file?(
+                  force: force,
+                  raw_rel: raw_rel,
+                  splits_rel: splits_rel,
+                  dividends_rel: dividends_rel,
+                  processed_rel: processed_rel
+                )
+                  @log.info("Skipping processed intraday (fresh): #{processed_rel}")
+                  next
+                end
+
+                raw_csv = @io.read_text(raw_rel)
+                processed_csv = @processor.process_csv(raw_csv, splits, dividends)
+                
+                if processed_csv.nil?
+                  @log.info("No intraday rows produced for #{exchange}/#{symbol}/#{filename}")
+                  next
+                end
+
+                saved_path = @io.write_csv(processed_rel, processed_csv)
                 @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
               end
             rescue StandardError => e
               @log.warn("Failed processing intraday for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
             end
 
-            def should_process?(force:, raw_rels:, splits_rel:, dividends_rel:, processed_dir_rel:)
+            def should_process_file?(force:, raw_rel:, splits_rel:, dividends_rel:, processed_rel:)
               return true if force
 
-              processed_paths = @io.list_relative_files(processed_dir_rel)
-              processed_mtime = processed_paths.map { |p| @io.file_last_updated_at(p) }.compact.min
+              processed_mtime = @io.file_last_updated_at(processed_rel)
               return true if processed_mtime.nil?
 
-              raw_latest = raw_rels.map { |p| @io.file_last_updated_at(p) }.compact.max
-              return true if raw_latest && raw_latest > processed_mtime
+              raw_mtime = @io.file_last_updated_at(raw_rel)
+              return true if raw_mtime && raw_mtime > processed_mtime
 
               splits_mtime = @io.file_last_updated_at(splits_rel)
               return true if splits_mtime && splits_mtime > processed_mtime

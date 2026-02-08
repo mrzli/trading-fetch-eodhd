@@ -17,56 +17,33 @@ module Eodhd
               @log = log
             end
 
-            def process_csv_list(raw_csv_list, splits, dividends)
-              unless raw_csv_list.is_a?(Array)
-                raise ArgumentError, "raw_csv_list must be an Array"
+            def process_csv(raw_csv, splits, dividends)
+              parsed = Eodhd::Parsing::IntradayCsvParser.parse(raw_csv)
+              if parsed.empty?
+                @log.info("Skipped empty intraday CSV with size #{raw_csv.bytesize} bytes")
+                return nil
               end
 
-              inputs = raw_csv_list.drop(0).map.with_index do |raw_csv, index|
-                parsed = Parsing::IntradayCsvParser.parse(raw_csv)
-                if parsed.empty?
-                  @log.info("Skipped empty intraday CSV file #{index + 1} with size #{raw_csv.bytesize} bytes")
-                  next
-                end
+              first = parsed.first
+              last = parsed.last
+              @log.info("Parsed intraday CSV for interval #{first[:datetime]} - #{last[:datetime]} with #{parsed.size} rows")
 
-                first = parsed.first
-                last = parsed.last
-                @log.info("Parsed intraday CSV file #{index + 1} for interval #{first[:datetime]} - #{last[:datetime]} with size #{raw_csv.bytesize} bytes")
-
-                parsed
-              end
-
-              data = Merger.merge(inputs)
-
-              @log.info("Merged intraday rows. Total rows: #{data.size}.")
-
-              splits = Shared::SplitsProcessor.process(splits)
-              dividends = Shared::DividendsProcessor.process(dividends, data)
+              splits = Eodhd::Commands::Process::Shared::SplitsProcessor.process(splits)
+              dividends = Eodhd::Commands::Process::Shared::DividendsProcessor.process(dividends, parsed)
 
               @log.info("Processed splits and dividends.")
 
-              data = Shared::PriceAdjust.apply(data, splits, dividends)
+              data = Eodhd::Commands::Process::Shared::PriceAdjust.apply(parsed, splits, dividends)
 
               @log.info("Applied price adjustments.")
 
-              data_items = Splitter.by_month(data)
+              output = to_output(data)
+              csv = to_csv(output)
 
-              @log.info("Split intraday data into #{data_items.size} month(s).")
+              @log.info("Generated CSV with #{output.size} rows.")
 
-              data_items.map do |item|
-                item in { key:, value: }
-
-                value = to_output(value)
-                csv = to_csv(value)
-
-                @log.info("Generated CSV for #{key.to_s} with #{value.size} rows.")
-
-                {
-                  key: key,
-                  csv: csv
-                }
-              end
-            rescue Parsing::IntradayCsvParser::Error => e
+              csv
+            rescue Eodhd::Parsing::IntradayCsvParser::Error => e
               raise Error, e.message
             rescue ArgumentError => e
               raise Error, e.message
@@ -89,7 +66,7 @@ module Eodhd
             end
 
             def format_price(price)
-              price.round(Shared::Constants::OUTPUT_DECIMALS).to_s
+              price.round(Eodhd::Commands::Process::Shared::Constants::OUTPUT_DECIMALS).to_s
             end
 
             def to_csv(rows)
