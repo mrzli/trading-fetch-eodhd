@@ -10,7 +10,11 @@ module Eodhd
       def run
         container = Eodhd::Shared::Container.new(command: "fetch")
         strategy = Run.new(container: container)
-        fetch_args_parser = Args.new(container: container)
+        fetch_args_parser = Eodhd::Args::SubcommandsArgs.new(
+          container: container,
+          command_name: "fetch",
+          valid_subcommands: %w[exchanges symbols meta eod intraday]
+        )
 
         subcommand, = fetch_args_parser.parse(ARGV).deconstruct
 

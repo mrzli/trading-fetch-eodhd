@@ -10,7 +10,11 @@ module Eodhd
       def run
         container = Eodhd::Shared::Container.new(command: "process")
         strategy = Run.new(container: container)
-        process_args_parser = Args.new(container: container)
+        process_args_parser = Eodhd::Args::SubcommandsArgs.new(
+          container: container,
+          command_name: "process",
+          valid_subcommands: %w[eod intraday]
+        )
 
         subcommand, = process_args_parser.parse(ARGV).deconstruct
 
