@@ -16,8 +16,8 @@ module Eodhd
           @eod_runner.process(force: force, parallel: parallel, workers: workers)
         end
 
-        def intraday
-          @intraday_runner.process
+        def intraday(force:, parallel:, workers:)
+          @intraday_runner.process(force: force, parallel: parallel, workers: workers)
         end
       end
     end

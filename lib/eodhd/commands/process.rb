@@ -25,8 +25,8 @@ module Eodhd
           runner.eod(force: force, parallel: parallel, workers: workers)
         when "intraday"
           args_parser = Subcommands::Intraday::Args.new(container: container)
-          args_parser.parse(ARGV)
-          runner.intraday
+          force, parallel, workers = args_parser.parse(ARGV).deconstruct
+          runner.intraday(force: force, parallel: parallel, workers: workers)
         else
           raise "Unknown subcommand: #{subcommand}"
         end
