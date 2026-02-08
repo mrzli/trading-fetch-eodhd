@@ -34,21 +34,6 @@ module Eodhd
 
             private
 
-            def should_process?(force:, raw_rel:, splits_rel:, processed_rel:)
-              return true if force
-
-              processed_mtime = @io.file_last_updated_at(processed_rel)
-              return true if processed_mtime.nil?
-
-              raw_mtime = @io.file_last_updated_at(raw_rel)
-              return true if raw_mtime && raw_mtime > processed_mtime
-
-              splits_mtime = @io.file_last_updated_at(splits_rel)
-              return true if splits_mtime && splits_mtime > processed_mtime
-
-              false
-            end
-
             def process_exchange(exchange, exchange_dir, force:, parallel:, workers:)
               raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv")).sort
               return if raw_abs_files.empty?
@@ -71,7 +56,13 @@ module Eodhd
               splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
               dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
 
-              unless should_process?(force: force, raw_rel: raw_rel, splits_rel: splits_rel, processed_rel: processed_rel)
+              unless should_process?(
+                force: force,
+                raw_rel: raw_rel,
+                splits_rel: splits_rel,
+                dividends_rel: dividends_rel,
+                processed_rel: processed_rel
+              )
                 @log.info("Skipping processed EOD (fresh): #{processed_rel}")
                 return
               end
@@ -87,6 +78,24 @@ module Eodhd
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
             rescue StandardError => e
               @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
+            end
+
+            def should_process?(force:, raw_rel:, splits_rel:, dividends_rel:, processed_rel:)
+              return true if force
+
+              processed_mtime = @io.file_last_updated_at(processed_rel)
+              return true if processed_mtime.nil?
+
+              raw_mtime = @io.file_last_updated_at(raw_rel)
+              return true if raw_mtime && raw_mtime > processed_mtime
+
+              splits_mtime = @io.file_last_updated_at(splits_rel)
+              return true if splits_mtime && splits_mtime > processed_mtime
+
+              dividends_mtime = @io.file_last_updated_at(dividends_rel)
+              return true if dividends_mtime && dividends_mtime > processed_mtime
+
+              false
             end
           end
         end
