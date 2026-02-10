@@ -48,8 +48,8 @@ module Eodhd
       end
 
       def get_eod_data_csv(exchange, symbol)
-        exchange = Validate.required_string("exchange", exchange)
-        symbol = Validate.required_string("symbol", symbol)
+        exchange = Util::Validate.required_string("exchange", exchange)
+        symbol = Util::Validate.required_string("symbol", symbol)
 
         uri = get_full_url("eod/#{symbol}.#{exchange}")
         uri.query = URI.encode_www_form(
@@ -81,8 +81,8 @@ module Eodhd
       end
 
       def get_splits_json(exchange, symbol)
-        exchange = Validate.required_string("exchange", exchange)
-        symbol = Validate.required_string("symbol", symbol)
+        exchange = Util::Validate.required_string("exchange", exchange)
+        symbol = Util::Validate.required_string("symbol", symbol)
 
         uri = get_full_url("splits/#{symbol}.#{exchange}")
         uri.query = URI.encode_www_form(
@@ -95,8 +95,8 @@ module Eodhd
       end
 
       def get_dividends_json(exchange, symbol)
-        exchange = Validate.required_string("exchange", exchange)
-        symbol = Validate.required_string("symbol", symbol)
+        exchange = Util::Validate.required_string("exchange", exchange)
+        symbol = Util::Validate.required_string("symbol", symbol)
 
         uri = get_full_url("div/#{symbol}.#{exchange}")
         uri.query = URI.encode_www_form(
