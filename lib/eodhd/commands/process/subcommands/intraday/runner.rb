@@ -55,8 +55,10 @@ module Eodhd
             end
 
             def process_symbol(exchange, symbol, symbol_dir, force:)
-              raw_abs_files = Dir.glob(File.join(symbol_dir, "*.csv")).sort
-              return if raw_abs_files.empty?
+              raw_file_paths = Dir.glob(File.join(symbol_dir, "*.csv"))
+                .map { |abs| @io.relative_path(abs) }
+                .sort
+              return if raw_file_paths.empty?
 
               splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
               dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
@@ -66,9 +68,8 @@ module Eodhd
               dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
               dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
-              raw_abs_files.each do |raw_abs|
-                raw_rel = @io.relative_path(raw_abs)
-                filename = File.basename(raw_abs, ".csv")
+              raw_file_paths.each do |raw_rel|
+                filename = File.basename(raw_rel, ".csv")
                 
                 # Extract year-month from filename (e.g., "2020-01.csv" -> year=2020, month=1)
                 match = filename.match(/^(\d{4})-(\d{2})$/)
