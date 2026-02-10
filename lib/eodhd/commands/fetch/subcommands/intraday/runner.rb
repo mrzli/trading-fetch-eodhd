@@ -49,7 +49,7 @@ module Eodhd
               symbol_with_exchange = "#{symbol}.#{exchange}"
 
               begin
-                fetched_dir = ::Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+                fetched_dir = Eodhd::Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
 
                 # Delete any old fetched data.
                 # This does not delete processed by-year-month 'raw' data, which is in a separate dir.
@@ -112,7 +112,7 @@ module Eodhd
               parsed_from = rows.first[:timestamp]
               parsed_to = rows.last[:timestamp]
 
-              relative_path = Shared::Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
+              relative_path = Eodhd::Shared::Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
               saved_path = @io.write_csv(relative_path, csv)
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
 
@@ -146,7 +146,7 @@ module Eodhd
             end
 
             def sorted_processed_files(exchange, symbol)
-              processed_dir = Shared::Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
+              processed_dir = Eodhd::Shared::Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
               @io.list_relative_files(processed_dir)
                 .filter { |path| path.end_with?(".csv") }
                 .sort
@@ -182,7 +182,7 @@ module Eodhd
             end
 
             def delete_all_processed_files(exchange, symbol, symbol_with_exchange)
-              processed_dir = Shared::Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
+              processed_dir = Eodhd::Shared::Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
                     @io.delete_dir(processed_dir)
                     @log.info("Deleted all processed files for #{symbol_with_exchange} due to start date change")
             end
