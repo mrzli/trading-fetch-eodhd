@@ -8,13 +8,6 @@ module Eodhd
           class Error < StandardError; end
 
           class << self
-            # Builds dividend adjustment segments using unadjusted price data.
-            #
-            # dividends: array of Parsing::DividendsParser::Dividend objects (sorted or unsorted)
-            # data: array of hashes with at least :timestamp and :close (unadjusted prices)
-            #
-            # Returns array of {timestamp:, multiplier:} sorted by timestamp. Each multiplier
-            # is cumulative from that dividend forward.
             def process(dividends, data)
               return [] if dividends.nil? || dividends.empty?
 
