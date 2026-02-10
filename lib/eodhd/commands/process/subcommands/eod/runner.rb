@@ -6,6 +6,8 @@ module Eodhd
       module Subcommands
         module Eod
           class Runner
+            OUTPUT_HEADERS = ["Date", "Open", "High", "Low", "Close", "Volume"].freeze
+
             def initialize(log:, io:)
               @log = log
               @io = io
@@ -68,12 +70,19 @@ module Eodhd
               end
 
               raw_csv = @io.read_text(raw_rel)
-              splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : ""
+              splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : "[]"
               splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
-              dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
+              dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : "[]"
               dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
-              processed_csv = @processor.process_csv(raw_csv, splits, dividends)
+              data = Parsing::EodCsvParser.parse(raw_csv)
+              splits = Shared::SplitsProcessor.process(splits)
+              dividends = Shared::DividendsProcessor.process(dividends, data)
+
+              data = Shared::PriceAdjust.apply(data, splits, dividends)
+              data = to_output(data)
+              processed_csv = to_csv(data)
+
               saved_path = @io.write_csv(processed_rel, processed_csv)
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
             rescue StandardError => e
@@ -96,6 +105,40 @@ module Eodhd
               return true if dividends_mtime && dividends_mtime > processed_mtime
 
               false
+            end
+
+            def to_output(data)
+              data.map do |row|
+                {
+                  date: row[:date].iso8601,
+                  open: format_price(row[:open]),
+                  high: format_price(row[:high]),
+                  low: format_price(row[:low]),
+                  close: format_price(row[:close]),
+                  volume: row[:volume].to_s
+                }
+              end
+            end
+
+            def format_price(price)
+              price.round(Shared::Constants::OUTPUT_DECIMALS).to_s
+            end
+
+            def to_csv(rows)
+              CSV.generate do |out_csv|
+                out_csv << OUTPUT_HEADERS
+
+                rows.each do |row|
+                  out_csv << [
+                    row[:date],
+                    row[:open],
+                    row[:high],
+                    row[:low],
+                    row[:close],
+                    row[:volume]
+                  ]
+                end
+              end
             end
           end
         end
