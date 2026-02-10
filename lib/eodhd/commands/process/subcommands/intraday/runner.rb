@@ -41,7 +41,7 @@ module Eodhd
                 .sort
               return if symbols.empty?
 
-              symbol_data = symbols.map do |symbol|
+              symbol_data_list = symbols.map do |symbol|
                 {
                   exchange: exchange,
                   symbol: symbol,
@@ -49,12 +49,16 @@ module Eodhd
                 }
               end
 
-              Util::ParallelExecutor.execute(symbol_data, parallel: parallel, workers: workers) do |data|
-                process_symbol(data[:exchange], data[:symbol], data[:symbol_dir], force: force)
+              Util::ParallelExecutor.execute(symbol_data_list, parallel: parallel, workers: workers) do |symbol_data|
+                process_symbol(symbol_data, force: force)
               end
             end
 
-            def process_symbol(exchange, symbol, symbol_dir, force:)
+            def process_symbol(symbol_data, force:)
+              exchange = symbol_data[:exchange]
+              symbol = symbol_data[:symbol]
+              symbol_dir = symbol_data[:symbol_dir]
+
               raw_file_paths = Dir.glob(File.join(symbol_dir, "*.csv"))
                 .map { |abs| @io.relative_path(abs) }
                 .sort
