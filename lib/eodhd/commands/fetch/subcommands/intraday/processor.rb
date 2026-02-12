@@ -46,7 +46,7 @@ module Eodhd
               return if rows.empty?
 
               # Group rows by year-month using binary search
-              rows_by_month = Grouper.group_by_month(rows)
+              rows_by_month = Eodhd::Shared::Processing::IntradayGrouper.group_by_month(rows)
 
               rows_by_month.each do |year_month, month_rows|
                 year, month = year_month
