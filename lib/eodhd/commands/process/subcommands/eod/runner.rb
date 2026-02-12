@@ -17,7 +17,7 @@ module Eodhd
             def process(force:, parallel:, workers:)
               raw_root = @io.output_path(Eodhd::Shared::Path.raw_eod_dir)
               unless Dir.exist?(raw_root)
-                @log.info("No raw EOD directory found: #{raw_root}")
+                @log.info("No raw directory found: #{raw_root}")
                 return
               end
 
@@ -49,11 +49,15 @@ module Eodhd
               end
 
               Util::ParallelExecutor.execute(file_data, parallel: parallel, workers: workers) do |data|
-                process_symbol(data[:exchange], data[:symbol], data[:raw_rel], force: force)
+                process_symbol(data, force: force)
               end
             end
 
-            def process_symbol(exchange, symbol, raw_rel, force:)
+            def process_symbol(data, force:)
+              exchange = data[:exchange]
+              symbol = data[:symbol]
+              raw_rel = data[:raw_rel]
+
               processed_rel = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
               splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
               dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)

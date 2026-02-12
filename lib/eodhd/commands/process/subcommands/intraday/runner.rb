@@ -15,13 +15,12 @@ module Eodhd
             def process(force:, parallel:, workers:)
               raw_root = @io.output_path(Eodhd::Shared::Path.raw_intraday_processed_dir)
               unless Dir.exist?(raw_root)
-                @log.info("No raw intraday directory found: #{raw_root}")
+                @log.info("No raw directory found: #{raw_root}")
                 return
               end
 
               exchanges = Dir.children(raw_root)
                 .select { |name| Dir.exist?(File.join(raw_root, name)) }
-                .sort
               if exchanges.empty?
                 @log.info("No exchange directories found under: #{raw_root}")
                 return
