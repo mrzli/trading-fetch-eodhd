@@ -20,7 +20,7 @@ describe Eodhd::Commands::Process::Shared::SplitsProcessor do
       ]
     JSON
 
-    splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
+    splits = Eodhd::Shared::Parsing::SplitsParser.parse(splits_json)
     result = Eodhd::Commands::Process::Shared::SplitsProcessor.process(splits)
 
     expected = [
@@ -42,7 +42,7 @@ describe Eodhd::Commands::Process::Shared::SplitsProcessor do
       ]
     JSON
 
-    splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
+    splits = Eodhd::Shared::Parsing::SplitsParser.parse(splits_json)
     result = Eodhd::Commands::Process::Shared::SplitsProcessor.process(splits)
 
     expected = [
@@ -62,7 +62,7 @@ describe Eodhd::Commands::Process::Shared::SplitsProcessor do
       ]
     JSON
 
-    splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
+    splits = Eodhd::Shared::Parsing::SplitsParser.parse(splits_json)
     result = Eodhd::Commands::Process::Shared::SplitsProcessor.process(splits)
 
     expected = [

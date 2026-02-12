@@ -41,7 +41,7 @@ module Eodhd
 
             def process_file(exchange, symbol, file_path)
               csv_content = @io.read_text(file_path)
-              rows = Parsing::IntradayCsvParser.parse(csv_content)
+              rows = Eodhd::Shared::Parsing::IntradayCsvParser.parse(csv_content)
 
               return if rows.empty?
 
@@ -67,7 +67,7 @@ module Eodhd
               return nil unless @io.file_exists?(file_path)
 
               csv_content = @io.read_text(file_path)
-              Parsing::IntradayCsvParser.parse(csv_content)
+              Eodhd::Shared::Parsing::IntradayCsvParser.parse(csv_content)
             end
 
             def write_processed_file(file_path, rows)

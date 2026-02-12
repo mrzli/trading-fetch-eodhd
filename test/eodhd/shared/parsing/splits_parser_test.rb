@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../../test_helper"
+require_relative "../../../test_helper"
 
-describe Eodhd::Parsing::SplitsParser do
+describe Eodhd::Shared::Parsing::SplitsParser do
   it "returns [] for blank input" do
-    _( Eodhd::Parsing::SplitsParser.parse(" ")).must_equal []
+    _( Eodhd::Shared::Parsing::SplitsParser.parse(" ")).must_equal []
   end
 
   it "parses, sorts by date, and builds rational factors" do
@@ -15,14 +15,14 @@ describe Eodhd::Parsing::SplitsParser do
       ]
     JSON
 
-    splits = Eodhd::Parsing::SplitsParser.parse(json, sorted: false)
+    splits = Eodhd::Shared::Parsing::SplitsParser.parse(json, sorted: false)
 
     expected = [
-      Eodhd::Parsing::SplitsParser::Split.new(
+      Eodhd::Shared::Parsing::SplitsParser::Split.new(
         date: Date.iso8601("2000-06-21"),
         factor: 2.0
       ),
-      Eodhd::Parsing::SplitsParser::Split.new(
+      Eodhd::Shared::Parsing::SplitsParser::Split.new(
         date: Date.iso8601("2024-01-10"),
         factor: 4.0
       )
@@ -32,12 +32,12 @@ describe Eodhd::Parsing::SplitsParser do
   end
 
   it "raises for invalid JSON" do
-    err = _(-> { Eodhd::Parsing::SplitsParser.parse("not json") }).must_raise(Eodhd::Parsing::SplitsParser::Error)
+    err = _(-> { Eodhd::Shared::Parsing::SplitsParser.parse("not json") }).must_raise(Eodhd::Shared::Parsing::SplitsParser::Error)
     _(err.message).must_match(/Invalid splits_json/i)
   end
 
   it "raises if top-level is not an array" do
-    _(-> { Eodhd::Parsing::SplitsParser.parse("{}") }).must_raise(Eodhd::Parsing::SplitsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::SplitsParser.parse("{}") }).must_raise(Eodhd::Shared::Parsing::SplitsParser::Error)
   end
 
   it "raises for invalid split format" do
@@ -45,7 +45,7 @@ describe Eodhd::Parsing::SplitsParser do
       [{"date":"2024-01-10","split":"4"}]
     JSON
 
-    _(-> { Eodhd::Parsing::SplitsParser.parse(json) }).must_raise(Eodhd::Parsing::SplitsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::SplitsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::SplitsParser::Error)
   end
 
   it "raises for zero/negative split ratio" do
@@ -57,6 +57,6 @@ describe Eodhd::Parsing::SplitsParser do
       ]
     JSON
 
-    _(-> { Eodhd::Parsing::SplitsParser.parse(json) }).must_raise(Eodhd::Parsing::SplitsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::SplitsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::SplitsParser::Error)
   end
 end

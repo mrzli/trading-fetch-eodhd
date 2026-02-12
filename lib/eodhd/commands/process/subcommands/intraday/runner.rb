@@ -86,11 +86,11 @@ module Eodhd
               data_raw = parse_raw_data(month_files)
 
               splits_json = @io.file_exists?(splits_file) ? @io.read_text(splits_file) : "[]"
-              splits_raw = Eodhd::Parsing::SplitsParser.parse(splits_json)
+              splits_raw = Eodhd::Shared::Parsing::SplitsParser.parse(splits_json)
               splits = Shared::SplitsProcessor.process(splits_raw)
 
               dividends_json = @io.file_exists?(dividends_file) ? @io.read_text(dividends_file) : "[]"
-              dividends_raw = Eodhd::Parsing::DividendsParser.parse(dividends_json)
+              dividends_raw = Eodhd::Shared::Parsing::DividendsParser.parse(dividends_json)
               dividends = Shared::DividendsProcessor.process(dividends_raw, data_raw)
 
               data = Shared::PriceAdjust.apply(data_raw, splits, dividends)
@@ -165,7 +165,7 @@ module Eodhd
               
               month_files.each do |raw_file|
                 raw_csv = @io.read_text(raw_file)
-                parsed_data = Eodhd::Parsing::IntradayCsvParser.parse(raw_csv)
+                parsed_data = Eodhd::Shared::Parsing::IntradayCsvParser.parse(raw_csv)
                 all_data.concat(parsed_data)
               end
 

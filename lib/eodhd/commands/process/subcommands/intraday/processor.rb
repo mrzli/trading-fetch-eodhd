@@ -18,7 +18,7 @@ module Eodhd
             end
 
             def process_csv(raw_csv, splits, dividends)
-              parsed = Eodhd::Parsing::IntradayCsvParser.parse(raw_csv)
+              parsed = Eodhd::Shared::Parsing::IntradayCsvParser.parse(raw_csv)
               if parsed.empty?
                 @log.info("Skipped empty intraday CSV with size #{raw_csv.bytesize} bytes")
                 return nil
@@ -43,7 +43,7 @@ module Eodhd
               @log.info("Generated CSV with #{output.size} rows.")
 
               csv
-            rescue Eodhd::Parsing::IntradayCsvParser::Error => e
+            rescue Eodhd::Shared::Parsing::IntradayCsvParser::Error => e
               raise Error, e.message
             rescue ArgumentError => e
               raise Error, e.message

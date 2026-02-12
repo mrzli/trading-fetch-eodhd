@@ -36,7 +36,7 @@ describe Eodhd::Commands::Process::Shared::PriceAdjust do
       ]
     JSON
 
-    raw_splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
+    raw_splits = Eodhd::Shared::Parsing::SplitsParser.parse(splits_json)
     segments = Eodhd::Commands::Process::Shared::SplitsProcessor.process(raw_splits)
 
     adjusted = Eodhd::Commands::Process::Shared::PriceAdjust.apply(rows, segments, [])

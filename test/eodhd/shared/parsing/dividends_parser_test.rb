@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "../../test_helper"
+require_relative "../../../test_helper"
 
-describe Eodhd::Parsing::DividendsParser do
+describe Eodhd::Shared::Parsing::DividendsParser do
   it "returns [] for blank input" do
-    _( Eodhd::Parsing::DividendsParser.parse(" ")).must_equal []
+    _( Eodhd::Shared::Parsing::DividendsParser.parse(" ")).must_equal []
   end
 
   it "parses dividends and sorts by date" do
@@ -33,10 +33,10 @@ describe Eodhd::Parsing::DividendsParser do
       ]
     JSON
 
-    dividends = Eodhd::Parsing::DividendsParser.parse(json, sorted: false)
+    dividends = Eodhd::Shared::Parsing::DividendsParser.parse(json, sorted: false)
 
     expected = [
-      Eodhd::Parsing::DividendsParser::Dividend.new(
+      Eodhd::Shared::Parsing::DividendsParser::Dividend.new(
         date: Date.iso8601("1988-05-16"),
         declaration_date: Date.iso8601("1988-04-29"),
         record_date: Date.iso8601("1988-05-20"),
@@ -46,7 +46,7 @@ describe Eodhd::Parsing::DividendsParser do
         unadjusted_value: 0.07952,
         currency: "USD"
       ),
-      Eodhd::Parsing::DividendsParser::Dividend.new(
+      Eodhd::Shared::Parsing::DividendsParser::Dividend.new(
         date: Date.iso8601("2024-01-15"),
         declaration_date: Date.iso8601("2024-01-05"),
         record_date: Date.iso8601("2024-01-10"),
@@ -77,10 +77,10 @@ describe Eodhd::Parsing::DividendsParser do
       ]
     JSON
 
-    dividends = Eodhd::Parsing::DividendsParser.parse(json)
+    dividends = Eodhd::Shared::Parsing::DividendsParser.parse(json)
 
     expected = [
-      Eodhd::Parsing::DividendsParser::Dividend.new(
+      Eodhd::Shared::Parsing::DividendsParser::Dividend.new(
         date: Date.iso8601("2024-01-15"),
         declaration_date: nil,
         record_date: nil,
@@ -96,12 +96,12 @@ describe Eodhd::Parsing::DividendsParser do
   end
 
   it "raises for invalid JSON" do
-    err = _(-> { Eodhd::Parsing::DividendsParser.parse("not json") }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    err = _(-> { Eodhd::Shared::Parsing::DividendsParser.parse("not json") }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
     _(err.message).must_match(/Invalid dividends_json/i)
   end
 
   it "raises if top-level is not an array" do
-    _(-> { Eodhd::Parsing::DividendsParser.parse("{}") }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::DividendsParser.parse("{}") }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
   end
 
   it "raises if entry is not a hash" do
@@ -109,7 +109,7 @@ describe Eodhd::Parsing::DividendsParser do
       ["invalid"]
     JSON
 
-    _(-> { Eodhd::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
   end
 
   it "raises for missing required date" do
@@ -124,7 +124,7 @@ describe Eodhd::Parsing::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
   end
 
   it "raises for missing value" do
@@ -138,7 +138,7 @@ describe Eodhd::Parsing::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
   end
 
   it "raises for missing unadjustedValue" do
@@ -152,7 +152,7 @@ describe Eodhd::Parsing::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
   end
 
   it "raises for missing currency" do
@@ -166,7 +166,7 @@ describe Eodhd::Parsing::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
   end
 
   it "raises for invalid date format" do
@@ -181,7 +181,7 @@ describe Eodhd::Parsing::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
   end
 
   it "raises for invalid value" do
@@ -196,6 +196,6 @@ describe Eodhd::Parsing::DividendsParser do
       ]
     JSON
 
-    _(-> { Eodhd::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Parsing::DividendsParser::Error)
+    _(-> { Eodhd::Shared::Parsing::DividendsParser.parse(json) }).must_raise(Eodhd::Shared::Parsing::DividendsParser::Error)
   end
 end

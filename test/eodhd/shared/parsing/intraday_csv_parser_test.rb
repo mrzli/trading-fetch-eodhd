@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "../../test_helper"
+require_relative "../../../test_helper"
 
-describe Eodhd::Parsing::IntradayCsvParser do
+describe Eodhd::Shared::Parsing::IntradayCsvParser do
   it "parses intraday rows" do
     raw = <<~CSV
       Timestamp,Gmtoffset,Datetime,Open,High,Low,Close,Volume
@@ -10,7 +10,7 @@ describe Eodhd::Parsing::IntradayCsvParser do
       200,0,"2000-01-01 00:01:00",5.5,6.5,4.5,5.0,20
     CSV
 
-    result = Eodhd::Parsing::IntradayCsvParser.parse(raw)
+    result = Eodhd::Shared::Parsing::IntradayCsvParser.parse(raw)
 
     expected = [
       {
@@ -44,7 +44,7 @@ describe Eodhd::Parsing::IntradayCsvParser do
       100,3600,"2000-01-01 00:00:00",1,2,3,4,10
     CSV
 
-    err = _ { Eodhd::Parsing::IntradayCsvParser.parse(raw) }.must_raise(Eodhd::Parsing::IntradayCsvParser::Error)
+    err = _ { Eodhd::Shared::Parsing::IntradayCsvParser.parse(raw) }.must_raise(Eodhd::Shared::Parsing::IntradayCsvParser::Error)
     _(err.message).must_match(/Gmtoffset=0/i)
   end
 
@@ -54,7 +54,7 @@ describe Eodhd::Parsing::IntradayCsvParser do
       100,"2000-01-01 00:00:00",1,2,3,4,10
     CSV
 
-    err = _ { Eodhd::Parsing::IntradayCsvParser.parse(raw) }.must_raise(Eodhd::Parsing::IntradayCsvParser::Error)
+    err = _ { Eodhd::Shared::Parsing::IntradayCsvParser.parse(raw) }.must_raise(Eodhd::Shared::Parsing::IntradayCsvParser::Error)
     _(err.message).must_match(/Missing required columns/i)
   end
 end
