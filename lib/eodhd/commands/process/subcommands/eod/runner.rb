@@ -58,27 +58,27 @@ module Eodhd
             def process_symbol(symbol_data, force:)
               exchange = symbol_data[:exchange]
               symbol = symbol_data[:symbol]
-              symbol_path = symbol_data[:path]
+              symbol_file = symbol_data[:path]
 
-              processed_path = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
-              splits_path = Eodhd::Shared::Path.splits(exchange, symbol)
-              dividends_path = Eodhd::Shared::Path.dividends(exchange, symbol)
+              processed_file = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
+              splits_file = Eodhd::Shared::Path.splits(exchange, symbol)
+              dividends_file = Eodhd::Shared::Path.dividends(exchange, symbol)
 
               unless should_process?(
                 force: force,
-                symbol_path: symbol_path,
-                splits_path: splits_path,
-                dividends_path: dividends_path,
-                processed_path: processed_path
+                symbol_file: symbol_file,
+                splits_file: splits_file,
+                dividends_file: dividends_file,
+                processed_file: processed_file
               )
-                @log.info("Skipping processed EOD (fresh): #{processed_path}")
+                @log.info("Skipping processed EOD (fresh): #{processed_file}")
                 return
               end
 
-              raw_csv = @io.read_text(symbol_path)
-              splits_json = @io.file_exists?(splits_path) ? @io.read_text(splits_path) : "[]"
+              raw_csv = @io.read_text(symbol_file)
+              splits_json = @io.file_exists?(splits_file) ? @io.read_text(splits_file) : "[]"
               splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
-              dividends_json = @io.file_exists?(dividends_path) ? @io.read_text(dividends_path) : "[]"
+              dividends_json = @io.file_exists?(dividends_file) ? @io.read_text(dividends_file) : "[]"
               dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
               data = Parsing::EodCsvParser.parse(raw_csv)
@@ -89,7 +89,7 @@ module Eodhd
               data = to_output(data)
               processed_csv = to_csv(data)
 
-              saved_path = @io.write_csv(processed_path, processed_csv)
+              saved_path = @io.write_csv(processed_file, processed_csv)
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
             rescue StandardError => e
               @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
@@ -97,23 +97,23 @@ module Eodhd
 
             def should_process?(
               force:,
-              symbol_path:,
-              splits_path:,
-              dividends_path:,
-              processed_path:
+              symbol_file:,
+              splits_file:,
+              dividends_file:,
+              processed_file:
             )
               return true if force
 
-              processed_mtime = @io.file_last_updated_at(processed_path)
+              processed_mtime = @io.file_last_updated_at(processed_file)
               return true if processed_mtime.nil?
 
-              symbol_mtime = @io.file_last_updated_at(symbol_path)
+              symbol_mtime = @io.file_last_updated_at(symbol_file)
               return true if symbol_mtime && symbol_mtime > processed_mtime
 
-              splits_mtime = @io.file_last_updated_at(splits_path)
+              splits_mtime = @io.file_last_updated_at(splits_file)
               return true if splits_mtime && splits_mtime > processed_mtime
 
-              dividends_mtime = @io.file_last_updated_at(dividends_path)
+              dividends_mtime = @io.file_last_updated_at(dividends_file)
               return true if dividends_mtime && dividends_mtime > processed_mtime
 
               false
