@@ -10,6 +10,7 @@ module Eodhd
       DEFAULT_BASE_DELAY = 1.0
 
       class TooManyRequestsError < StandardError; end
+      class PaymentRequiredError < StandardError; end
 
       def initialize(cfg:, log:)
         @log = log
@@ -129,6 +130,8 @@ module Eodhd
         begin
           attempt += 1
           yield
+        rescue PaymentRequiredError
+          raise
         rescue TooManyRequestsError => e
           pause_requests!(reason: e.message)
           attempt = 0
@@ -147,6 +150,11 @@ module Eodhd
       end
 
       def validate_response(response)
+        if response.code.to_i == 402
+          body_preview = response.body.to_s[0, 500]
+          raise PaymentRequiredError, "Request failed: HTTP 402 Payment Required\n#{body_preview}"
+        end
+
         unless response.is_a?(Net::HTTPSuccess)
           body_preview = response.body.to_s[0, 500]
           raise "Request failed: HTTP #{response.code} #{response.message}\n#{body_preview}"

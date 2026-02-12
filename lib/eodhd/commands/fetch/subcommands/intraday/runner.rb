@@ -95,6 +95,8 @@ module Eodhd
                 @io.delete_dir(fetched_dir)
                 @log.info("Deleted fetched intraday files for #{symbol_with_exchange} after processing")
               rescue StandardError => e
+                raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
+
                 @log.warn("Failed intraday for #{symbol_with_exchange}: #{e.class}: #{e.message}")
               end
             end

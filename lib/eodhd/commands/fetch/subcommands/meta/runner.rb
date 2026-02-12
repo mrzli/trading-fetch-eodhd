@@ -36,7 +36,7 @@ module Eodhd
                 Thread.new { fetch_metadata(symbol_entry, :splits, ->(e, s) { @api.get_splits_json(e, s) }, force: force) },
                 Thread.new { fetch_metadata(symbol_entry, :dividends, ->(e, s) { @api.get_dividends_json(e, s) }, force: force) }
               ]
-              threads.each(&:join)
+              threads.each(&:value)
             end
 
             def fetch_metadata(symbol_entry, type, api_method, force:)
@@ -55,6 +55,8 @@ module Eodhd
               saved_path = @io.write_json(path, data, true)
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
             rescue StandardError => e
+              raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
+
               @log.warn("Failed #{type} for #{symbol_with_exchange}: #{e.class}: #{e.message}")
             end
 

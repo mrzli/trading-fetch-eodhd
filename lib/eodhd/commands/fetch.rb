@@ -42,6 +42,10 @@ module Eodhd
         else
           raise "Unknown subcommand: #{subcommand}"
         end
+      rescue Eodhd::Shared::Api::PaymentRequiredError => e
+        container&.logger&.error("Received HTTP 402 from API. Exiting fetch execution.")
+        container&.logger&.error(e.message)
+        exit(1)
       end
     end
   end

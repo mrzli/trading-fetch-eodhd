@@ -63,6 +63,8 @@ module Eodhd
                   @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
                 end
               rescue StandardError => e
+                raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
+
                 @log.warn("Failed symbols for #{exchange}: #{e.class}: #{e.message}")
               end
             end
