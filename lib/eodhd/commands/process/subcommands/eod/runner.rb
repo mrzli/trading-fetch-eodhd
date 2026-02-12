@@ -14,21 +14,20 @@ module Eodhd
             end
 
             def process(force:, parallel:, workers:)
-              raw_root = @io.output_path(Eodhd::Shared::Path.raw_eod_dir)
-              unless Dir.exist?(raw_root)
-                @log.info("No raw directory found: #{raw_root}")
+              raw_dir = Eodhd::Shared::Path.raw_eod_dir
+              unless @io.dir_exists?(raw_dir)
+                @log.info("No raw directory found: #{raw_dir}")
                 return
               end
 
-              exchanges = Dir.children(raw_root)
-                .filter { |name| Dir.exist?(File.join(raw_root, name)) }
+              exchanges = @io.list_relative_dirs(raw_dir)
               if exchanges.empty?
-                @log.info("No exchange directories found under: #{raw_root}")
+                @log.info("No exchange directories found under: #{raw_dir}")
                 return
               end
 
               exchanges.each do |exchange|
-                exchange_dir = File.join(raw_root, exchange)
+                exchange_dir = File.join(raw_dir, exchange)
                 process_exchange(exchange, exchange_dir, force: force, parallel: parallel, workers: workers)
               end
             end
@@ -36,46 +35,47 @@ module Eodhd
             private
 
             def process_exchange(exchange, exchange_dir, force:, parallel:, workers:)
-              raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv"))
-              return if raw_abs_files.empty?
+              symbol_files = @io.list_relative_files(exchange_dir)
+                .filter { |path| path.end_with?(".csv") }
+              return if symbol_files.empty?
 
-              file_data = raw_abs_files.map do |raw_abs|
+              symbol_data_list = symbol_files.map do |symbol_file|
                 {
                   exchange: exchange,
-                  symbol: File.basename(raw_abs, ".csv"),
-                  raw_rel: @io.relative_path(raw_abs)
+                  symbol: File.basename(symbol_file),
+                  path: symbol_file
                 }
               end
 
-              Util::ParallelExecutor.execute(file_data, parallel: parallel, workers: workers) do |data|
-                process_symbol(data, force: force)
+              Util::ParallelExecutor.execute(symbol_data_list, parallel: parallel, workers: workers) do |symbol_data|
+                process_symbol(symbol_data, force: force)
               end
             end
 
-            def process_symbol(data, force:)
-              exchange = data[:exchange]
-              symbol = data[:symbol]
-              raw_rel = data[:raw_rel]
+            def process_symbol(symbol_data, force:)
+              exchange = symbol_data[:exchange]
+              symbol = symbol_data[:symbol]
+              symbol_path = symbol_data[:path]
 
-              processed_rel = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
-              splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
-              dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
+              processed_path = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
+              splits_path = Eodhd::Shared::Path.splits(exchange, symbol)
+              dividends_path = Eodhd::Shared::Path.dividends(exchange, symbol)
 
               unless should_process?(
                 force: force,
-                raw_rel: raw_rel,
-                splits_rel: splits_rel,
-                dividends_rel: dividends_rel,
-                processed_rel: processed_rel
+                symbol_path: symbol_path,
+                splits_path: splits_path,
+                dividends_path: dividends_path,
+                processed_path: processed_path
               )
-                @log.info("Skipping processed EOD (fresh): #{processed_rel}")
+                @log.info("Skipping processed EOD (fresh): #{processed_path}")
                 return
               end
 
-              raw_csv = @io.read_text(raw_rel)
-              splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : "[]"
+              raw_csv = @io.read_text(symbol_path)
+              splits_json = @io.file_exists?(splits_path) ? @io.read_text(splits_path) : "[]"
               splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
-              dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : "[]"
+              dividends_json = @io.file_exists?(dividends_path) ? @io.read_text(dividends_path) : "[]"
               dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
               data = Parsing::EodCsvParser.parse(raw_csv)
@@ -86,25 +86,31 @@ module Eodhd
               data = to_output(data)
               processed_csv = to_csv(data)
 
-              saved_path = @io.write_csv(processed_rel, processed_csv)
+              saved_path = @io.write_csv(processed_path, processed_csv)
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
             rescue StandardError => e
               @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
             end
 
-            def should_process?(force:, raw_rel:, splits_rel:, dividends_rel:, processed_rel:)
+            def should_process?(
+              force:,
+              symbol_path:,
+              splits_path:,
+              dividends_path:,
+              processed_path:
+            )
               return true if force
 
-              processed_mtime = @io.file_last_updated_at(processed_rel)
+              processed_mtime = @io.file_last_updated_at(processed_path)
               return true if processed_mtime.nil?
 
-              raw_mtime = @io.file_last_updated_at(raw_rel)
-              return true if raw_mtime && raw_mtime > processed_mtime
+              symbol_mtime = @io.file_last_updated_at(symbol_path)
+              return true if symbol_mtime && symbol_mtime > processed_mtime
 
-              splits_mtime = @io.file_last_updated_at(splits_rel)
+              splits_mtime = @io.file_last_updated_at(splits_path)
               return true if splits_mtime && splits_mtime > processed_mtime
 
-              dividends_mtime = @io.file_last_updated_at(dividends_rel)
+              dividends_mtime = @io.file_last_updated_at(dividends_path)
               return true if dividends_mtime && dividends_mtime > processed_mtime
 
               false
