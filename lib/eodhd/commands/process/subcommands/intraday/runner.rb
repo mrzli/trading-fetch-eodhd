@@ -95,6 +95,13 @@ module Eodhd
 
               data = Shared::PriceAdjust.apply(data_raw, splits, dividends)
 
+              data_by_month = Eodhd::Shared::Processing::IntradayGrouper.group_by_month(data)
+
+              data_by_month.each do |year_month, data_for_month|
+                year, month = year_month
+                process_month(year, month, data_for_month)
+              end
+
               month_files.each do |raw_rel|
                 filename = File.basename(raw_rel, ".csv")
                 
