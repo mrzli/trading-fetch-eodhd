@@ -8,22 +8,22 @@ module Eodhd
   module Shared
     class Io
       def initialize(output_dir:)
-        @output_dir = Util::Validate.required_string("output_dir", output_dir)
+        @output_dir = ::Util::Validate.required_string("output_dir", output_dir)
       end
 
       # Path - start
       def output_path(relative_path)
-        relative_path = Util::Validate.required_string("relative_path", relative_path)
+        relative_path = ::Util::Validate.required_string("relative_path", relative_path)
         File.join(@output_dir, relative_path)
       end
 
       def relative_path(output_path)
-        output_path = Util::Validate.required_string("output_path", output_path)
+        output_path = ::Util::Validate.required_string("output_path", output_path)
         Pathname.new(output_path).relative_path_from(Pathname.new(@output_dir)).to_s
       end
 
       def list_relative_entries(relative_dir)
-        relative_dir = Util::Validate.required_string("relative_dir", relative_dir)
+        relative_dir = ::Util::Validate.required_string("relative_dir", relative_dir)
         dir_path = output_path(relative_dir)
         return [] unless Dir.exist?(dir_path)
         Dir.children(dir_path)
@@ -71,13 +71,13 @@ module Eodhd
 
       # Write - start
       def write_csv(relative_path, csv)
-        csv = Util::Validate.required_string("csv", csv)
+        csv = ::Util::Validate.required_string("csv", csv)
 
         write_text_file(relative_path, csv, false)
       end
 
       def write_json(relative_path, json, pretty = true)
-        json = Util::Validate.required_string("json", json)
+        json = ::Util::Validate.required_string("json", json)
 
         content = pretty ? pretty_json(json) : json
 
@@ -87,7 +87,7 @@ module Eodhd
 
       # File operations - start
       def delete_dir(relative_dir)
-        relative_dir = Validate.required_string("relative_dir", relative_dir)
+        relative_dir = ::Util::Validate.required_string("relative_dir", relative_dir)
         if relative_dir.include?("..") || relative_dir.start_with?("/")
           raise ArgumentError, "relative_dir must be a safe relative path."
         end
