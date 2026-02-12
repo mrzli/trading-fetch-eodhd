@@ -66,10 +66,10 @@ module Eodhd
 
               unless should_process?(
                 force: force,
+                processed_file: processed_file,
                 symbol_file: symbol_file,
                 splits_file: splits_file,
                 dividends_file: dividends_file,
-                processed_file: processed_file
               )
                 @log.info("Skipping processed EOD (fresh): #{processed_file}")
                 return
@@ -99,10 +99,10 @@ module Eodhd
 
             def should_process?(
               force:,
+              processed_file:,
               symbol_file:,
               splits_file:,
-              dividends_file:,
-              processed_file:
+              dividends_file:
             )
               return true if force
 

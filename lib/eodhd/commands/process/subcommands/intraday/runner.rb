@@ -72,8 +72,8 @@ module Eodhd
 
               unless should_process?(
                 force: force,
-                raw_files: month_files,
                 processed_files: processed_files,
+                raw_files: month_files,
                 splits_file: splits_file,
                 dividends_file: dividends_file
               )
@@ -118,8 +118,8 @@ module Eodhd
 
             def should_process?(
               force:,
-              raw_files:,
               processed_files:,
+              raw_files:,
               splits_file:,
               dividends_file:
             )
