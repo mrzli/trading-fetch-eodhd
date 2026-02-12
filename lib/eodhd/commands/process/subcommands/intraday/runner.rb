@@ -81,9 +81,9 @@ module Eodhd
                 return
               end
 
-              splits_json = @io.file_exists?(splits_rel) ? @io.read_text(splits_rel) : nil
+              splits_json = @io.file_exists?(splits_file) ? @io.read_text(splits_file) : nil
               splits = splits_json ? Eodhd::Parsing::SplitsParser.parse(splits_json) : []
-              dividends_json = @io.file_exists?(dividends_rel) ? @io.read_text(dividends_rel) : ""
+              dividends_json = @io.file_exists?(dividends_file) ? @io.read_text(dividends_file) : ""
               dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
               month_files.each do |raw_rel|
@@ -124,49 +124,29 @@ module Eodhd
               dividends_file:
             )
               return true if force
+              return true if processed_files.empty?
 
-              # Check if any output file is missing
-              raw_interval_files.each do |raw_rel|
-                filename = File.basename(raw_rel, ".csv")
-                match = filename.match(/^(\d{4})-(\d{2})$/)
-                next unless match
+              # Find latest processed file
+              latest_processed_mtime = processed_files
+                .map { |file| @io.file_last_updated_at(file) }
+                .compact
+                .max
+              return true if latest_processed_mtime.nil?
 
-                year = match[1].to_i
-                month = match[2].to_i
-                processed_rel = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, year, month)
-                
-                return true if @io.file_last_updated_at(processed_rel).nil?
-              end
+              # Find latest raw file
+              latest_raw_mtime = raw_files
+                .map { |file| @io.file_last_updated_at(file) }
+                .compact
+                .max
+              return true if latest_raw_mtime && latest_raw_mtime > latest_processed_mtime
 
-              # All output files exist, check timestamps
-              # Find the oldest processed file
-              oldest_processed_mtime = nil
-              raw_files.each do |raw_rel|
-                filename = File.basename(raw_rel, ".csv")
-                match = filename.match(/^(\d{4})-(\d{2})$/)
-                next unless match
-
-                year = match[1].to_i
-                month = match[2].to_i
-                processed_rel = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, year, month)
-                processed_mtime = @io.file_last_updated_at(processed_rel)
-                
-                if oldest_processed_mtime.nil? || (processed_mtime && processed_mtime < oldest_processed_mtime)
-                  oldest_processed_mtime = processed_mtime
-                end
-              end
-
-              # Check if any input file is newer than the oldest processed file
-              raw_files.each do |raw_rel|
-                raw_mtime = @io.file_last_updated_at(raw_rel)
-                return true if raw_mtime && raw_mtime > oldest_processed_mtime
-              end
-
+              # Check splits file
               splits_mtime = @io.file_last_updated_at(splits_file)
-              return true if splits_mtime && splits_mtime > oldest_processed_mtime
+              return true if splits_mtime && splits_mtime > latest_processed_mtime
 
+              # Check dividends file
               dividends_mtime = @io.file_last_updated_at(dividends_file)
-              return true if dividends_mtime && dividends_mtime > oldest_processed_mtime
+              return true if dividends_mtime && dividends_mtime > latest_processed_mtime
 
               false
             end
