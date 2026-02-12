@@ -13,38 +13,37 @@ module Eodhd
             end
 
             def process(force:, parallel:, workers:)
-              raw_root = @io.output_path(Eodhd::Shared::Path.raw_intraday_processed_dir)
-              unless Dir.exist?(raw_root)
-                @log.info("No raw directory found: #{raw_root}")
+              raw_dir = Eodhd::Shared::Path.raw_intraday_processed_dir
+              unless @io.dir_exists?(raw_dir)
+                @log.info("No raw intraday directory found: #{raw_dir}")
                 return
               end
 
-              exchanges = Dir.children(raw_root)
-                .select { |name| Dir.exist?(File.join(raw_root, name)) }
-              if exchanges.empty?
-                @log.info("No exchange directories found under: #{raw_root}")
+              exchange_dirs = @io.list_relative_dirs(raw_dir).sort
+              if exchange_dirs.empty?
+                @log.info("No exchange directories found under: #{raw_dir}")
                 return
               end
 
-              exchanges.each do |exchange|
-                exchange_dir = File.join(raw_root, exchange)
-                process_exchange(exchange, exchange_dir, force: force, parallel: parallel, workers: workers)
+              exchange_dirs.each do |exchange_dir|
+                process_exchange(exchange_dir, force: force, parallel: parallel, workers: workers)
               end
             end
 
             private
 
-            def process_exchange(exchange, exchange_dir, force:, parallel:, workers:)
-              symbols = Dir.children(exchange_dir)
-                .select { |name| Dir.exist?(File.join(exchange_dir, name)) }
-                .sort
-              return if symbols.empty?
+            def process_exchange(exchange_dir, force:, parallel:, workers:)
+              symbol_dirs = @io.list_relative_dirs(exchange_dir).sort
+              return if symbol_dirs.empty?
 
-              symbol_data_list = symbols.map do |symbol|
+              exchange = File.basename(exchange_dir)
+              @log.info("Processing intraday for exchange: #{exchange} (#{symbol_dirs.size} symbols)")
+
+              symbol_data_list = symbol_dirs.map do |symbol_dir|
                 {
                   exchange: exchange,
-                  symbol: symbol,
-                  symbol_dir: File.join(exchange_dir, symbol)
+                  symbol: File.basename(symbol_dir),
+                  symbol_dir: symbol_dir
                 }
               end
 

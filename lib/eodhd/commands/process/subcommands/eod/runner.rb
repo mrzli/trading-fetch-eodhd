@@ -16,30 +16,30 @@ module Eodhd
             def process(force:, parallel:, workers:)
               raw_dir = Eodhd::Shared::Path.raw_eod_dir
               unless @io.dir_exists?(raw_dir)
-                @log.info("No raw directory found: #{raw_dir}")
+                @log.info("No raw EOD directory found: #{raw_dir}")
                 return
               end
 
-              exchange_paths = @io.list_relative_dirs(raw_dir).sort
-              if exchange_paths.empty?
+              exchange_dirs = @io.list_relative_dirs(raw_dir).sort
+              if exchange_dirs.empty?
                 @log.info("No exchange directories found under: #{raw_dir}")
                 return
               end
 
-              exchange_paths.each do |exchange_path|
-                process_exchange(exchange_path, force: force, parallel: parallel, workers: workers)
+              exchange_dirs.each do |exchange_dir|
+                process_exchange(exchange_dir, force: force, parallel: parallel, workers: workers)
               end
             end
 
             private
 
-            def process_exchange(exchange_path, force:, parallel:, workers:)
-              symbol_files = @io.list_relative_files(exchange_path)
+            def process_exchange(exchange_dir, force:, parallel:, workers:)
+              symbol_files = @io.list_relative_files(exchange_dir)
                 .filter { |path| path.end_with?(".csv") }
                 .sort
               return if symbol_files.empty?
 
-              exchange = File.basename(exchange_path)
+              exchange = File.basename(exchange_dir)
               @log.info("Processing EOD for exchange: #{exchange} (#{symbol_files.size} symbols)")
 
               symbol_data_list = symbol_files.map do |symbol_file|
