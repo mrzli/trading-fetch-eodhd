@@ -59,10 +59,14 @@ module Eodhd
               symbol = symbol_data[:symbol]
               symbol_dir = symbol_data[:symbol_dir]
 
+              @log.info("Processing intraday for #{exchange}/#{symbol}...")
+
               month_files = @io.list_relative_files(symbol_dir)
                 .filter { |path| path.end_with?(".csv") }
                 .sort
               return if month_files.empty?
+
+              @log.info("Found #{month_files.size} month file(s) for #{exchange}/#{symbol}")
 
               processed_dir = Eodhd::Shared::Path.processed_intraday_data_dir(exchange, symbol)
               processed_files = @io.list_relative_files(processed_dir)
@@ -83,8 +87,11 @@ module Eodhd
                 return
               end
 
-              data_raw = parse_raw_data(month_files)
+              @log.info("Parsing raw data for #{exchange}/#{symbol} (#{month_files.size} files)...")
+              data_raw = parse_raw_data(month_files, exchange, symbol)
+              @log.info("Parsed #{data_raw.size} total rows for #{exchange}/#{symbol}")
 
+              @log.info("Processing splits and dividends for #{exchange}/#{symbol}...")
               splits_json = @io.file_exists?(splits_file) ? @io.read_text(splits_file) : "[]"
               splits_raw = Eodhd::Shared::Parsing::SplitsParser.parse(splits_json)
               splits = Shared::SplitsProcessor.process(splits_raw)
@@ -93,9 +100,12 @@ module Eodhd
               dividends_raw = Eodhd::Shared::Parsing::DividendsParser.parse(dividends_json)
               dividends = Shared::DividendsProcessor.process(dividends_raw, data_raw)
 
+              @log.info("Applying price adjustments for #{exchange}/#{symbol} (#{splits.size} splits, #{dividends.size} dividends)...")
               data = Shared::PriceAdjust.apply(data_raw, splits, dividends)
 
+              @log.info("Grouping data by month for #{exchange}/#{symbol}...")
               data_by_month = Eodhd::Shared::Processing::IntradayGrouper.group_by_month(data)
+              @log.info("Grouped into #{data_by_month.size} month(s) for #{exchange}/#{symbol}")
 
               data_by_month.each do |year_month, data_for_month|
                 year, month = year_month
@@ -107,6 +117,8 @@ module Eodhd
                 saved_path = @io.write_csv(processed_file, processed_csv)
                 @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
               end
+
+              @log.info("Completed processing intraday for #{exchange}/#{symbol}")
             rescue StandardError => e
               @log.warn("Failed processing intraday for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
             end
@@ -146,10 +158,11 @@ module Eodhd
               false
             end
 
-            def parse_raw_data(month_files)
+            def parse_raw_data(month_files, exchange, symbol)
               all_data = []
               
-              month_files.each do |raw_file|
+              month_files.each_with_index do |raw_file, index|
+                @log.info("Parsing #{exchange}/#{symbol} file #{index + 1}/#{month_files.size}: #{File.basename(raw_file)}")
                 raw_csv = @io.read_text(raw_file)
                 parsed_data = Eodhd::Shared::Parsing::IntradayCsvParser.parse(raw_csv)
                 all_data.concat(parsed_data)
