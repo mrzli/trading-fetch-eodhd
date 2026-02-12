@@ -11,7 +11,6 @@ module Eodhd
             def initialize(log:, io:)
               @log = log
               @io = io
-              @processor = Processor.new(log: log)
             end
 
             def process(force:, parallel:, workers:)
@@ -37,7 +36,7 @@ module Eodhd
             private
 
             def process_exchange(exchange, exchange_dir, force:, parallel:, workers:)
-              raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv")).sort
+              raw_abs_files = Dir.glob(File.join(exchange_dir, "*.csv"))
               return if raw_abs_files.empty?
 
               file_data = raw_abs_files.map do |raw_abs|
