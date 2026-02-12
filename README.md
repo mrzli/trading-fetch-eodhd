@@ -47,6 +47,12 @@ cp .env.example .env
 
 Edit `.env` and set your EODHD API key and any other necessary variables.
 
+### 5. Using External Drive for Data (Optional)
+
+```bash
+sudo mount -t exfat -o uid=$(id -u),gid=$(id -g) /dev/disk/by-uuid/34D4-9F99 /home/mrzli/projects/ext
+```
+
 ## Running Commands
 
 ### Fetch Data
