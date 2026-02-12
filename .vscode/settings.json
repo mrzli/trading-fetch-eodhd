@@ -1,0 +1,11 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "rake test": true,
+    "/Users/mrzli/projects/personal/trading/trading-fetch-eodhd/bin/fetch": true,
+    "/Users/mrzli/projects/personal/trading/trading-fetch-eodhd/bin/process": true,
+    "/Users/mrzli/projects/personal/trading/trading-fetch-eodhd/bin/clean": true,
+    "./bin/fetch": true,
+    "./bin/process": true,
+    "./bin/clean": true
+  }
+}

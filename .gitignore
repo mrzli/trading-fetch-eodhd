@@ -33,5 +33,6 @@
 .DS_Store
 *.swp
 *.swo
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
