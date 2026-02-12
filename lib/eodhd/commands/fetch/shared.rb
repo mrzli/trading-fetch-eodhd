@@ -6,11 +6,11 @@ module Eodhd
   module Commands
     module Fetch
       class Shared
-        SYMBOL_INCLUDED_EXCHANGES = Set.new(["US"]).freeze
-        SYMBOL_INCLUDED_REAL_EXCHANGES = Set.new(["NYSE", "NASDAQ"]).freeze
+        SYMBOL_INCLUDED_EXCHANGES = Set.new(["us"]).freeze
+        SYMBOL_INCLUDED_REAL_EXCHANGES = Set.new(["nyse", "nasdaq"]).freeze
         SYMBOL_INCLUDED_TYPES = Set.new(["common-stock"]).freeze
 
-        SYMBOLS_INCLUDED_INTRADAY = Set.new(["AAPL"]).freeze
+        SYMBOLS_INCLUDED_INTRADAY = Set.new([]).freeze
 
         def initialize(container:)
           @cfg = container.config
@@ -18,16 +18,16 @@ module Eodhd
         end
 
         def should_fetch_symbol?(symbol_entry)
-          return false unless SYMBOL_INCLUDED_EXCHANGES.include?(symbol_entry[:exchange])
-          return false unless SYMBOL_INCLUDED_REAL_EXCHANGES.include?(symbol_entry[:real_exchange])
-          return false unless SYMBOL_INCLUDED_TYPES.include?(symbol_entry[:type])
+          return false unless SYMBOL_INCLUDED_EXCHANGES.include?(symbol_entry[:exchange].downcase)
+          return false unless SYMBOL_INCLUDED_REAL_EXCHANGES.include?(symbol_entry[:real_exchange].downcase)
+          return false unless SYMBOL_INCLUDED_TYPES.include?(symbol_entry[:type].downcase)
 
           true
         end
 
         def should_fetch_symbol_intraday?(symbol_entry)
           return false unless should_fetch_symbol?(symbol_entry)
-          return false unless SYMBOLS_INCLUDED_INTRADAY.include?(symbol_entry[:symbol])
+          return false unless SYMBOLS_INCLUDED_INTRADAY.empty? || SYMBOLS_INCLUDED_INTRADAY.include?(symbol_entry[:symbol].downcase)
           true
         end
 
