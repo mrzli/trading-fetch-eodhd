@@ -11,7 +11,6 @@ module Eodhd
             def initialize(log:, io:)
               @log = log
               @io = io
-              @processor = Processor.new(log: log)
             end
 
             def process(force:, parallel:, workers:)
