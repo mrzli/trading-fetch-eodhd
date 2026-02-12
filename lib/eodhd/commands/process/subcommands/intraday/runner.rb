@@ -81,10 +81,10 @@ module Eodhd
                 return
               end
 
-              splits_json = @io.file_exists?(splits_file) ? @io.read_text(splits_file) : nil
-              splits = splits_json ? Eodhd::Parsing::SplitsParser.parse(splits_json) : []
-              dividends_json = @io.file_exists?(dividends_file) ? @io.read_text(dividends_file) : ""
-              dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
+              splits_json = @io.file_exists?(splits_file) ? @io.read_text(splits_file) : "[]"
+              splits_raw = Eodhd::Parsing::SplitsParser.parse(splits_json)
+              dividends_json = @io.file_exists?(dividends_file) ? @io.read_text(dividends_file) : "[]"
+              dividends_raw = Eodhd::Parsing::DividendsParser.parse(dividends_json)
 
               month_files.each do |raw_rel|
                 filename = File.basename(raw_rel, ".csv")
@@ -102,7 +102,7 @@ module Eodhd
                 processed_rel = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, year, month)
 
                 raw_csv = @io.read_text(raw_rel)
-                processed_csv = @processor.process_csv(raw_csv, splits, dividends)
+                processed_csv = @processor.process_csv(raw_csv, splits_raw, dividends_raw)
                 
                 if processed_csv.nil?
                   @log.info("No intraday rows produced for #{exchange}/#{symbol}/#{filename}")
