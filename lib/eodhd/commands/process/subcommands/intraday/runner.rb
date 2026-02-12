@@ -6,6 +6,8 @@ module Eodhd
       module Subcommands
         module Intraday
           class Runner
+            OUTPUT_HEADERS = ["Timestamp", "Datetime", "Open", "High", "Low", "Close", "Volume"].freeze
+
             def initialize(log:, io:)
               @log = log
               @io = io
@@ -91,6 +93,8 @@ module Eodhd
               dividends_raw = Eodhd::Parsing::DividendsParser.parse(dividends_json)
               dividends = Shared::DividendsProcessor.process(dividends_raw, data_raw)
 
+              data = Shared::PriceAdjust.apply(data_raw, splits, dividends)
+
               month_files.each do |raw_rel|
                 filename = File.basename(raw_rel, ".csv")
                 
@@ -166,6 +170,42 @@ module Eodhd
               end
 
               all_data
+            end
+
+            def to_output(data)
+              data.map do |row|
+                {
+                  timestamp: row[:timestamp].to_s,
+                  datetime: row[:datetime],
+                  open: format_price(row[:open]),
+                  high: format_price(row[:high]),
+                  low: format_price(row[:low]),
+                  close: format_price(row[:close]),
+                  volume: row[:volume].to_s
+                }
+              end
+            end
+
+            def format_price(price)
+              price.round(Eodhd::Commands::Process::Shared::Constants::OUTPUT_DECIMALS).to_s
+            end
+
+            def to_csv(rows)
+              CSV.generate do |out_csv|
+                out_csv << OUTPUT_HEADERS
+
+                rows.each do |row|
+                  out_csv << [
+                    row[:timestamp],
+                    row[:datetime],
+                    row[:open],
+                    row[:high],
+                    row[:low],
+                    row[:close],
+                    row[:volume]
+                  ]
+                end
+              end
             end
           end
         end

@@ -86,7 +86,6 @@ module Eodhd
               dividends_raw = Eodhd::Parsing::DividendsParser.parse(dividends_json)
               dividends = Shared::DividendsProcessor.process(dividends_raw, data_raw)
 
-
               data = Shared::PriceAdjust.apply(data_raw, splits, dividends)
               data = to_output(data)
               processed_csv = to_csv(data)
