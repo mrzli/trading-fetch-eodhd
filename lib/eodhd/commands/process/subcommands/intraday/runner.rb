@@ -57,10 +57,10 @@ module Eodhd
               symbol = symbol_data[:symbol]
               symbol_dir = symbol_data[:symbol_dir]
 
-              raw_file_paths = Dir.glob(File.join(symbol_dir, "*.csv"))
-                .map { |abs| @io.relative_path(abs) }
+              month_files = @io.list_relative_files(symbol_dir)
+                .filter { |path| path.end_with?(".csv") }
                 .sort
-              return if raw_file_paths.empty?
+              return if month_files.empty?
 
               splits_rel = Eodhd::Shared::Path.splits(exchange, symbol)
               dividends_rel = Eodhd::Shared::Path.dividends(exchange, symbol)
