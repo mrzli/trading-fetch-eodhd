@@ -62,16 +62,20 @@ module Eodhd
                 .sort
               return if month_files.empty?
 
+              processed_dir = Eodhd::Shared::Path.processed_intraday_data_dir(exchange, symbol)
+              processed_files = @io.list_relative_files(processed_dir)
+                .filter { |path| path.end_with?(".csv") }
+                .sort
+
               splits_file = Eodhd::Shared::Path.splits(exchange, symbol)
               dividends_file = Eodhd::Shared::Path.dividends(exchange, symbol)
 
               unless should_process?(
                 force: force,
                 raw_files: month_files,
+                processed_files: processed_files,
                 splits_file: splits_file,
-                dividends_file: dividends_file,
-                exchange: exchange,
-                symbol: symbol
+                dividends_file: dividends_file
               )
                 @log.info("Skipping processed intraday (fresh): #{exchange}/#{symbol}")
                 return
@@ -114,11 +118,10 @@ module Eodhd
 
             def should_process?(
               force:,
-              raw_interval_files:,
+              raw_files:,
+              processed_files:,
               splits_file:,
-              dividends_file:,
-              exchange:,
-              symbol:
+              dividends_file:
             )
               return true if force
 
