@@ -35,7 +35,7 @@ module Eodhd
                 multiplier = (prev_close - dividend_value) / prev_close
 
                 if multiplier <= 0.0
-                  raise Error, "Dividend on #{dividend.date} is too large for previous close #{prev_close}"
+                  raise Error, "Dividend on #{dividend.date} of value #{dividend_value} is too large for previous close #{prev_close}"
                 end
 
                 { timestamp: ts, multiplier: multiplier }
