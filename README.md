@@ -55,7 +55,11 @@ sudo mount -t exfat -o uid=$(id -u),gid=$(id -g) /dev/disk/by-uuid/34D4-9F99 /ho
 
 ## Running Commands
 
+All commands support `--help` flag to show usage information.
+
 ### Fetch Data
+
+Fetches data from EODHD API.
 
 ```bash
 ./bin/fetch --help                           # Show help
@@ -64,7 +68,7 @@ sudo mount -t exfat -o uid=$(id -u),gid=$(id -g) /dev/disk/by-uuid/34D4-9F99 /ho
 ./bin/fetch exchanges          # Fetch exchanges
 ./bin/fetch exchanges --force  # Force fresh fetch
 
-# Fetch symbols
+# Fetch symbols for exchanges
 ./bin/fetch symbols            # Fetch symbols (sequentially)
 ./bin/fetch symbols --parallel # Fetch symbols (parallel with default workers)
 ./bin/fetch symbols -p -w 8    # Fetch symbols (parallel with 8 workers)
@@ -83,24 +87,76 @@ sudo mount -t exfat -o uid=$(id -u),gid=$(id -g) /dev/disk/by-uuid/34D4-9F99 /ho
 ./bin/fetch eod -f -p          # Force fetch EOD in parallel
 
 # Fetch intraday data
-./bin/fetch intraday           # Fetch intraday (sequentially)
-./bin/fetch intraday --parallel # Fetch intraday (parallel with default workers)
-./bin/fetch intraday -p -w 8   # Fetch intraday (parallel with 8 workers)
+./bin/fetch intraday                  # Fetch intraday (sequentially)
+./bin/fetch intraday --parallel       # Fetch intraday (parallel with default workers)
+./bin/fetch intraday -p -w 8          # Fetch intraday (parallel with 8 workers)
+./bin/fetch intraday --recheck-start-date 2025-01-01 -p  # Recheck from specific date
 ```
 
 ### Process Data
 
+Processes fetched data (splits, dividends, price adjustments, merging).
+
 ```bash
 ./bin/process --help              # Show help
-./bin/process eod                 # Process EOD data
-./bin/process intraday            # Process intraday data
+
+# Process EOD data
+./bin/process eod                 # Process EOD data (sequentially)
+./bin/process eod --parallel      # Process EOD data (parallel)
+./bin/process eod -p -w 8         # Process EOD data (parallel with 8 workers)
+./bin/process eod -f -p           # Force process EOD data in parallel
+
+# Process intraday data
+./bin/process intraday            # Process intraday data (sequentially)
+./bin/process intraday --parallel # Process intraday data (parallel)
+./bin/process intraday -p -w 8    # Process intraday data (parallel with 8 workers)
+./bin/process intraday -f -p      # Force process intraday data in parallel
+```
+
+### Clean Data
+
+Removes fetched/processed data.
+
+```bash
+./bin/clean --help       # Show help
+
+# Clean exchanges data
+./bin/clean exchanges    # Delete exchanges list (with confirmation)
+./bin/clean exchanges -y # Delete exchanges list (skip confirmation)
+
+# Clean symbols data
+./bin/clean symbols      # Delete symbols (with confirmation)
+./bin/clean symbols -y   # Delete symbols (skip confirmation)
 ```
 
 ## Architecture
 
-- `bin/`: Command entry points
-- `lib/eodhd/`: Core library code
-  - `commands/`: CLI command handlers
-  - `fetch/`: Fetching logic and components
-  - `process/`: Processing logic
-  - `shared/`: Shared utilities (config, logging, IoC container, etc.)
+### Directory Structure
+
+- `bin/`: Command-line entry points (fetch, process, clean)
+- `lib/`: Core library code
+  - `eodhd/`: Main application namespace
+    - `args/`: Shared argument parsing utilities
+    - `commands/`: Top-level command implementations
+      - `fetch/`: Data fetching logic
+        - `subcommands/`: Fetch subcommands (exchanges, symbols, meta, eod, intraday)
+      - `process/`: Data processing logic
+        - `subcommands/`: Process subcommands (eod, intraday)
+        - `shared/`: Processing utilities (splits, dividends, price adjustments)
+      - `clean/`: Data cleaning logic
+    - `shared/`: Shared utilities across commands
+      - `parsing/`: CSV and JSON parsers
+      - `processing/`: Data processing components
+  - `logging/`: Logging infrastructure (console, file, null sinks)
+  - `util/`: General utilities (date, string, validation, binary search, parallel execution)
+- `test/`: Test suite mirroring `lib/` structure
+- `docs/`: Project documentation
+
+### Key Components
+
+- **Dependency Injection**: Uses `Eodhd::Shared::Container` for IoC
+- **Configuration**: Environment-based configuration via `.env` file
+- **Logging**: Structured logging with multiple sink support (console, file)
+- **Parallel Processing**: Configurable worker-based parallel execution for fetch/process operations
+- **Data Parsing**: Specialized parsers for CSV (EOD, intraday) and JSON (splits, dividends)
+- **Autoloading**: Uses Zeitwerk for automatic code loading based on file structure
