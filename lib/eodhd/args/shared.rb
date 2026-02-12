@@ -44,6 +44,12 @@ module Eodhd
         end
       end
 
+      def add_yes_option(opts, &block)
+        opts.on("-y", "--yes", "Skip confirmation prompt") do
+          block.call(true)
+        end
+      end
+
       def handle_parse_error(parser)
         yield
       rescue OptionParser::ParseError => e
