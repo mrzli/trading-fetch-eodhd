@@ -99,7 +99,8 @@ module Eodhd
 
               data_by_month.each do |year_month, data_for_month|
                 year, month = year_month
-                process_month(year, month, data_for_month)
+                processed_file = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, year, month)
+                process_month(processed_file, data_for_month)
               end
 
               month_files.each do |raw_rel|
