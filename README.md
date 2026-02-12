@@ -53,6 +53,13 @@ Edit `.env` and set your EODHD API key and any other necessary variables.
 sudo mount -t exfat -o uid=$(id -u),gid=$(id -g) /dev/disk/by-uuid/34D4-9F99 /home/mrzli/projects/ext
 ```
 
+To unmount:
+
+```bash
+sync
+sudo umount /home/mrzli/projects/ext
+```
+
 ## Running Commands
 
 All commands support `--help` flag to show usage information.
