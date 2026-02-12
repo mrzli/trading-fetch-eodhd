@@ -76,16 +76,18 @@ module Eodhd
               end
 
               raw_csv = @io.read_text(symbol_file)
+              data_raw = Parsing::EodCsvParser.parse(raw_csv)
+
               splits_json = @io.file_exists?(splits_file) ? @io.read_text(splits_file) : "[]"
-              splits = Eodhd::Parsing::SplitsParser.parse(splits_json)
+              splits_raw = Eodhd::Parsing::SplitsParser.parse(splits_json)
+              splits = Shared::SplitsProcessor.process(splits_raw)
+
               dividends_json = @io.file_exists?(dividends_file) ? @io.read_text(dividends_file) : "[]"
-              dividends = Eodhd::Parsing::DividendsParser.parse(dividends_json)
+              dividends_raw = Eodhd::Parsing::DividendsParser.parse(dividends_json)
+              dividends = Shared::DividendsProcessor.process(dividends_raw, data_raw)
 
-              data = Parsing::EodCsvParser.parse(raw_csv)
-              splits = Shared::SplitsProcessor.process(splits)
-              dividends = Shared::DividendsProcessor.process(dividends, data)
 
-              data = Shared::PriceAdjust.apply(data, splits, dividends)
+              data = Shared::PriceAdjust.apply(data_raw, splits, dividends)
               data = to_output(data)
               processed_csv = to_csv(data)
 
