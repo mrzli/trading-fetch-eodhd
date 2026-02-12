@@ -100,33 +100,11 @@ module Eodhd
               data_by_month.each do |year_month, data_for_month|
                 year, month = year_month
                 processed_file = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, year, month)
-                process_month(processed_file, data_for_month)
-              end
 
-              month_files.each do |raw_rel|
-                filename = File.basename(raw_rel, ".csv")
-                
-                # Extract year-month from filename (e.g., "2020-01.csv" -> year=2020, month=1)
-                match = filename.match(/^(\d{4})-(\d{2})$/)
-                unless match
-                  @log.warn("Skipping file with invalid name format: #{filename}")
-                  next
-                end
-                
-                year = match[1].to_i
-                month = match[2].to_i
+                data = to_output(data_for_month)
+                processed_csv = to_csv(data)
 
-                processed_rel = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, year, month)
-
-                raw_csv = @io.read_text(raw_rel)
-                processed_csv = @processor.process_csv(raw_csv, splits_raw, dividends_raw)
-                
-                if processed_csv.nil?
-                  @log.info("No intraday rows produced for #{exchange}/#{symbol}/#{filename}")
-                  next
-                end
-
-                saved_path = @io.write_csv(processed_rel, processed_csv)
+                saved_path = @io.write_csv(processed_file, processed_csv)
                 @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
               end
             rescue StandardError => e
