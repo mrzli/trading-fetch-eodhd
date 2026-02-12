@@ -20,29 +20,32 @@ module Eodhd
                 return
               end
 
-              exchanges = @io.list_relative_dirs(raw_dir)
-              if exchanges.empty?
+              exchange_paths = @io.list_relative_dirs(raw_dir).sort
+              if exchange_paths.empty?
                 @log.info("No exchange directories found under: #{raw_dir}")
                 return
               end
 
-              exchanges.each do |exchange|
-                exchange_dir = File.join(raw_dir, exchange)
-                process_exchange(exchange, exchange_dir, force: force, parallel: parallel, workers: workers)
+              exchange_paths.each do |exchange_path|
+                process_exchange(exchange_path, force: force, parallel: parallel, workers: workers)
               end
             end
 
             private
 
-            def process_exchange(exchange, exchange_dir, force:, parallel:, workers:)
-              symbol_files = @io.list_relative_files(exchange_dir)
+            def process_exchange(exchange_path, force:, parallel:, workers:)
+              symbol_files = @io.list_relative_files(exchange_path)
                 .filter { |path| path.end_with?(".csv") }
+                .sort
               return if symbol_files.empty?
+
+              exchange = File.basename(exchange_path)
+              @log.info("Processing EOD for exchange: #{exchange} (#{symbol_files.size} symbols)")
 
               symbol_data_list = symbol_files.map do |symbol_file|
                 {
                   exchange: exchange,
-                  symbol: File.basename(symbol_file),
+                  symbol: File.basename(symbol_file, ".csv"),
                   path: symbol_file
                 }
               end
