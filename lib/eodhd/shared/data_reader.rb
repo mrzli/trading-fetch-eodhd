@@ -20,6 +20,7 @@ module Eodhd
           next if UNSUPPORTED_EXCHANGE_CODES.include?(code)
           code
         end
+          .sort
       end
 
       def symbols
@@ -30,7 +31,7 @@ module Eodhd
 
           @io
             .list_relative_files(relative_dir)
-            .select { |path| path.end_with?(".json") }
+            .filter { |path| path.end_with?(".json") }
             .sort
             .flat_map do |relative_path|
               type = File.basename(relative_path, ".json")
