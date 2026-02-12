@@ -19,12 +19,12 @@ module Eodhd
         case subcommand
         when "exchanges"
           args_parser = Args.new
-          yes, = args_parser.parse(ARGV).deconstruct
-          runner.exchanges(yes: yes)
+          yes, dry_run = args_parser.parse(ARGV).deconstruct
+          runner.exchanges(yes: yes, dry_run: dry_run)
         when "symbols"
           args_parser = Args.new
-          yes, = args_parser.parse(ARGV).deconstruct
-          runner.symbols(yes: yes)
+          yes, dry_run = args_parser.parse(ARGV).deconstruct
+          runner.symbols(yes: yes, dry_run: dry_run)
         else
           raise "Unknown subcommand: #{subcommand}"
         end

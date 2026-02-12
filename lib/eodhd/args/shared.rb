@@ -50,6 +50,12 @@ module Eodhd
         end
       end
 
+      def add_dry_run_option(opts, &block)
+        opts.on("-n", "--dry-run", "Show what would be deleted without deleting") do
+          block.call(true)
+        end
+      end
+
       def handle_parse_error(parser)
         yield
       rescue OptionParser::ParseError => e
