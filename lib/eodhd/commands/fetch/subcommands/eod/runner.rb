@@ -47,8 +47,8 @@ module Eodhd
               begin
                 @log.info("[#{exchange_symbol}] Fetching EOD CSV (#{type})#{force ? ' (forced)' : ''}...")
                 csv = @api.get_eod_data_csv(exchange, symbol)
-                saved_path = @io.write_csv(relative_path, csv)
-                @log.info("[#{exchange_symbol}] Wrote #{Util::String.truncate_middle(saved_path)}")
+                @io.write_csv(relative_path, csv)
+                @log.info("[#{exchange_symbol}] Wrote #{relative_path}")
               rescue StandardError => e
                 raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
 

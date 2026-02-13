@@ -90,8 +90,8 @@ module Eodhd
               data = to_output(data)
               processed_csv = to_csv(data)
 
-              saved_path = @io.write_csv(processed_file, processed_csv)
-              @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
+              @io.write_csv(processed_file, processed_csv)
+              @log.info("Wrote #{processed_file}")
             rescue StandardError => e
               @log.warn("[#{exchange}/#{symbol}] Failed processing EOD: #{e.class}: #{e.message}")
             end

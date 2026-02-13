@@ -59,8 +59,8 @@ module Eodhd
 
                 symbols_by_type.each do |type, items|
                   relative_path = Eodhd::Shared::Path.exchange_symbols_file(exchange, type)
-                  saved_path = @io.write_json(relative_path, JSON.generate(items), true)
-                  @log.info("[#{exchange}] Wrote #{Util::String.truncate_middle(saved_path)}")
+                  @io.write_json(relative_path, JSON.generate(items), true)
+                  @log.info("[#{exchange}] Wrote #{relative_path}")
                 end
               rescue StandardError => e
                 raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
