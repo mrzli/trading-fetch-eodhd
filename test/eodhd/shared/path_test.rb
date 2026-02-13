@@ -308,7 +308,7 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
-    ".processed_intraday_year_month",
+    ".data_intraday_month_file",
     [
       {
         description: "year file",
@@ -316,7 +316,7 @@ describe Eodhd::Shared::Path do
         expected: File.join("data", "intraday", "us", "aapl", "2003-01.csv")
       }
     ],
-    call: ->(input) { Eodhd::Shared::Path.processed_intraday_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
+    call: ->(input) { Eodhd::Shared::Path.data_intraday_month_file(input[:exchange], input[:symbol], input[:year], input[:month]) }
   )
 
   test_equals(

@@ -108,7 +108,7 @@ module Eodhd
 
               data_by_month.each do |year_month, data_for_month|
                 year, month = year_month
-                processed_file = Eodhd::Shared::Path.processed_intraday_year_month(exchange, symbol, year, month)
+                processed_file = Eodhd::Shared::Path.data_intraday_month_file(exchange, symbol, year, month)
 
                 data = to_output(data_for_month)
                 processed_csv = to_csv(data)
