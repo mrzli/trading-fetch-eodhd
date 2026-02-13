@@ -4,24 +4,36 @@ module Eodhd
   module Shared
     class Path
       class << self
+        # Exchanges - start
         def exchanges_list
           "exchanges-list.json"
+        end
+        # Exchanges - end
+
+        # Symbols - start
+        def symbols_dir
+          "symbols"
         end
 
         def exchange_symbol_list(exchange, type)
           exchange, type = process_exchange_and_type(exchange, type)
-          File.join("symbols", exchange, "#{type}.json")
+          File.join(symbols_dir, exchange, "#{type}.json")
         end
+        # Symbols - end
 
         # Meta - start
+        def meta_dir
+          "meta"
+        end
+
         def splits(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-          File.join("meta", exchange, symbol, "splits.json")
+          File.join(meta_dir, exchange, symbol, "splits.json")
         end
 
         def dividends(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-          File.join("meta", exchange, symbol, "dividends.json")
+          File.join(meta_dir, exchange, symbol, "dividends.json")
         end
         # Meta - end
 
@@ -80,16 +92,28 @@ module Eodhd
         # Raw intraday - end
 
         # Processed eod - start
+        def data_dir
+          "data"
+        end
+
+        def data_eod_dir
+          File.join(data_dir, "eod")
+        end
+
         def processed_eod_data(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-          File.join("data", "eod", exchange, "#{symbol}.csv")
+          File.join(data_eod_dir, exchange, "#{symbol}.csv")
         end
         # Processed eod - end
 
         # Processed intraday - start
+        def data_intraday_dir
+          File.join(data_dir, "intraday")
+        end
+
         def processed_intraday_data_dir(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-          File.join("data", "intraday", exchange, symbol)
+          File.join(data_intraday_dir, exchange, symbol)
         end
 
         def processed_intraday_year_month(exchange, symbol, year, month)
@@ -99,6 +123,10 @@ module Eodhd
           File.join(dir, "#{year}-#{format('%02d', month)}.csv")
         end
         # Processed intraday - end
+
+        def log_dir
+          "log"
+        end
 
         private
 
