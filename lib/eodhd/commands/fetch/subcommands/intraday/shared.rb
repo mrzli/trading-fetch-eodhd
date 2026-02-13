@@ -16,17 +16,17 @@ module Eodhd
             end
 
             def fetch_intraday_interval_csv(exchange, symbol, from, to)
-              symbol_with_exchange = "#{symbol}.#{exchange}"
+              exchange_symbol = "#{exchange}/#{symbol}"
 
               from_formatted = Util::Date.seconds_to_datetime(from)
               to_formatted = Util::Date.seconds_to_datetime(to)
               from_to_message_fragment = "(from=#{from_formatted} to=#{to_formatted})"
-              @log.info("Fetching intraday CSV: #{symbol_with_exchange} #{from_to_message_fragment}...")
+              @log.info("[#{exchange_symbol}] Fetching intraday CSV #{from_to_message_fragment}...")
 
               csv = @api.get_intraday_csv(exchange, symbol, from: from, to: to)
 
               if csv.to_s.length < MIN_CSV_LENGTH
-                @log.info("Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}): #{symbol_with_exchange} #{from_to_message_fragment}")
+                @log.info("[#{exchange_symbol}] Stopping intraday history fetch (short CSV, length=#{csv.to_s.length}) #{from_to_message_fragment}")
                 return nil
               end
 

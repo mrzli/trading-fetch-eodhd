@@ -12,14 +12,14 @@ module Eodhd
             end
 
             def process(exchange, symbol)
-              symbol_with_exchange = "#{symbol}.#{exchange}"
-              @log.info("Processing raw intraday for #{symbol_with_exchange}...")
+              exchange_symbol = "#{exchange}/#{symbol}"
+              @log.info("[#{exchange_symbol}] Processing raw intraday...")
 
               fetched_dir = Eodhd::Shared::Path.raw_intraday_fetched_symbol_dir(exchange, symbol)
               fetched_files = list_and_sort_fetched_files(fetched_dir)
 
               if fetched_files.empty?
-                @log.info("No fetched files found for #{symbol_with_exchange}")
+                @log.info("[#{exchange_symbol}] No fetched files found")
                 return
               end
 
@@ -27,7 +27,7 @@ module Eodhd
                 process_file(exchange, symbol, file_path)
               end
 
-              @log.info("Completed processing raw intraday for #{symbol_with_exchange}")
+              @log.info("[#{exchange_symbol}] Completed processing raw intraday")
             end
 
             private

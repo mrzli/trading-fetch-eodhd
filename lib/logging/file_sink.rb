@@ -7,21 +7,19 @@ require_relative "shared"
 
 module Logging
   class FileSink
-    def initialize(command:, output_dir:, level:, progname: "eodhd", formatter: nil)
+    def initialize(command:, output_dir:, level:, formatter: nil)
       level = Shared.normalize_level(level)
       formatter ||= Shared.default_formatter
 
       now = Time.now
-      date_dir = now.strftime("%Y-%m-%d")
-      log_dir = File.join(output_dir, "log", date_dir)
+      log_dir = File.join(output_dir, "log")
       FileUtils.mkdir_p(log_dir)
 
-      timestamp = now.strftime("%H-%M-%S")
-      log_file = File.join(log_dir, "#{command}_#{timestamp}.log")
+      date = now.strftime("%Y-%m-%d")
+      log_file = File.join(log_dir, "#{date}_#{command}.log")
 
       @logger = ::Logger.new(log_file)
       @logger.level = level
-      @logger.progname = progname
       @logger.formatter = formatter
     end
 

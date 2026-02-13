@@ -42,22 +42,22 @@ module Eodhd
             def fetch_metadata(symbol_entry, type, api_method, force:)
               exchange = symbol_entry[:exchange]
               symbol = symbol_entry[:symbol]
-              symbol_with_exchange = "#{symbol}.#{exchange}"
+              exchange_symbol = "#{exchange}/#{symbol}"
 
               path = Eodhd::Shared::Path.public_send(type, exchange, symbol)
               unless force || @shared.file_stale?(path)
-                @log.info("Skipping #{type} (fresh): #{path}")
+                @log.info("[#{exchange_symbol}] Skipping #{type} (fresh): #{path}")
                 return
               end
 
-              @log.info("Fetching #{type} JSON: #{symbol_with_exchange}#{force ? ' (forced)' : ''}...")
+              @log.info("[#{exchange_symbol}] Fetching #{type} JSON#{force ? ' (forced)' : ''}...")
               data = api_method.call(exchange, symbol)
               saved_path = @io.write_json(path, data, true)
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
             rescue StandardError => e
               raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
 
-              @log.warn("Failed #{type} for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+              @log.warn("[#{exchange_symbol}] Failed #{type}: #{e.class}: #{e.message}")
             end
 
           end

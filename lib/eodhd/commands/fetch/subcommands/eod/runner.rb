@@ -36,23 +36,23 @@ module Eodhd
               type = symbol_entry[:type]
               symbol = symbol_entry[:symbol]
 
-              symbol_with_exchange = "#{symbol}.#{exchange}"
+              exchange_symbol = "#{exchange}/#{symbol}"
               relative_path = Eodhd::Shared::Path.raw_eod_file(exchange, symbol)
 
               unless force || @shared.file_stale?(relative_path)
-                @log.info("Skipping EOD (fresh): #{relative_path}")
+                @log.info("[#{exchange_symbol}] Skipping EOD (fresh): #{relative_path}")
                 return
               end
 
               begin
-                @log.info("Fetching EOD CSV: #{symbol_with_exchange} (#{type})#{force ? ' (forced)' : ''}...")
+                @log.info("[#{exchange_symbol}] Fetching EOD CSV (#{type})#{force ? ' (forced)' : ''}...")
                 csv = @api.get_eod_data_csv(exchange, symbol)
                 saved_path = @io.write_csv(relative_path, csv)
-                @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
+                @log.info("[#{exchange_symbol}] Wrote #{Util::String.truncate_middle(saved_path)}")
               rescue StandardError => e
                 raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
 
-                @log.warn("Failed EOD for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+                @log.warn("[#{exchange_symbol}] Failed EOD: #{e.class}: #{e.message}")
               end
             end
           end

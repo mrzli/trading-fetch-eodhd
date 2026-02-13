@@ -46,24 +46,24 @@ module Eodhd
               exchange = symbol_entry[:exchange]
               symbol = symbol_entry[:symbol]
 
-              symbol_with_exchange = "#{symbol}.#{exchange}"
+              exchange_symbol = "#{exchange}/#{symbol}"
 
               begin
                 fetched_dir = Eodhd::Shared::Path.raw_intraday_fetched_symbol_dir(exchange, symbol)
 
                 # Delete any old fetched data.
                 # This does not delete processed by-year-month 'raw' data, which is in a separate dir.
-                @log.info("Deleting old fetched intraday files for #{symbol_with_exchange} in #{fetched_dir}...")
+                @log.info("[#{exchange_symbol}] Deleting old fetched intraday files in #{fetched_dir}...")
                 @io.delete_dir(fetched_dir)
 
                 if recheck_start_date
                   # Find earliest existing timestamp from processed files.
                   first_ts = first_existing_timestamp(exchange, symbol)
 
-                  if should_refetch?(exchange, symbol, first_ts, symbol_with_exchange)
+                  if should_refetch?(exchange, symbol, first_ts, exchange_symbol)
                     # Delete all processed data to force refecth for symbol.
-                    @log.info("Deleting all processed intraday files for #{symbol_with_exchange} to force refetch...")  
-                    delete_all_processed_files(exchange, symbol, symbol_with_exchange)
+                    @log.info("[#{exchange_symbol}] Deleting all processed intraday files to force refetch...")
+                    delete_all_processed_files(exchange, symbol, exchange_symbol)
                   end
                 end
 
@@ -78,7 +78,7 @@ module Eodhd
 
                   if !last_ts.nil? && to <= last_ts
                     latest_to_formatted = Util::Date.seconds_to_datetime(last_ts)
-                    @log.info("Stopping intraday fetch (already have fetched data): #{symbol_with_exchange} (from=#{Util::Date.seconds_to_datetime(from)} <= latest_to=#{latest_to_formatted})")
+                    @log.info("[#{exchange_symbol}] Stopping intraday fetch (already have fetched data) (from=#{Util::Date.seconds_to_datetime(from)} <= latest_to=#{latest_to_formatted})")
                     break
                   end
 
@@ -93,21 +93,22 @@ module Eodhd
 
                 # Delete fetched directory after processing
                 @io.delete_dir(fetched_dir)
-                @log.info("Deleted fetched intraday files for #{symbol_with_exchange} after processing")
+                @log.info("[#{exchange_symbol}] Deleted fetched intraday files after processing")
               rescue StandardError => e
                 raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
 
-                @log.warn("Failed intraday for #{symbol_with_exchange}: #{e.class}: #{e.message}")
+                @log.warn("[#{exchange_symbol}] Failed intraday: #{e.class}: #{e.message}")
               end
             end
 
             def fetch_intraday_interval(exchange, symbol, from, to)
+              exchange_symbol = "#{exchange}/#{symbol}"
               csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, from, to)
               return false if csv.nil?
 
               rows = Eodhd::Shared::Parsing::IntradayCsvParser.parse(csv)
               if rows.empty?
-                @log.info("Stopping intraday history fetch (empty CSV): #{symbol_with_exchange} #{from_to_message_fragment}")
+                @log.info("[#{exchange_symbol}] Stopping intraday history fetch (empty CSV) (from=#{Util::Date.seconds_to_datetime(from)} to=#{Util::Date.seconds_to_datetime(to)})")
                 return nil
               end
 
@@ -154,9 +155,9 @@ module Eodhd
                 .sort
             end
 
-            def should_refetch?(exchange, symbol, first_ts, symbol_with_exchange)
+            def should_refetch?(exchange, symbol, first_ts, exchange_symbol)
               if first_ts.nil?
-                @log.info("No existing processed intraday data for #{symbol_with_exchange}, refetching all intraday data")
+                @log.info("[#{exchange_symbol}] No existing processed intraday data, refetching all intraday data")
                 return true
               end
 
@@ -164,7 +165,7 @@ module Eodhd
               check_from = [0, first_ts - RANGE_SECONDS / 2].max
               check_to = first_ts + RANGE_SECONDS
 
-              @log.info("Rechecking start date for #{symbol_with_exchange} around #{Util::Date.seconds_to_datetime(first_ts)}")
+              @log.info("[#{exchange_symbol}] Rechecking start date around #{Util::Date.seconds_to_datetime(first_ts)}")
 
               csv = @intraday_shared.fetch_intraday_interval_csv(exchange, symbol, check_from, check_to)
               return true if csv.nil?
@@ -175,18 +176,18 @@ module Eodhd
               new_start_ts = rows.first[:timestamp]
 
               if new_start_ts != first_ts
-                @log.warn("Start date changed for #{symbol_with_exchange}: old=#{Util::Date.seconds_to_datetime(first_ts)}, new=#{Util::Date.seconds_to_datetime(new_start_ts)}")
+                @log.warn("[#{exchange_symbol}] Start date changed: old=#{Util::Date.seconds_to_datetime(first_ts)}, new=#{Util::Date.seconds_to_datetime(new_start_ts)}")
                 return true
               end
 
-              @log.info("Start date unchanged for #{symbol_with_exchange}")
+              @log.info("[#{exchange_symbol}] Start date unchanged")
               false
             end
 
-            def delete_all_processed_files(exchange, symbol, symbol_with_exchange)
+            def delete_all_processed_files(exchange, symbol, exchange_symbol)
               processed_dir = Eodhd::Shared::Path.raw_intraday_processed_symbol_dir(exchange, symbol)
                     @io.delete_dir(processed_dir)
-                    @log.info("Deleted all processed files for #{symbol_with_exchange} due to start date change")
+                    @log.info("[#{exchange_symbol}] Deleted all processed files due to start date change")
             end
 
           end

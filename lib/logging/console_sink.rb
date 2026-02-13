@@ -6,13 +6,12 @@ require_relative "shared"
 
 module Logging
   class ConsoleSink
-    def initialize(level:, progname: "eodhd", formatter: nil)
+    def initialize(level:, formatter: nil)
       level = Shared.normalize_level(level)
       formatter ||= Shared.default_formatter
 
       @logger = ::Logger.new($stdout)
       @logger.level = level
-      @logger.progname = progname
       @logger.formatter = formatter
     end
 

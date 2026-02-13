@@ -40,7 +40,7 @@ module Eodhd
               return if symbol_files.empty?
 
               exchange = File.basename(exchange_dir)
-              @log.info("Processing EOD for exchange: #{exchange} (#{symbol_files.size} symbols)")
+              @log.info("[#{exchange}] Processing EOD (#{symbol_files.size} symbols)")
 
               symbol_data_list = symbol_files.map do |symbol_file|
                 {
@@ -71,7 +71,7 @@ module Eodhd
                 splits_file: splits_file,
                 dividends_file: dividends_file,
               )
-                @log.info("Skipping processed EOD (fresh): #{processed_file}")
+                @log.info("[#{exchange}/#{symbol}] Skipping processed EOD (fresh): #{processed_file}")
                 return
               end
 
@@ -93,7 +93,7 @@ module Eodhd
               saved_path = @io.write_csv(processed_file, processed_csv)
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
             rescue StandardError => e
-              @log.warn("Failed processing EOD for #{exchange}/#{symbol}: #{e.class}: #{e.message}")
+              @log.warn("[#{exchange}/#{symbol}] Failed processing EOD: #{e.class}: #{e.message}")
             end
 
             def should_process?(

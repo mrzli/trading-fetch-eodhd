@@ -25,14 +25,12 @@ module Eodhd
       def build_logger
         sinks = [
           Logging::ConsoleSink.new(
-            level: @config.log_level,
-            progname: @command
+            level: @config.log_level
           ),
           Logging::FileSink.new(
             command: @command,
             output_dir: @config.output_dir,
-            level: @config.log_level,
-            progname: @command
+            level: @config.log_level
           )
         ]
         Logging::Logger.new(sinks: sinks)

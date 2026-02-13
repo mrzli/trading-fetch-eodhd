@@ -19,11 +19,11 @@ module Logging
     end
 
     def default_formatter
-      @default_formatter ||= lambda do |severity, datetime, progname, msg|
+      @default_formatter ||= lambda do |severity, datetime, _progname, msg|
         time = datetime.utc.iso8601
         severity = severity.to_s.ljust(5)
         message = msg.is_a?(String) ? msg : msg.inspect
-        "#{time} #{severity} #{progname}: #{message}\n"
+        "#{time} #{severity} #{message}\n"
       end
     end
   end

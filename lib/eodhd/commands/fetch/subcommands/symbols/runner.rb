@@ -40,11 +40,11 @@ module Eodhd
 
             def fetch_symbols_for_exchange(exchange, force:, existing_paths:)
               if !force && existing_paths.any? && existing_paths.none? { |path| @shared.file_stale?(path) }
-                @log.info("Skipping symbols (fresh): #{File.join(Eodhd::Shared::Path.symbols_dir, Util::String.kebab_case(exchange), '*.json')}")
+                @log.info("[#{exchange}] Skipping symbols (fresh): #{File.join(Eodhd::Shared::Path.symbols_dir, Util::String.kebab_case(exchange), '*.json')}")
                 return
               end
 
-              @log.info("Fetching symbols for #{exchange}#{force ? ' (forced)' : ''}...")
+              @log.info("[#{exchange}] Fetching symbols#{force ? ' (forced)' : ''}...")
 
               begin
                 symbols_text = @api.get_exchange_symbol_list_json(exchange)
@@ -65,7 +65,7 @@ module Eodhd
               rescue StandardError => e
                 raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
 
-                @log.warn("Failed symbols for #{exchange}: #{e.class}: #{e.message}")
+                @log.warn("[#{exchange}] Failed symbols: #{e.class}: #{e.message}")
               end
             end
 
