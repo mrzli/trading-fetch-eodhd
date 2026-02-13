@@ -204,7 +204,7 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
-    ".raw_intraday_processed_symbol_data_dir",
+    ".raw_intraday_processed_symbol_dir",
     [
       {
         description: "symbol with exchange",
@@ -217,7 +217,7 @@ describe Eodhd::Shared::Path do
         expected: File.join("raw", "intraday", "processed", "us", "brk-b")
       }
     ],
-    call: ->(input) { Eodhd::Shared::Path.raw_intraday_processed_symbol_data_dir(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.raw_intraday_processed_symbol_dir(input[:exchange], input[:symbol]) }
   )
 
   test_equals(

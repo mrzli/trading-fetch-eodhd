@@ -148,7 +148,7 @@ module Eodhd
             end
 
             def sorted_processed_files(exchange, symbol)
-              processed_dir = Eodhd::Shared::Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
+              processed_dir = Eodhd::Shared::Path.raw_intraday_processed_symbol_dir(exchange, symbol)
               @io.list_relative_files(processed_dir)
                 .filter { |path| path.end_with?(".csv") }
                 .sort
@@ -184,7 +184,7 @@ module Eodhd
             end
 
             def delete_all_processed_files(exchange, symbol, symbol_with_exchange)
-              processed_dir = Eodhd::Shared::Path.raw_intraday_processed_symbol_data_dir(exchange, symbol)
+              processed_dir = Eodhd::Shared::Path.raw_intraday_processed_symbol_dir(exchange, symbol)
                     @io.delete_dir(processed_dir)
                     @log.info("Deleted all processed files for #{symbol_with_exchange} due to start date change")
             end
