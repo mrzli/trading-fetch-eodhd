@@ -175,7 +175,7 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
-    ".raw_intraday_fetched_symbol_data",
+    ".raw_intraday_fetched_symbol_file",
     [
       {
         description: "symbol with exchange",
@@ -188,7 +188,7 @@ describe Eodhd::Shared::Path do
         expected: File.join("raw", "intraday", "fetched", "us", "brk-b", "1970-01-01_00-02-03__1970-01-01_00-07-36.csv")
       }
     ],
-    call: ->(input) { Eodhd::Shared::Path.raw_intraday_fetched_symbol_data(input[:exchange], input[:symbol], input[:from], input[:to]) }
+    call: ->(input) { Eodhd::Shared::Path.raw_intraday_fetched_symbol_file(input[:exchange], input[:symbol], input[:from], input[:to]) }
   )
 
   test_equals(

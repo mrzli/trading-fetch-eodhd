@@ -114,7 +114,7 @@ module Eodhd
               parsed_from = rows.first[:timestamp]
               parsed_to = rows.last[:timestamp]
 
-              relative_path = Eodhd::Shared::Path.raw_intraday_fetched_symbol_data(exchange, symbol, parsed_from, parsed_to)
+              relative_path = Eodhd::Shared::Path.raw_intraday_fetched_symbol_file(exchange, symbol, parsed_from, parsed_to)
               saved_path = @io.write_csv(relative_path, csv)
               @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
 

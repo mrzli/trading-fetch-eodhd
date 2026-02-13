@@ -64,7 +64,7 @@ module Eodhd
           File.join(raw_intraday_fetched_dir, exchange, symbol)
         end
 
-        def raw_intraday_fetched_symbol_data(exchange, symbol, from, to)
+        def raw_intraday_fetched_symbol_file(exchange, symbol, from, to)
           dir_for_intraday_raw = raw_intraday_fetched_symbol_dir(exchange, symbol)
 
           from = Util::Validate.integer("from", from)
