@@ -37,7 +37,7 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
-    ".splits",
+    ".splits_file",
     [
       {
         description: "symbol with exchange",
@@ -50,11 +50,11 @@ describe Eodhd::Shared::Path do
         expected: File.join("meta", "us", "brk-b", "splits.json")
       }
     ],
-    call: ->(input) { Eodhd::Shared::Path.splits(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.splits_file(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
-    ".dividends",
+    ".dividends_file",
     [
       {
         description: "symbol with exchange",
@@ -67,7 +67,7 @@ describe Eodhd::Shared::Path do
         expected: File.join("meta", "us", "brk-b", "dividends.json")
       }
     ],
-    call: ->(input) { Eodhd::Shared::Path.dividends(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.dividends_file(input[:exchange], input[:symbol]) }
   )
 
   test_equals(

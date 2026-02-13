@@ -61,8 +61,8 @@ module Eodhd
               symbol_file = symbol_data[:path]
 
               processed_file = Eodhd::Shared::Path.processed_eod_data(exchange, symbol)
-              splits_file = Eodhd::Shared::Path.splits(exchange, symbol)
-              dividends_file = Eodhd::Shared::Path.dividends(exchange, symbol)
+              splits_file = Eodhd::Shared::Path.splits_file(exchange, symbol)
+              dividends_file = Eodhd::Shared::Path.dividends_file(exchange, symbol)
 
               unless should_process?(
                 force: force,

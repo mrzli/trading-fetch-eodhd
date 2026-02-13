@@ -26,12 +26,12 @@ module Eodhd
           "meta"
         end
 
-        def splits(exchange, symbol)
+        def splits_file(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
           File.join(meta_dir, exchange, symbol, "splits.json")
         end
 
-        def dividends(exchange, symbol)
+        def dividends_file(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
           File.join(meta_dir, exchange, symbol, "dividends.json")
         end
