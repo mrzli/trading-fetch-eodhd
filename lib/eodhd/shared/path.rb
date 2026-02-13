@@ -85,7 +85,7 @@ module Eodhd
           File.join(raw_intraday_processed_dir, exchange, symbol)
         end
 
-        def raw_intraday_processed_symbol_file(exchange, symbol, year, month)
+        def raw_intraday_processed_month_file(exchange, symbol, year, month)
           dir = raw_intraday_processed_symbol_dir(exchange, symbol)
           year = Util::Validate.integer("year", year)
           month = Util::Validate.integer("month", month)

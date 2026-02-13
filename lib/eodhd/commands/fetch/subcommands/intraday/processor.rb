@@ -55,7 +55,7 @@ module Eodhd
             end
 
             def process_month(exchange, symbol, year, month, new_rows)
-              processed_file_path = Eodhd::Shared::Path.raw_intraday_processed_symbol_file(exchange, symbol, year, month)
+              processed_file_path = Eodhd::Shared::Path.raw_intraday_processed_month_file(exchange, symbol, year, month)
 
               existing_rows = load_existing_processed_file(processed_file_path)
               merged_rows = Merger.merge(existing_rows, new_rows)
