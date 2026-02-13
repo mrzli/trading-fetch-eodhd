@@ -5,8 +5,8 @@ module Eodhd
     class Path
       class << self
         # Exchanges - start
-        def exchanges_list
-          "exchanges-list.json"
+        def exchanges_file
+          "exchanges.json"
         end
         # Exchanges - end
 

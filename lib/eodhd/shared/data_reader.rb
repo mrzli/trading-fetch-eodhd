@@ -13,7 +13,7 @@ module Eodhd
       end
 
       def exchanges
-        exchanges_text = @io.read_text(Path.exchanges_list)
+        exchanges_text = @io.read_text(Path.exchanges_file)
         exchanges = JSON.parse(exchanges_text)
         exchanges.filter_map do |exchange|
           code = exchange["Code"].to_s.strip
@@ -25,7 +25,7 @@ module Eodhd
 
       def symbols
         exchanges.flat_map do |exchange|
-          relative_dir = File.join("symbols", Util::String.kebab_case(exchange))
+          relative_dir = File.join(Path.symbols_dir, Util::String.kebab_case(exchange))
           
           next [] unless @io.dir_exists?(relative_dir)
 

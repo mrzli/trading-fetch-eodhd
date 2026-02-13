@@ -12,7 +12,7 @@ module Eodhd
         def exchanges(yes:, dry_run: false)
           clean(
             target_name: "exchanges list",
-            target_path: Eodhd::Shared::Path.exchanges_list,
+            target_path: Eodhd::Shared::Path.exchanges_file,
             yes: yes,
             dry_run: dry_run
           )

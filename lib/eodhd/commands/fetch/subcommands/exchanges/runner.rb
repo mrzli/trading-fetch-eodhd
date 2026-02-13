@@ -16,7 +16,7 @@ module Eodhd
             end
 
             def fetch(force:)
-              relative_path = Eodhd::Shared::Path.exchanges_list
+              relative_path = Eodhd::Shared::Path.exchanges_file
 
               if force || @shared.file_stale?(relative_path)
                 @log.info("Fetching exchanges list#{force ? ' (forced)' : ''}...")
