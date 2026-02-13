@@ -15,7 +15,7 @@ module Eodhd
           "symbols"
         end
 
-        def exchange_symbols_by_type_file(exchange, type)
+        def exchange_symbols_file(exchange, type)
           exchange, type = process_exchange_and_type(exchange, type)
           File.join(symbols_dir, exchange, "#{type}.json")
         end
