@@ -15,6 +15,17 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
+    ".symbols_dir",
+    [
+      {
+        input: nil,
+        expected: "symbols"
+      }
+    ],
+    call: ->(_input) { Eodhd::Shared::Path.symbols_dir }
+  )
+
+  test_equals(
     ".exchange_symbols_file",
     [
       {
@@ -34,6 +45,17 @@ describe Eodhd::Shared::Path do
       }
     ],
     call: ->(input) { Eodhd::Shared::Path.exchange_symbols_file(input[:exchange_code], input[:type]) }
+  )
+
+  test_equals(
+    ".meta_dir",
+    [
+      {
+        input: nil,
+        expected: "meta"
+      }
+    ],
+    call: ->(_input) { Eodhd::Shared::Path.meta_dir }
   )
 
   test_equals(
@@ -68,6 +90,18 @@ describe Eodhd::Shared::Path do
       }
     ],
     call: ->(input) { Eodhd::Shared::Path.dividends_file(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
+    ".raw_dir",
+    [
+      {
+        description: "hardcoded root",
+        input: nil,
+        expected: "raw"
+      }
+    ],
+    call: ->(_input) { Eodhd::Shared::Path.raw_dir }
   )
 
   test_equals(
@@ -204,6 +238,30 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
+    ".data_dir",
+    [
+      {
+        description: "hardcoded root",
+        input: nil,
+        expected: "data"
+      }
+    ],
+    call: ->(_input) { Eodhd::Shared::Path.data_dir }
+  )
+
+  test_equals(
+    ".data_eod_dir",
+    [
+      {
+        description: "hardcoded eod root",
+        input: nil,
+        expected: File.join("data", "eod")
+      }
+    ],
+    call: ->(_input) { Eodhd::Shared::Path.data_eod_dir }
+  )
+
+  test_equals(
     ".processed_eod_data",
     [
       {
@@ -218,6 +276,18 @@ describe Eodhd::Shared::Path do
       }
     ],
     call: ->(input) { Eodhd::Shared::Path.processed_eod_data(input[:exchange], input[:symbol]) }
+  )
+
+  test_equals(
+    ".data_intraday_dir",
+    [
+      {
+        description: "hardcoded intraday root",
+        input: nil,
+        expected: File.join("data", "intraday")
+      }
+    ],
+    call: ->(_input) { Eodhd::Shared::Path.data_intraday_dir }
   )
 
   test_equals(
@@ -247,5 +317,16 @@ describe Eodhd::Shared::Path do
       }
     ],
     call: ->(input) { Eodhd::Shared::Path.processed_intraday_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
+  )
+
+  test_equals(
+    ".log_dir",
+    [
+      {
+        input: nil,
+        expected: "log"
+      }
+    ],
+    call: ->(_input) { Eodhd::Shared::Path.log_dir }
   )
 end
