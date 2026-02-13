@@ -102,7 +102,7 @@ module Eodhd
           File.join(data_dir, "eod")
         end
 
-        def data_eod_file(exchange, symbol)
+        def data_eod_symbol_file(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
           File.join(data_eod_dir, exchange, "#{symbol}.csv")
         end

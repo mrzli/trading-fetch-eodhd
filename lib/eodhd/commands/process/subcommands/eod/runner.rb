@@ -60,7 +60,7 @@ module Eodhd
               symbol = symbol_data[:symbol]
               symbol_file = symbol_data[:path]
 
-              processed_file = Eodhd::Shared::Path.data_eod_file(exchange, symbol)
+              processed_file = Eodhd::Shared::Path.data_eod_symbol_file(exchange, symbol)
               splits_file = Eodhd::Shared::Path.splits_file(exchange, symbol)
               dividends_file = Eodhd::Shared::Path.dividends_file(exchange, symbol)
 
