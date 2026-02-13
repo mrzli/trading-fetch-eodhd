@@ -221,7 +221,7 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
-    ".raw_intraday_processed_symbol_year_month",
+    ".raw_intraday_processed_symbol_file",
     [
       {
         description: "year and month file",
@@ -234,7 +234,7 @@ describe Eodhd::Shared::Path do
         expected: File.join("raw", "intraday", "processed", "us", "brk-b", "2024-12.csv")
       }
     ],
-    call: ->(input) { Eodhd::Shared::Path.raw_intraday_processed_symbol_year_month(input[:exchange], input[:symbol], input[:year], input[:month]) }
+    call: ->(input) { Eodhd::Shared::Path.raw_intraday_processed_symbol_file(input[:exchange], input[:symbol], input[:year], input[:month]) }
   )
 
   test_equals(
