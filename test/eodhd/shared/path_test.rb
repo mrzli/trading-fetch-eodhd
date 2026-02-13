@@ -262,7 +262,7 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
-    ".processed_eod_data",
+    ".data_eod_file",
     [
       {
         description: "symbol with exchange",
@@ -275,7 +275,7 @@ describe Eodhd::Shared::Path do
         expected: File.join("data", "eod", "us", "brk-b.csv")
       }
     ],
-    call: ->(input) { Eodhd::Shared::Path.processed_eod_data(input[:exchange], input[:symbol]) }
+    call: ->(input) { Eodhd::Shared::Path.data_eod_file(input[:exchange], input[:symbol]) }
   )
 
   test_equals(
