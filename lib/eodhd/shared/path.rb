@@ -37,20 +37,22 @@ module Eodhd
         end
         # Meta - end
 
-        # Raw eod - start
+        # Raw - start
+        def raw_dir
+          "raw"
+        end
+
         def raw_eod_dir
-          File.join("raw", "eod")
+          File.join(raw_dir, "eod")
         end
 
         def raw_eod_data(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
           File.join(raw_eod_dir, exchange, "#{symbol}.csv")
         end
-        # Raw eod - end
 
-        # Raw intraday - start
         def raw_intraday_dir
-          File.join("raw", "intraday")
+          File.join(raw_dir, "intraday")
         end
 
         def raw_intraday_fetched_dir
@@ -89,9 +91,9 @@ module Eodhd
           month = Util::Validate.integer("month", month)
           File.join(dir, "#{year}-#{format('%02d', month)}.csv")
         end
-        # Raw intraday - end
+        # Raw - end
 
-        # Processed eod - start
+        # Data - start
         def data_dir
           "data"
         end
@@ -104,9 +106,7 @@ module Eodhd
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
           File.join(data_eod_dir, exchange, "#{symbol}.csv")
         end
-        # Processed eod - end
 
-        # Processed intraday - start
         def data_intraday_dir
           File.join(data_dir, "intraday")
         end
@@ -122,7 +122,7 @@ module Eodhd
           month = Util::Validate.integer("month", month)
           File.join(dir, "#{year}-#{format('%02d', month)}.csv")
         end
-        # Processed intraday - end
+        # Data - end
 
         def log_dir
           "log"
