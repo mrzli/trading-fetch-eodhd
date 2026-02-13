@@ -60,6 +60,8 @@ module Eodhd
               symbol = symbol_data[:symbol]
               symbol_file = symbol_data[:path]
 
+              exchange_symbol = "#{exchange}/#{symbol}"
+
               processed_file = Eodhd::Shared::Path.data_eod_symbol_file(exchange, symbol)
               splits_file = Eodhd::Shared::Path.splits_file(exchange, symbol)
               dividends_file = Eodhd::Shared::Path.dividends_file(exchange, symbol)
@@ -71,7 +73,7 @@ module Eodhd
                 splits_file: splits_file,
                 dividends_file: dividends_file,
               )
-                @log.info("[#{exchange}/#{symbol}] Skipping processed EOD (fresh): #{processed_file}")
+                @log.info("[#{exchange_symbol}] Skipping processed EOD (fresh): #{processed_file}")
                 return
               end
 
@@ -91,9 +93,9 @@ module Eodhd
               processed_csv = to_csv(data)
 
               @io.write_csv(processed_file, processed_csv)
-              @log.info("Wrote #{processed_file}")
+              @log.info("[#{exchange_symbol}] Wrote #{processed_file}")
             rescue StandardError => e
-              @log.warn("[#{exchange}/#{symbol}] Failed processing EOD: #{e.class}: #{e.message}")
+              @log.warn("[#{exchange_symbol}] Failed processing EOD: #{e.class}: #{e.message}")
             end
 
             def should_process?(

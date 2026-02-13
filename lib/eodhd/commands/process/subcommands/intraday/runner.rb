@@ -115,7 +115,7 @@ module Eodhd
                 processed_csv = to_csv(data)
 
                 @io.write_csv(processed_file, processed_csv)
-                @log.info("Wrote #{processed_file}")
+                @log.info("[#{exchange_symbol}] Wrote #{processed_file}")
               end
 
               @log.info("[#{exchange_symbol}] Completed processing intraday")
