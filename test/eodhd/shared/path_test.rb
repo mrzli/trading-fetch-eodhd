@@ -15,7 +15,7 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
-    ".exchange_symbol_list",
+    ".exchange_symbols_by_type_file",
     [
       {
         description: "upper-case code and type",
@@ -33,7 +33,7 @@ describe Eodhd::Shared::Path do
         expected: File.join("symbols", "foo-bar", "mutual-fund.json")
       }
     ],
-    call: ->(input) { Eodhd::Shared::Path.exchange_symbol_list(input[:exchange_code], input[:type]) }
+    call: ->(input) { Eodhd::Shared::Path.exchange_symbols_by_type_file(input[:exchange_code], input[:type]) }
   )
 
   test_equals(

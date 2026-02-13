@@ -40,7 +40,7 @@ module Eodhd
 
             def fetch_symbols_for_exchange(exchange, force:, existing_paths:)
               if !force && existing_paths.any? && existing_paths.none? { |path| @shared.file_stale?(path) }
-                @log.info("Skipping symbols (fresh): #{File.join('symbols', Util::String.kebab_case(exchange), '*.json')}")
+                @log.info("Skipping symbols (fresh): #{File.join(Eodhd::Shared::Path.symbols_dir, Util::String.kebab_case(exchange), '*.json')}")
                 return
               end
 
@@ -58,7 +58,7 @@ module Eodhd
                 end
 
                 symbols_by_type.each do |type, items|
-                  relative_path = Eodhd::Shared::Path.exchange_symbol_list(exchange, type)
+                  relative_path = Eodhd::Shared::Path.exchange_symbols_by_type_file(exchange, type)
                   saved_path = @io.write_json(relative_path, JSON.generate(items), true)
                   @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
                 end
@@ -70,7 +70,7 @@ module Eodhd
             end
 
             def symbols_paths_for_exchange(exchange)
-              relative_dir = File.join("symbols", Util::String.kebab_case(exchange))
+              relative_dir = File.join(Eodhd::Shared::Path.symbols_dir, Util::String.kebab_case(exchange))
 
               @io
                 .list_relative_files(relative_dir)
