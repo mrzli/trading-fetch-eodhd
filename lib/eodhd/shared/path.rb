@@ -111,13 +111,13 @@ module Eodhd
           File.join(data_dir, "intraday")
         end
 
-        def processed_intraday_data_dir(exchange, symbol)
+        def data_intraday_symbol_dir(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
           File.join(data_intraday_dir, exchange, symbol)
         end
 
         def processed_intraday_year_month(exchange, symbol, year, month)
-          dir = processed_intraday_data_dir(exchange, symbol)
+          dir = data_intraday_symbol_dir(exchange, symbol)
           year = Util::Validate.integer("year", year)
           month = Util::Validate.integer("month", month)
           File.join(dir, "#{year}-#{format('%02d', month)}.csv")

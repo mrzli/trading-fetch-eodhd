@@ -67,7 +67,7 @@ module Eodhd
 
               @log.info("Found #{month_files.size} month file(s) for #{exchange}/#{symbol}")
 
-              processed_dir = Eodhd::Shared::Path.processed_intraday_data_dir(exchange, symbol)
+              processed_dir = Eodhd::Shared::Path.data_intraday_symbol_dir(exchange, symbol)
               processed_files = @io.list_relative_files(processed_dir)
                 .filter { |path| path.end_with?(".csv") }
                 .sort
