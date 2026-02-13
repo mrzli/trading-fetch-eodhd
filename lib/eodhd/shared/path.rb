@@ -46,7 +46,7 @@ module Eodhd
           File.join(raw_dir, "eod")
         end
 
-        def raw_eod_data(exchange, symbol)
+        def raw_eod_file(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
           File.join(raw_eod_dir, exchange, "#{symbol}.csv")
         end
@@ -59,13 +59,13 @@ module Eodhd
           File.join(raw_intraday_dir, "fetched")
         end
 
-        def raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+        def raw_intraday_fetched_symbol_dir(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
           File.join(raw_intraday_fetched_dir, exchange, symbol)
         end
 
         def raw_intraday_fetched_symbol_data(exchange, symbol, from, to)
-          dir_for_intraday_raw = raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+          dir_for_intraday_raw = raw_intraday_fetched_symbol_dir(exchange, symbol)
 
           from = Util::Validate.integer("from", from)
           from_formatted = Util::Date.seconds_to_datetime(from)

@@ -15,7 +15,7 @@ module Eodhd
               symbol_with_exchange = "#{symbol}.#{exchange}"
               @log.info("Processing raw intraday for #{symbol_with_exchange}...")
 
-              fetched_dir = Eodhd::Shared::Path.raw_intraday_fetched_symbol_data_dir(exchange, symbol)
+              fetched_dir = Eodhd::Shared::Path.raw_intraday_fetched_symbol_dir(exchange, symbol)
               fetched_files = list_and_sort_fetched_files(fetched_dir)
 
               if fetched_files.empty?
