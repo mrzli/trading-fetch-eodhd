@@ -117,7 +117,7 @@ module Eodhd
 
               relative_path = Eodhd::Shared::Path.raw_intraday_fetched_symbol_file(exchange, symbol, parsed_from, parsed_to)
               saved_path = @io.write_csv(relative_path, csv)
-              @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
+              @log.info("[#{exchange_symbol}] Wrote #{Util::String.truncate_middle(saved_path)}")
 
               true
             end

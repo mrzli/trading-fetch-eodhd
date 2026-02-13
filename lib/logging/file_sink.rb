@@ -12,11 +12,12 @@ module Logging
       formatter ||= Shared.default_formatter
 
       now = Time.now
-      log_dir = File.join(output_dir, "log")
+      date_dir = now.strftime("%Y-%m-%d")
+      log_dir = File.join(output_dir, "log", date_dir)
       FileUtils.mkdir_p(log_dir)
 
-      date = now.strftime("%Y-%m-%d")
-      log_file = File.join(log_dir, "#{date}_#{command}.log")
+      time = now.strftime("%H-%M-%S")
+      log_file = File.join(log_dir, "#{time}_#{command}.log")
 
       @logger = ::Logger.new(log_file)
       @logger.level = level

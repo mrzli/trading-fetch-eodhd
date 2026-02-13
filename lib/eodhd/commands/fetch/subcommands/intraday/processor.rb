@@ -56,11 +56,12 @@ module Eodhd
 
             def process_month(exchange, symbol, year, month, new_rows)
               processed_file_path = Eodhd::Shared::Path.raw_intraday_processed_month_file(exchange, symbol, year, month)
+              exchange_symbol = "#{exchange}/#{symbol}"
 
               existing_rows = load_existing_processed_file(processed_file_path)
               merged_rows = Merger.merge(existing_rows, new_rows)
 
-              write_processed_file(processed_file_path, merged_rows)
+              write_processed_file(processed_file_path, merged_rows, exchange_symbol)
             end
 
             def load_existing_processed_file(file_path)
@@ -70,7 +71,7 @@ module Eodhd
               Eodhd::Shared::Parsing::IntradayCsvParser.parse(csv_content)
             end
 
-            def write_processed_file(file_path, rows)
+            def write_processed_file(file_path, rows, exchange_symbol)
               return if rows.empty?
 
               # Convert rows back to CSV format
@@ -81,7 +82,7 @@ module Eodhd
 
               csv_content = csv_lines.join("\n") + "\n"
               @io.write_csv(file_path, csv_content)
-              @log.info("Wrote #{file_path}")
+              @log.info("[#{exchange_symbol}] Wrote #{file_path}")
             end
           end
         end

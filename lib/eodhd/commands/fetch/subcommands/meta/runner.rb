@@ -53,7 +53,7 @@ module Eodhd
               @log.info("[#{exchange_symbol}] Fetching #{type} JSON#{force ? ' (forced)' : ''}...")
               data = api_method.call(exchange, symbol)
               saved_path = @io.write_json(path, data, true)
-              @log.info("Wrote #{Util::String.truncate_middle(saved_path)}")
+              @log.info("[#{exchange_symbol}] Wrote #{Util::String.truncate_middle(saved_path)}")
             rescue StandardError => e
               raise if e.is_a?(Eodhd::Shared::Api::PaymentRequiredError)
 
