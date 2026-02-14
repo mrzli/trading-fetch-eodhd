@@ -44,6 +44,12 @@ module Eodhd
         end
       end
 
+      def add_unfetched_only_option(opts, &block)
+        opts.on("-u", "--unfetched-only", "Only fetch symbols with no processed intraday files") do
+          block.call(true)
+        end
+      end
+
       def add_yes_option(opts, &block)
         opts.on("-y", "--yes", "Skip confirmation prompt") do
           block.call(true)

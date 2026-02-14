@@ -22,9 +22,22 @@ module Eodhd
               @processor = Processor.new(container: container)
             end
 
-            def fetch(recheck_start_date:, parallel:, workers:)
+            def fetch(recheck_start_date:, unfetched_only:, parallel:, workers:)
               symbol_entries = @data_reader.symbols
               filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol_intraday?(entry) }
+
+              if unfetched_only
+                total_candidates = filtered_entries.size
+                filtered_entries = filtered_entries.filter do |entry|
+                  exchange = entry[:exchange]
+                  symbol = entry[:symbol]
+
+                  !processed_intraday_exists?(exchange, symbol)
+                end
+
+                skipped_count = total_candidates - filtered_entries.size
+                @log.info("Unfetched-only: skipped #{skipped_count} symbols with processed intraday files")
+              end
 
               fetch_intraday_for_symbols(
                 filtered_entries,
@@ -153,6 +166,10 @@ module Eodhd
               @io.list_relative_files(processed_dir)
                 .filter { |path| path.end_with?(".csv") }
                 .sort
+            end
+
+            def processed_intraday_exists?(exchange, symbol)
+              sorted_processed_files(exchange, symbol).any?
             end
 
             def should_refetch?(exchange, symbol, first_ts, exchange_symbol)

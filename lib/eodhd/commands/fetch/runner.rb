@@ -39,8 +39,13 @@ module Eodhd
           @eod_runner.fetch(force: force, parallel: parallel, workers: workers)
         end
 
-        def intraday(recheck_start_date:, parallel:, workers:)
-          @intraday_runner.fetch(recheck_start_date: recheck_start_date, parallel: parallel, workers: workers)
+        def intraday(recheck_start_date:, unfetched_only:, parallel:, workers:)
+          @intraday_runner.fetch(
+            recheck_start_date: recheck_start_date,
+            unfetched_only: unfetched_only,
+            parallel: parallel,
+            workers: workers
+          )
         end
 
       end
