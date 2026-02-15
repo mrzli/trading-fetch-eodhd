@@ -18,36 +18,34 @@ module Eodhd
             def process
               @log.info("Building meta summary from processed data...")
 
-              rows_by_key = {}
+              daily_ranges = get_daily_ranges()
+              # intraday_ranges = get_intraday_ranges()
 
-              daily_files_scanned = collect_daily_ranges(rows_by_key)
-              intraday_files_scanned = collect_intraday_ranges(rows_by_key)
+              # rows = rows_by_key
+              #   .values
+              #   .sort_by { |row| [row[:exchange], row[:symbol]] }
 
-              rows = rows_by_key
-                .values
-                .sort_by { |row| [row[:exchange], row[:symbol]] }
+              # rows_with_daily = rows.count { |row| !row[:daily].nil? }
+              # rows_with_intraday = rows.count { |row| !row[:intraday].nil? }
 
-              rows_with_daily = rows.count { |row| !row[:daily].nil? }
-              rows_with_intraday = rows.count { |row| !row[:intraday].nil? }
+              # if rows.empty?
+              #   @log.warn("No processed data found under #{Eodhd::Shared::Path.data_dir}; writing empty summary")
+              # else
+              #   @log.info(
+              #     "Prepared #{rows.size} meta entr#{rows.size == 1 ? 'y' : 'ies'} " \
+              #     "(daily: #{rows_with_daily}, intraday: #{rows_with_intraday}, " \
+              #     "daily files scanned: #{daily_files_scanned}, intraday files scanned: #{intraday_files_scanned})"
+              #   )
+              # end
 
-              if rows.empty?
-                @log.warn("No processed data found under #{Eodhd::Shared::Path.data_dir}; writing empty summary")
-              else
-                @log.info(
-                  "Prepared #{rows.size} meta entr#{rows.size == 1 ? 'y' : 'ies'} " \
-                  "(daily: #{rows_with_daily}, intraday: #{rows_with_intraday}, " \
-                  "daily files scanned: #{daily_files_scanned}, intraday files scanned: #{intraday_files_scanned})"
-                )
-              end
-
-              output_file = Eodhd::Shared::Path.meta_file
-              @io.write_json(output_file, JSON.generate(rows), true)
-              @log.info("Wrote #{output_file} (#{rows.size} entries)")
+              # output_file = Eodhd::Shared::Path.meta_file
+              # @io.write_json(output_file, JSON.generate(rows), true)
+              # @log.info("Wrote #{output_file} (#{rows.size} entries)")
             end
 
             private
 
-            def collect_daily_ranges(rows_by_key)
+            def get_daily_ranges()
               root_dir = Eodhd::Shared::Path.data_eod_dir
               unless @io.dir_exists?(root_dir)
                 @log.info("No processed EOD directory found: #{root_dir}")
@@ -87,6 +85,24 @@ module Eodhd
               end
 
               files_scanned
+            end
+
+            def daily_range(relative_csv_path)
+              text = @io.read_text(relative_csv_path)
+              parsed = CSV.parse(text, headers: true)
+
+              dates = parsed.filter_map do |row|
+                date_str = row["Date"]&.strip
+                next if date_str.to_s.empty?
+                Date.iso8601(date_str)
+              rescue Date::Error
+                nil
+              end
+
+              return nil if dates.empty?
+
+              from, to = dates.minmax
+              { from: from.iso8601, to: to.iso8601 }
             end
 
             def collect_intraday_ranges(rows_by_key)
@@ -134,24 +150,6 @@ module Eodhd
               end
 
               files_scanned
-            end
-
-            def daily_range(relative_csv_path)
-              text = @io.read_text(relative_csv_path)
-              parsed = CSV.parse(text, headers: true)
-
-              dates = parsed.filter_map do |row|
-                date_str = row["Date"]&.strip
-                next if date_str.to_s.empty?
-                Date.iso8601(date_str)
-              rescue Date::Error
-                nil
-              end
-
-              return nil if dates.empty?
-
-              from, to = dates.minmax
-              { from: from.iso8601, to: to.iso8601 }
             end
 
             def intraday_range(relative_csv_paths)
