@@ -177,16 +177,20 @@ The project organizes fetched and processed data in the following structure (roo
 
 ```
 {OUTPUT_DIR}/
-├── meta.json                               # Summary per symbol/exchange with daily/intraday data ranges
-├── exchanges.json                          # List of all available exchanges
-├── symbols/                                # Symbol lists by exchange
-│   └── {exchange}/
-│       └── {type}.json                     # Symbols grouped by type (stocks, etfs, etc.)
+├── data/                                   # Processed data (adjusted for splits/dividends)
+│   ├── eod/                                # Processed end-of-day data
+│   │   └── {exchange}/
+│   │       └── {symbol}.csv                # Adjusted EOD prices
+│   └── intraday/                           # Processed intraday data
+│       └── {exchange}/
+│           └── {symbol}/
+│               └── {year}-{month}.csv      # Adjusted monthly intraday data
 ├── info/                                   # Splits and dividends data
 │   └── {exchange}/
 │       └── {symbol}/
-│           ├── splits.json                 # Stock split history
 │           └── dividends.json              # Dividend history
+│           └── splits.json                 # Stock split history
+├── log/                                    # Application logs
 ├── raw/                                    # Raw fetched data
 │   ├── eod/                                # Raw end-of-day data
 │   │   └── {exchange}/
@@ -200,15 +204,11 @@ The project organizes fetched and processed data in the following structure (roo
 │           └── {exchange}/
 │               └── {symbol}/
 │                   └── {year}-{month}.csv  # Merged monthly intraday data
-├── data/                                   # Processed data (adjusted for splits/dividends)
-│   ├── eod/                                # Processed end-of-day data
-│   │   └── {exchange}/
-│   │       └── {symbol}.csv                # Adjusted EOD prices
-│   └── intraday/                           # Processed intraday data
-│       └── {exchange}/
-│           └── {symbol}/
-│               └── {year}-{month}.csv      # Adjusted monthly intraday data
-└── log/                                    # Application logs
+├── symbols/                                # Symbol lists by exchange
+│   └── {exchange}/
+│       └── {type}.json                     # Symbols grouped by type (stocks, etfs, etc.)
+├── exchanges.json                          # List of all available exchanges
+└── meta.json                               # Summary per symbol/exchange with daily/intraday data ranges
 ```
 
 **Key differences:**
