@@ -81,11 +81,11 @@ Fetches data from EODHD API.
 ./bin/fetch symbols -p -w 8    # Fetch symbols (parallel with 8 workers)
 ./bin/fetch symbols -f -p      # Force fetch symbols in parallel
 
-# Fetch metadata (splits and dividends)
-./bin/fetch meta               # Fetch metadata (sequentially)
-./bin/fetch meta --parallel    # Fetch metadata (parallel with default workers)
-./bin/fetch meta -p -w 8       # Fetch metadata (parallel with 8 workers)
-./bin/fetch meta -f -p         # Force fetch metadata in parallel
+# Fetch info (splits and dividends)
+./bin/fetch info               # Fetch info (sequentially)
+./bin/fetch info --parallel    # Fetch info (parallel with default workers)
+./bin/fetch info -p -w 8       # Fetch info (parallel with 8 workers)
+./bin/fetch info -f -p         # Force fetch info in parallel
 
 # Fetch EOD (end-of-day) data
 ./bin/fetch eod                # Fetch EOD (sequentially)
@@ -146,7 +146,7 @@ Removes fetched/processed data.
     - `args/`: Shared argument parsing utilities
     - `commands/`: Top-level command implementations
       - `fetch/`: Data fetching logic
-        - `subcommands/`: Fetch subcommands (exchanges, symbols, meta, eod, intraday)
+        - `subcommands/`: Fetch subcommands (exchanges, symbols, info, eod, intraday)
       - `process/`: Data processing logic
         - `subcommands/`: Process subcommands (eod, intraday)
         - `shared/`: Processing utilities (splits, dividends, price adjustments)
@@ -178,7 +178,7 @@ The project organizes fetched and processed data in the following structure (roo
 ├── symbols/                                # Symbol lists by exchange
 │   └── {exchange}/
 │       └── {type}.json                     # Symbols grouped by type (stocks, etfs, etc.)
-├── meta/                                   # Metadata (splits and dividends)
+├── info/                                   # Splits and dividends data
 │   └── {exchange}/
 │       └── {symbol}/
 │           ├── splits.json                 # Stock split history

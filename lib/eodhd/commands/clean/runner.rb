@@ -27,10 +27,10 @@ module Eodhd
           )
         end
 
-        def meta(yes:, dry_run: false)
+        def info(yes:, dry_run: false)
           clean(
-            target_name: "meta",
-            target_path: Eodhd::Shared::Path.meta_dir,
+            target_name: "info",
+            target_path: Eodhd::Shared::Path.info_dir,
             yes: yes,
             dry_run: dry_run
           )

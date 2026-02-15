@@ -21,21 +21,21 @@ module Eodhd
         end
         # Symbols - end
 
-        # Meta - start
-        def meta_dir
-          "meta"
+        # Info - start
+        def info_dir
+          "info"
         end
 
         def splits_file(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-          File.join(meta_dir, exchange, symbol, "splits.json")
+          File.join(info_dir, exchange, symbol, "splits.json")
         end
 
         def dividends_file(exchange, symbol)
           exchange, symbol = process_exchange_and_symbol(exchange, symbol)
-          File.join(meta_dir, exchange, symbol, "dividends.json")
+          File.join(info_dir, exchange, symbol, "dividends.json")
         end
-        # Meta - end
+        # Info - end
 
         # Raw - start
         def raw_dir

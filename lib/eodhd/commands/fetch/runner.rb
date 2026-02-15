@@ -16,7 +16,7 @@ module Eodhd
 
           @exchanges_runner = Subcommands::Exchanges::Runner.new(container: container, shared: shared)
           @symbols_runner = Subcommands::Symbols::Runner.new(container: container, shared: shared)
-          @meta_runner = Subcommands::Meta::Runner.new(container: container, shared: shared)
+          @info_runner = Subcommands::Info::Runner.new(container: container, shared: shared)
           @eod_runner = Subcommands::Eod::Runner.new(container: container, shared: shared)
           @intraday_runner = Subcommands::Intraday::Runner.new(container: container, shared: shared)
 
@@ -31,8 +31,8 @@ module Eodhd
           @symbols_runner.fetch(force: force, parallel: parallel, workers: workers)
         end
 
-        def meta(force:, parallel:, workers:)
-          @meta_runner.fetch(force: force, parallel: parallel, workers: workers)
+        def info(force:, parallel:, workers:)
+          @info_runner.fetch(force: force, parallel: parallel, workers: workers)
         end
 
         def eod(force:, parallel:, workers:)

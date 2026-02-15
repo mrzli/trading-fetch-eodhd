@@ -6,7 +6,7 @@ module Eodhd
   module Commands
     module Fetch
       module Subcommands
-        module Meta
+        module Info
           class Args
             Result = Data.define(:force, :parallel, :workers)
 
@@ -26,7 +26,7 @@ module Eodhd
               workers = @cfg.default_workers
 
               parser = OptionParser.new do |opts|
-                opts.banner = "Usage: bin/fetch meta [options]"
+                opts.banner = "Usage: bin/fetch info [options]"
 
                 Eodhd::Args::Shared.add_force_option(opts) { |v| force = v }
                 Eodhd::Args::Shared.add_parallel_option(opts) { |v| parallel = v }

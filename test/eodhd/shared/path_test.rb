@@ -48,14 +48,14 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
-    ".meta_dir",
+    ".info_dir",
     [
       {
         input: nil,
-        expected: "meta"
+        expected: "info"
       }
     ],
-    call: ->(_input) { Eodhd::Shared::Path.meta_dir }
+    call: ->(_input) { Eodhd::Shared::Path.info_dir }
   )
 
   test_equals(
@@ -64,12 +64,12 @@ describe Eodhd::Shared::Path do
       {
         description: "symbol with exchange",
         input: { exchange: "US", symbol: "AAPL" },
-        expected: File.join("meta", "us", "aapl", "splits.json")
+        expected: File.join("info", "us", "aapl", "splits.json")
       },
       {
         description: "symbol with dot class",
         input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("meta", "us", "brk-b", "splits.json")
+        expected: File.join("info", "us", "brk-b", "splits.json")
       }
     ],
     call: ->(input) { Eodhd::Shared::Path.splits_file(input[:exchange], input[:symbol]) }
@@ -81,12 +81,12 @@ describe Eodhd::Shared::Path do
       {
         description: "symbol with exchange",
         input: { exchange: "US", symbol: "AAPL" },
-        expected: File.join("meta", "us", "aapl", "dividends.json")
+        expected: File.join("info", "us", "aapl", "dividends.json")
       },
       {
         description: "symbol with dot class",
         input: { exchange: "US", symbol: "BRK.B" },
-        expected: File.join("meta", "us", "brk-b", "dividends.json")
+        expected: File.join("info", "us", "brk-b", "dividends.json")
       }
     ],
     call: ->(input) { Eodhd::Shared::Path.dividends_file(input[:exchange], input[:symbol]) }

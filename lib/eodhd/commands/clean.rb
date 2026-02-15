@@ -11,7 +11,7 @@ module Eodhd
         clean_args_parser = Eodhd::Args::SubcommandsArgs.new(
           container: container,
           command_name: "clean",
-          valid_subcommands: %w[exchanges symbols meta raw raw-eod raw-intraday data data-eod data-intraday log]
+          valid_subcommands: %w[exchanges symbols info raw raw-eod raw-intraday data data-eod data-intraday log]
         )
 
         subcommand, = clean_args_parser.parse(ARGV).deconstruct
@@ -23,8 +23,8 @@ module Eodhd
           runner.exchanges(yes: yes, dry_run: dry_run)
         when "symbols"
           runner.symbols(yes: yes, dry_run: dry_run)
-        when "meta"
-          runner.meta(yes: yes, dry_run: dry_run)
+        when "info"
+          runner.info(yes: yes, dry_run: dry_run)
         when "raw"
           runner.raw(yes: yes, dry_run: dry_run)
         when "raw-eod"

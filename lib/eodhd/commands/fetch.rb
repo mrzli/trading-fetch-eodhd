@@ -13,7 +13,7 @@ module Eodhd
         fetch_args_parser = Eodhd::Args::SubcommandsArgs.new(
           container: container,
           command_name: "fetch",
-          valid_subcommands: %w[exchanges symbols meta eod intraday]
+          valid_subcommands: %w[exchanges symbols info eod intraday]
         )
 
         subcommand, = fetch_args_parser.parse(ARGV).deconstruct
@@ -27,10 +27,10 @@ module Eodhd
           args_parser = Subcommands::Symbols::Args.new(container: container)
           force, parallel, workers = args_parser.parse(ARGV).deconstruct
           runner.symbols(force: force, parallel: parallel, workers: workers)
-        when "meta"
-          args_parser = Subcommands::Meta::Args.new(container: container)
+        when "info"
+          args_parser = Subcommands::Info::Args.new(container: container)
           force, parallel, workers = args_parser.parse(ARGV).deconstruct
-          runner.meta(force: force, parallel: parallel, workers: workers)
+          runner.info(force: force, parallel: parallel, workers: workers)
         when "eod"
           args_parser = Subcommands::Eod::Args.new(container: container)
           force, parallel, workers = args_parser.parse(ARGV).deconstruct

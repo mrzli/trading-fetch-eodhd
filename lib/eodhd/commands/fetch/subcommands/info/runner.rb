@@ -4,7 +4,7 @@ module Eodhd
   module Commands
     module Fetch
       module Subcommands
-        module Meta
+        module Info
           class Runner
 
             def initialize(container:, shared:)
@@ -20,12 +20,12 @@ module Eodhd
               symbol_entries = @data_reader.symbols
               filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol?(entry) }
 
-              fetch_metadata_for_symbols(filtered_entries, force: force, parallel: parallel, workers: workers)
+              fetch_info_for_symbols(filtered_entries, force: force, parallel: parallel, workers: workers)
             end
 
             private
 
-            def fetch_metadata_for_symbols(symbol_entries, force:, parallel:, workers:)
+            def fetch_info_for_symbols(symbol_entries, force:, parallel:, workers:)
               Util::ParallelExecutor.execute(symbol_entries, parallel: parallel, workers: workers) do |entry|
                 fetch_single(entry, force: force)
               end
@@ -33,13 +33,13 @@ module Eodhd
 
             def fetch_single(symbol_entry, force:)
               threads = [
-                Thread.new { fetch_metadata(symbol_entry, :splits, ->(e, s) { @api.get_splits_json(e, s) }, force: force) },
-                Thread.new { fetch_metadata(symbol_entry, :dividends, ->(e, s) { @api.get_dividends_json(e, s) }, force: force) }
+                Thread.new { fetch_info(symbol_entry, :splits, ->(e, s) { @api.get_splits_json(e, s) }, force: force) },
+                Thread.new { fetch_info(symbol_entry, :dividends, ->(e, s) { @api.get_dividends_json(e, s) }, force: force) }
               ]
               threads.each(&:value)
             end
 
-            def fetch_metadata(symbol_entry, type, api_method, force:)
+            def fetch_info(symbol_entry, type, api_method, force:)
               exchange = symbol_entry[:exchange]
               symbol = symbol_entry[:symbol]
               exchange_symbol = "#{exchange}/#{symbol}"
