@@ -10,6 +10,8 @@ module Eodhd
       module Subcommands
         module Meta
           class Runner
+            class Error < StandardError; end
+
             def initialize(log:, io:)
               @log = log
               @io = io
@@ -19,6 +21,7 @@ module Eodhd
               @log.info("Building meta summary from processed data...")
 
               daily_ranges = get_daily_ranges()
+              @log.info("Collected #{daily_ranges.size} daily range entr#{daily_ranges.size == 1 ? 'y' : 'ies'}")
               # intraday_ranges = get_intraday_ranges()
 
               # rows = rows_by_key
@@ -49,18 +52,18 @@ module Eodhd
               root_dir = Eodhd::Shared::Path.data_eod_dir
               unless @io.dir_exists?(root_dir)
                 @log.info("No processed EOD directory found: #{root_dir}")
-                return 0
+                return []
               end
 
               exchange_dirs = @io.list_relative_dirs(root_dir).sort
               if exchange_dirs.empty?
                 @log.info("No EOD exchange directories found under: #{root_dir}")
-                return 0
+                return []
               end
 
               @log.info("Scanning EOD data in #{exchange_dirs.size} exchange director#{exchange_dirs.size == 1 ? 'y' : 'ies'}")
 
-              files_scanned = 0
+              results = []
 
               exchange_dirs.each do |exchange_dir|
                 exchange = File.basename(exchange_dir)
@@ -77,31 +80,28 @@ module Eodhd
 
                 symbol_files.each do |symbol_file|
                   symbol = File.basename(symbol_file, ".csv")
-                  key = row_key(exchange, symbol)
-                  rows_by_key[key] ||= base_row(exchange, symbol)
-                  rows_by_key[key][:daily] = daily_range(symbol_file)
-                  files_scanned += 1
+                  results << {
+                    exchange: exchange,
+                    symbol: symbol,
+                    daily_range: daily_range(symbol_file)
+                  }
                 end
               end
 
-              files_scanned
+              results
             end
 
             def daily_range(relative_csv_path)
               text = @io.read_text(relative_csv_path)
               parsed = CSV.parse(text, headers: true)
 
-              dates = parsed.filter_map do |row|
-                date_str = row["Date"]&.strip
-                next if date_str.to_s.empty?
-                Date.iso8601(date_str)
-              rescue Date::Error
-                nil
+              rows = parsed.each.to_a
+              if rows.empty?
+                raise Error, "CSV contains no data rows: #{relative_csv_path}"
               end
 
-              return nil if dates.empty?
-
-              from, to = dates.minmax
+              from = Date.iso8601(rows.first["Date"].to_s.strip)
+              to = Date.iso8601(rows.last["Date"].to_s.strip)
               { from: from.iso8601, to: to.iso8601 }
             end
 
