@@ -10,8 +10,6 @@ module Eodhd
       module Subcommands
         module Meta
           class Runner
-            OUTPUT_FILE = "meta.json"
-
             def initialize(log:, io:)
               @log = log
               @io = io
@@ -27,8 +25,9 @@ module Eodhd
                 .values
                 .sort_by { |row| [row[:exchange], row[:symbol]] }
 
-              @io.write_json(OUTPUT_FILE, JSON.generate(rows), true)
-              @log.info("Wrote #{OUTPUT_FILE} (#{rows.size} entries)")
+              output_file = Eodhd::Shared::Path.meta_file
+              @io.write_json(output_file, JSON.generate(rows), true)
+              @log.info("Wrote #{output_file} (#{rows.size} entries)")
             end
 
             private

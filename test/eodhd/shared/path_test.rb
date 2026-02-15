@@ -15,6 +15,17 @@ describe Eodhd::Shared::Path do
   )
 
   test_equals(
+    ".meta_file",
+    [
+      {
+        input: nil,
+        expected: "meta.json"
+      }
+    ],
+    call: ->(_input) { Eodhd::Shared::Path.meta_file }
+  )
+
+  test_equals(
     ".symbols_dir",
     [
       {

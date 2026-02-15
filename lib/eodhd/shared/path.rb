@@ -10,6 +10,12 @@ module Eodhd
         end
         # Exchanges - end
 
+        # Meta - start
+        def meta_file
+          "meta.json"
+        end
+        # Meta - end
+
         # Symbols - start
         def symbols_dir
           "symbols"

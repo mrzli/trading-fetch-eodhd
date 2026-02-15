@@ -50,7 +50,7 @@ describe Eodhd::Commands::Process::Subcommands::Meta::Runner do
 
       runner.process
 
-      result = JSON.parse(io.read_text("meta.json"))
+      result = JSON.parse(io.read_text(Eodhd::Shared::Path.meta_file))
 
       assert_equal 2, result.size
 
