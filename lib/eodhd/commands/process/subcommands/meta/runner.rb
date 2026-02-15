@@ -11,6 +11,7 @@ module Eodhd
         module Meta
           class Runner
             class Error < StandardError; end
+            SYMBOL_PROGRESS_LOG_EVERY = 100
 
             def initialize(log:, io:)
               @log = log
@@ -95,8 +96,13 @@ module Eodhd
 
                 @log.info("[#{exchange}] Processing #{symbol_files.size} EOD symbol file(s)")
 
-                symbol_files.each do |symbol_file|
+                symbol_files.each_with_index do |symbol_file, index|
                   symbol = File.basename(symbol_file, ".csv")
+                  symbol_number = index + 1
+                  if (symbol_number % SYMBOL_PROGRESS_LOG_EVERY).zero? || symbol_number == symbol_files.size
+                    @log.info("[#{exchange}] Processed #{symbol_number}/#{symbol_files.size} EOD symbol file(s) (current: #{symbol})")
+                  end
+
                   results << {
                     exchange: exchange,
                     symbol: symbol,

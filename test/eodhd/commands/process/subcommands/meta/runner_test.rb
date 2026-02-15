@@ -6,6 +6,20 @@ require "json"
 require "tmpdir"
 
 describe Eodhd::Commands::Process::Subcommands::Meta::Runner do
+  class CaptureLog
+    attr_reader :infos
+
+    def initialize
+      @infos = []
+    end
+
+    def info(message)
+      @infos << message
+    end
+
+    def warn(_message); end
+  end
+
   it "returns daily ranges as array of exchange/symbol/daily_range using first and last rows" do
     Dir.mktmpdir do |output_dir|
       io = Eodhd::Shared::Io.new(output_dir: output_dir)
@@ -59,6 +73,31 @@ describe Eodhd::Commands::Process::Subcommands::Meta::Runner do
       err = _ { runner.send(:get_daily_ranges) }
         .must_raise(Eodhd::Commands::Process::Subcommands::Meta::Runner::Error)
       _(err.message).must_match(/no data rows/i)
+    end
+  end
+
+  it "logs EOD symbol processing progress every configured interval and on completion" do
+    Dir.mktmpdir do |output_dir|
+      io = Eodhd::Shared::Io.new(output_dir: output_dir)
+      log = CaptureLog.new
+      runner = Eodhd::Commands::Process::Subcommands::Meta::Runner.new(log: log, io: io)
+
+      101.times do |index|
+        symbol = format("SYM%03d", index)
+        io.write_csv(
+          Eodhd::Shared::Path.data_eod_symbol_file("US", symbol),
+          <<~CSV
+            Date,Open,High,Low,Close,Volume
+            2024-01-01,1,1,1,1,1
+            2024-01-02,1,1,1,1,1
+          CSV
+        )
+      end
+
+      runner.send(:get_daily_ranges)
+
+      assert_includes(log.infos, "[us] Processed 100/101 EOD symbol file(s) (current: sym099)")
+      assert_includes(log.infos, "[us] Processed 101/101 EOD symbol file(s) (current: sym100)")
     end
   end
 
