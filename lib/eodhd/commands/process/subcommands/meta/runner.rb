@@ -78,11 +78,11 @@ module Eodhd
                 @log.info("[#{exchange}] Processing #{symbol_files.size} EOD symbol file(s)")
 
                 symbol_files.each do |symbol_file|
-                    symbol = File.basename(symbol_file, ".csv")
-                    key = row_key(exchange, symbol)
-                    rows_by_key[key] ||= base_row(exchange, symbol)
-                    rows_by_key[key][:daily] = daily_range(symbol_file)
-                    files_scanned += 1
+                  symbol = File.basename(symbol_file, ".csv")
+                  key = row_key(exchange, symbol)
+                  rows_by_key[key] ||= base_row(exchange, symbol)
+                  rows_by_key[key][:daily] = daily_range(symbol_file)
+                  files_scanned += 1
                 end
               end
 
@@ -119,17 +119,17 @@ module Eodhd
                 @log.info("[#{exchange}] Processing #{symbol_dirs.size} intraday symbol director#{symbol_dirs.size == 1 ? 'y' : 'ies'}")
 
                 symbol_dirs.each do |symbol_dir|
-                    symbol = File.basename(symbol_dir)
-                    month_files = @io.list_relative_files(symbol_dir)
-                      .filter { |path| path.end_with?(".csv") }
-                      .sort
+                  symbol = File.basename(symbol_dir)
+                  month_files = @io.list_relative_files(symbol_dir)
+                    .filter { |path| path.end_with?(".csv") }
+                    .sort
 
-                    @log.info("[#{exchange}/#{symbol}] Found #{month_files.size} intraday month file(s)")
+                  @log.info("[#{exchange}/#{symbol}] Found #{month_files.size} intraday month file(s)")
 
-                    key = row_key(exchange, symbol)
-                    rows_by_key[key] ||= base_row(exchange, symbol)
-                    rows_by_key[key][:intraday] = intraday_range(month_files)
-                    files_scanned += month_files.size
+                  key = row_key(exchange, symbol)
+                  rows_by_key[key] ||= base_row(exchange, symbol)
+                  rows_by_key[key][:intraday] = intraday_range(month_files)
+                  files_scanned += month_files.size
                 end
               end
 
