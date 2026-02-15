@@ -10,6 +10,7 @@ module Eodhd
           @io = container.io
           @eod_runner = Subcommands::Eod::Runner.new(log: @log, io: @io)
           @intraday_runner = Subcommands::Intraday::Runner.new(log: @log, io: @io)
+          @meta_runner = Subcommands::Meta::Runner.new(log: @log, io: @io)
         end
 
         def eod(force:, parallel:, workers:)
@@ -18,6 +19,10 @@ module Eodhd
 
         def intraday(force:, parallel:, workers:)
           @intraday_runner.process(force: force, parallel: parallel, workers: workers)
+        end
+
+        def meta
+          @meta_runner.process
         end
       end
     end

@@ -118,6 +118,9 @@ Processes fetched data (splits, dividends, price adjustments, merging).
 ./bin/process intraday --parallel # Process intraday data (parallel)
 ./bin/process intraday -p -w 8    # Process intraday data (parallel with 8 workers)
 ./bin/process intraday -f -p      # Force process intraday data in parallel
+
+# Build output metadata summary
+./bin/process meta                # Generate meta.json summary from processed data
 ```
 
 ### Clean Data
@@ -148,7 +151,7 @@ Removes fetched/processed data.
       - `fetch/`: Data fetching logic
         - `subcommands/`: Fetch subcommands (exchanges, symbols, info, eod, intraday)
       - `process/`: Data processing logic
-        - `subcommands/`: Process subcommands (eod, intraday)
+        - `subcommands/`: Process subcommands (eod, intraday, meta)
         - `shared/`: Processing utilities (splits, dividends, price adjustments)
       - `clean/`: Data cleaning logic
     - `shared/`: Shared utilities across commands
@@ -174,6 +177,7 @@ The project organizes fetched and processed data in the following structure (roo
 
 ```
 {OUTPUT_DIR}/
+├── meta.json                               # Summary per symbol/exchange with daily/intraday data ranges
 ├── exchanges.json                          # List of all available exchanges
 ├── symbols/                                # Symbol lists by exchange
 │   └── {exchange}/

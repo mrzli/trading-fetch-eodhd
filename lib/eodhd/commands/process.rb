@@ -13,7 +13,7 @@ module Eodhd
         process_args_parser = Eodhd::Args::SubcommandsArgs.new(
           container: container,
           command_name: "process",
-          valid_subcommands: %w[eod intraday]
+          valid_subcommands: %w[eod intraday meta]
         )
 
         subcommand, = process_args_parser.parse(ARGV).deconstruct
@@ -27,6 +27,10 @@ module Eodhd
           args_parser = Subcommands::Intraday::Args.new(container: container)
           force, parallel, workers = args_parser.parse(ARGV).deconstruct
           runner.intraday(force: force, parallel: parallel, workers: workers)
+        when "meta"
+          args_parser = Subcommands::Meta::Args.new(container: container)
+          args_parser.parse(ARGV)
+          runner.meta
         else
           raise "Unknown subcommand: #{subcommand}"
         end
