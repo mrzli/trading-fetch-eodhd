@@ -167,3 +167,47 @@ Removes fetched/processed data.
 - **Parallel Processing**: Configurable worker-based parallel execution for fetch/process operations
 - **Data Parsing**: Specialized parsers for CSV (EOD, intraday) and JSON (splits, dividends)
 - **Autoloading**: Uses Zeitwerk for automatic code loading based on file structure
+
+### Output Directory Structure
+
+The project organizes fetched and processed data in the following structure (rooted at `OUTPUT_DIR` from `.env`):
+
+```
+{OUTPUT_DIR}/
+├── exchanges.json                          # List of all available exchanges
+├── symbols/                                # Symbol lists by exchange
+│   └── {exchange}/
+│       └── {type}.json                     # Symbols grouped by type (stocks, etfs, etc.)
+├── meta/                                   # Metadata (splits and dividends)
+│   └── {exchange}/
+│       └── {symbol}/
+│           ├── splits.json                 # Stock split history
+│           └── dividends.json              # Dividend history
+├── raw/                                    # Raw fetched data
+│   ├── eod/                                # Raw end-of-day data
+│   │   └── {exchange}/
+│   │       └── {symbol}.csv                # Raw EOD prices (unadjusted)
+│   └── intraday/                           # Raw intraday data
+│       ├── fetched/                        # Fetched intraday data
+│       │   └── {exchange}/
+│       │       └── {symbol}/
+│       │           └── {from}___{to}.csv   # Raw intraday data for date range
+│       └── processed/                      # Merged intraday data
+│           └── {exchange}/
+│               └── {symbol}/
+│                   └── {year}-{month}.csv  # Merged monthly intraday data
+├── data/                                   # Processed data (adjusted for splits/dividends)
+│   ├── eod/                                # Processed end-of-day data
+│   │   └── {exchange}/
+│   │       └── {symbol}.csv                # Adjusted EOD prices
+│   └── intraday/                           # Processed intraday data
+│       └── {exchange}/
+│           └── {symbol}/
+│               └── {year}-{month}.csv      # Adjusted monthly intraday data
+└── log/                                    # Application logs
+```
+
+**Key differences:**
+
+- `raw/`: Unprocessed data as fetched from EODHD API
+- `data/`: Processed data with splits/dividends adjustments applied
