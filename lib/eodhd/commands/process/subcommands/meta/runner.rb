@@ -23,6 +23,24 @@ module Eodhd
               daily_ranges = get_daily_ranges()
               intraday_ranges = get_intraday_ranges()
 
+              rows = combine_ranges(daily_ranges, intraday_ranges)
+
+              rows_with_daily = rows.count { |row| !row[:daily].nil? }
+              rows_with_intraday = rows.count { |row| !row[:intraday].nil? }
+
+              if rows.empty?
+                @log.warn("No processed data found under #{Eodhd::Shared::Path.data_dir}; writing empty summary")
+              else
+                @log.info(
+                  "Prepared #{rows.size} meta entr#{rows.size == 1 ? 'y' : 'ies'} " \
+                  "(daily: #{rows_with_daily}, intraday: #{rows_with_intraday})"
+                )
+              end
+
+              output_file = Eodhd::Shared::Path.meta_file
+              @io.write_json(output_file, JSON.generate(rows), true)
+              @log.info("Wrote #{output_file} (#{rows.size} entries)")
+
               # rows = rows_by_key
               #   .values
               #   .sort_by { |row| [row[:exchange], row[:symbol]] }
@@ -169,6 +187,32 @@ module Eodhd
               from = DateTime.parse(first_rows.first["Datetime"].to_s.strip)
               to = DateTime.parse(last_rows.last["Datetime"].to_s.strip)
               { from: from.iso8601, to: to.iso8601 }
+            end
+
+            def combine_ranges(daily_ranges, intraday_ranges)
+              rows_by_key = {}
+
+              daily_ranges.each do |entry|
+                exchange = entry[:exchange]
+                symbol = entry[:symbol]
+                key = row_key(exchange, symbol)
+
+                rows_by_key[key] ||= base_row(exchange, symbol)
+                rows_by_key[key][:daily] = entry[:daily_range]
+              end
+
+              intraday_ranges.each do |entry|
+                exchange = entry[:exchange]
+                symbol = entry[:symbol]
+                key = row_key(exchange, symbol)
+
+                rows_by_key[key] ||= base_row(exchange, symbol)
+                rows_by_key[key][:intraday] = entry[:intraday_range]
+              end
+
+              rows_by_key
+                .values
+                .sort_by { |row| [row[:exchange], row[:symbol]] }
             end
 
             def row_key(exchange, symbol)

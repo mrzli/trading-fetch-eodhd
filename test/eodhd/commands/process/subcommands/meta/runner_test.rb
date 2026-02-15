@@ -145,4 +145,90 @@ describe Eodhd::Commands::Process::Subcommands::Meta::Runner do
       _(err.message).must_match(/boundary file has no data rows/i)
     end
   end
+
+  it "combines daily and intraday by exchange/symbol and sorts results" do
+    runner = Eodhd::Commands::Process::Subcommands::Meta::Runner.new(log: Logging::NullLogger.new, io: nil)
+
+    daily_ranges = [
+      {
+        exchange: "us",
+        symbol: "msft",
+        daily_range: { from: "2024-01-01", to: "2024-01-31" }
+      },
+      {
+        exchange: "us",
+        symbol: "tsla",
+        daily_range: { from: "2024-02-01", to: "2024-02-28" }
+      }
+    ]
+
+    intraday_ranges = [
+      {
+        exchange: "us",
+        symbol: "aapl",
+        intraday_range: { from: "2024-01-02T09:30:00+00:00", to: "2024-01-02T16:00:00+00:00" }
+      },
+      {
+        exchange: "us",
+        symbol: "tsla",
+        intraday_range: { from: "2024-02-01T09:30:00+00:00", to: "2024-02-01T16:00:00+00:00" }
+      }
+    ]
+
+    result = runner.send(:combine_ranges, daily_ranges, intraday_ranges)
+
+    assert_equal 3, result.size
+    assert_equal %w[aapl msft tsla], result.map { |row| row[:symbol] }
+
+    aapl = result.find { |row| row[:symbol] == "aapl" }
+    assert_nil aapl[:daily]
+    refute_nil aapl[:intraday]
+
+    msft = result.find { |row| row[:symbol] == "msft" }
+    refute_nil msft[:daily]
+    assert_nil msft[:intraday]
+
+    tsla = result.find { |row| row[:symbol] == "tsla" }
+    refute_nil tsla[:daily]
+    refute_nil tsla[:intraday]
+  end
+
+  it "writes merged meta.json with nil for missing ranges" do
+    Dir.mktmpdir do |output_dir|
+      io = Eodhd::Shared::Io.new(output_dir: output_dir)
+      runner = Eodhd::Commands::Process::Subcommands::Meta::Runner.new(log: Logging::NullLogger.new, io: io)
+
+      io.write_csv(
+        Eodhd::Shared::Path.data_eod_symbol_file("US", "MSFT"),
+        <<~CSV
+          Date,Open,High,Low,Close,Volume
+          2024-02-10,1,1,1,1,1
+          2024-02-11,1,1,1,1,1
+        CSV
+      )
+
+      io.write_csv(
+        Eodhd::Shared::Path.data_intraday_month_file("US", "AAPL", 2024, 1),
+        <<~CSV
+          Timestamp,Datetime,Open,High,Low,Close,Volume
+          1704187800,2024-01-02 09:30:00,1,1,1,1,1
+          1704193200,2024-01-02 11:00:00,1,1,1,1,1
+        CSV
+      )
+
+      runner.process
+
+      result = JSON.parse(io.read_text(Eodhd::Shared::Path.meta_file))
+      assert_equal 2, result.size
+      assert_equal %w[aapl msft], result.map { |row| row["symbol"] }
+
+      aapl = result.find { |row| row["symbol"] == "aapl" }
+      assert_nil aapl["daily"]
+      refute_nil aapl["intraday"]
+
+      msft = result.find { |row| row["symbol"] == "msft" }
+      refute_nil msft["daily"]
+      assert_nil msft["intraday"]
+    end
+  end
 end
