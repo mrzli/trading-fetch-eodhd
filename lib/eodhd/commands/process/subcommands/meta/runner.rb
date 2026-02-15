@@ -21,8 +21,7 @@ module Eodhd
               @log.info("Building meta summary from processed data...")
 
               daily_ranges = get_daily_ranges()
-              @log.info("Collected #{daily_ranges.size} daily range entr#{daily_ranges.size == 1 ? 'y' : 'ies'}")
-              # intraday_ranges = get_intraday_ranges()
+              intraday_ranges = get_intraday_ranges()
 
               # rows = rows_by_key
               #   .values
@@ -105,22 +104,22 @@ module Eodhd
               { from: from.iso8601, to: to.iso8601 }
             end
 
-            def collect_intraday_ranges(rows_by_key)
+            def get_intraday_ranges()
               root_dir = Eodhd::Shared::Path.data_intraday_dir
               unless @io.dir_exists?(root_dir)
                 @log.info("No processed intraday directory found: #{root_dir}")
-                return 0
+                return []
               end
 
               exchange_dirs = @io.list_relative_dirs(root_dir).sort
               if exchange_dirs.empty?
                 @log.info("No intraday exchange directories found under: #{root_dir}")
-                return 0
+                return []
               end
 
               @log.info("Scanning intraday data in #{exchange_dirs.size} exchange director#{exchange_dirs.size == 1 ? 'y' : 'ies'}")
 
-              files_scanned = 0
+              results = []
 
               exchange_dirs.each do |exchange_dir|
                 exchange = File.basename(exchange_dir)
@@ -141,34 +140,34 @@ module Eodhd
                     .sort
 
                   @log.info("[#{exchange}/#{symbol}] Found #{month_files.size} intraday month file(s)")
+                  next if month_files.empty?
 
-                  key = row_key(exchange, symbol)
-                  rows_by_key[key] ||= base_row(exchange, symbol)
-                  rows_by_key[key][:intraday] = intraday_range(month_files)
-                  files_scanned += month_files.size
+                  results << {
+                    exchange: exchange,
+                    symbol: symbol,
+                    intraday_range: intraday_range(month_files)
+                  }
                 end
               end
 
-              files_scanned
+              results
             end
 
             def intraday_range(relative_csv_paths)
-              datetimes = relative_csv_paths.flat_map do |relative_csv_path|
-                text = @io.read_text(relative_csv_path)
-                parsed = CSV.parse(text, headers: true)
+              sorted_paths = relative_csv_paths.sort
+              return nil if sorted_paths.empty?
 
-                parsed.filter_map do |row|
-                  datetime_str = row["Datetime"]&.strip
-                  next if datetime_str.to_s.empty?
-                  DateTime.parse(datetime_str)
-                rescue Date::Error
-                  nil
-                end
-              end
+              first_file = sorted_paths.first
+              last_file = sorted_paths.last
 
-              return nil if datetimes.empty?
+              first_rows = CSV.parse(@io.read_text(first_file), headers: true).each.to_a
+              last_rows = CSV.parse(@io.read_text(last_file), headers: true).each.to_a
 
-              from, to = datetimes.minmax
+              raise Error, "Intraday boundary file has no data rows: #{first_file}" if first_rows.empty?
+              raise Error, "Intraday boundary file has no data rows: #{last_file}" if last_rows.empty?
+
+              from = DateTime.parse(first_rows.first["Datetime"].to_s.strip)
+              to = DateTime.parse(last_rows.last["Datetime"].to_s.strip)
               { from: from.iso8601, to: to.iso8601 }
             end
 
