@@ -16,14 +16,29 @@ module Eodhd
             end
 
             def process
+              @log.info("Building meta summary from processed data...")
+
               rows_by_key = {}
 
-              collect_daily_ranges(rows_by_key)
-              collect_intraday_ranges(rows_by_key)
+              daily_files_scanned = collect_daily_ranges(rows_by_key)
+              intraday_files_scanned = collect_intraday_ranges(rows_by_key)
 
               rows = rows_by_key
                 .values
                 .sort_by { |row| [row[:exchange], row[:symbol]] }
+
+              rows_with_daily = rows.count { |row| !row[:daily].nil? }
+              rows_with_intraday = rows.count { |row| !row[:intraday].nil? }
+
+              if rows.empty?
+                @log.warn("No processed data found under #{Eodhd::Shared::Path.data_dir}; writing empty summary")
+              else
+                @log.info(
+                  "Prepared #{rows.size} meta entr#{rows.size == 1 ? 'y' : 'ies'} " \
+                  "(daily: #{rows_with_daily}, intraday: #{rows_with_intraday}, " \
+                  "daily files scanned: #{daily_files_scanned}, intraday files scanned: #{intraday_files_scanned})"
+                )
+              end
 
               output_file = Eodhd::Shared::Path.meta_file
               @io.write_json(output_file, JSON.generate(rows), true)
@@ -34,41 +49,91 @@ module Eodhd
 
             def collect_daily_ranges(rows_by_key)
               root_dir = Eodhd::Shared::Path.data_eod_dir
-              return unless @io.dir_exists?(root_dir)
+              unless @io.dir_exists?(root_dir)
+                @log.info("No processed EOD directory found: #{root_dir}")
+                return 0
+              end
 
-              @io.list_relative_dirs(root_dir).sort.each do |exchange_dir|
+              exchange_dirs = @io.list_relative_dirs(root_dir).sort
+              if exchange_dirs.empty?
+                @log.info("No EOD exchange directories found under: #{root_dir}")
+                return 0
+              end
+
+              @log.info("Scanning EOD data in #{exchange_dirs.size} exchange director#{exchange_dirs.size == 1 ? 'y' : 'ies'}")
+
+              files_scanned = 0
+
+              exchange_dirs.each do |exchange_dir|
                 exchange = File.basename(exchange_dir)
-                @io.list_relative_files(exchange_dir)
+                symbol_files = @io.list_relative_files(exchange_dir)
                   .filter { |path| path.end_with?(".csv") }
                   .sort
-                  .each do |symbol_file|
+
+                if symbol_files.empty?
+                  @log.info("[#{exchange}] No EOD symbol files found")
+                  next
+                end
+
+                @log.info("[#{exchange}] Processing #{symbol_files.size} EOD symbol file(s)")
+
+                symbol_files.each do |symbol_file|
                     symbol = File.basename(symbol_file, ".csv")
                     key = row_key(exchange, symbol)
                     rows_by_key[key] ||= base_row(exchange, symbol)
                     rows_by_key[key][:daily] = daily_range(symbol_file)
-                  end
+                    files_scanned += 1
+                end
               end
+
+              files_scanned
             end
 
             def collect_intraday_ranges(rows_by_key)
               root_dir = Eodhd::Shared::Path.data_intraday_dir
-              return unless @io.dir_exists?(root_dir)
+              unless @io.dir_exists?(root_dir)
+                @log.info("No processed intraday directory found: #{root_dir}")
+                return 0
+              end
 
-              @io.list_relative_dirs(root_dir).sort.each do |exchange_dir|
+              exchange_dirs = @io.list_relative_dirs(root_dir).sort
+              if exchange_dirs.empty?
+                @log.info("No intraday exchange directories found under: #{root_dir}")
+                return 0
+              end
+
+              @log.info("Scanning intraday data in #{exchange_dirs.size} exchange director#{exchange_dirs.size == 1 ? 'y' : 'ies'}")
+
+              files_scanned = 0
+
+              exchange_dirs.each do |exchange_dir|
                 exchange = File.basename(exchange_dir)
-                @io.list_relative_dirs(exchange_dir)
+                symbol_dirs = @io.list_relative_dirs(exchange_dir)
                   .sort
-                  .each do |symbol_dir|
+
+                if symbol_dirs.empty?
+                  @log.info("[#{exchange}] No intraday symbol directories found")
+                  next
+                end
+
+                @log.info("[#{exchange}] Processing #{symbol_dirs.size} intraday symbol director#{symbol_dirs.size == 1 ? 'y' : 'ies'}")
+
+                symbol_dirs.each do |symbol_dir|
                     symbol = File.basename(symbol_dir)
                     month_files = @io.list_relative_files(symbol_dir)
                       .filter { |path| path.end_with?(".csv") }
                       .sort
 
+                    @log.info("[#{exchange}/#{symbol}] Found #{month_files.size} intraday month file(s)")
+
                     key = row_key(exchange, symbol)
                     rows_by_key[key] ||= base_row(exchange, symbol)
                     rows_by_key[key][:intraday] = intraday_range(month_files)
-                  end
+                    files_scanned += month_files.size
+                end
               end
+
+              files_scanned
             end
 
             def daily_range(relative_csv_path)
