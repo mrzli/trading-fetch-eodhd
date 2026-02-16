@@ -97,7 +97,8 @@ Fetches data from EODHD API.
 ./bin/fetch intraday                  # Fetch intraday (sequentially)
 ./bin/fetch intraday --parallel       # Fetch intraday (parallel with default workers)
 ./bin/fetch intraday -p -w 8          # Fetch intraday (parallel with 8 workers)
-./bin/fetch intraday --recheck-start-date 2025-01-01 -p  # Recheck from specific date
+./bin/fetch intraday --recheck-start-date -p  # Recheck from start date
+./bin/fetch intraday --unfetched-only -p      # Fetch only symbols with no processed intraday files
 ```
 
 ### Process Data
@@ -121,6 +122,8 @@ Processes fetched data (splits, dividends, price adjustments, merging).
 
 # Build output metadata summary
 ./bin/process meta                # Generate meta.json summary from processed data
+./bin/process meta -p             # Generate metadata summary in parallel
+./bin/process meta -p -w 8        # Generate metadata summary in parallel with 8 workers
 ```
 
 ### Clean Data
@@ -137,6 +140,19 @@ Removes fetched/processed data.
 # Clean symbols data
 ./bin/clean symbols      # Delete symbols (with confirmation)
 ./bin/clean symbols -y   # Delete symbols (skip confirmation)
+
+# Other clean targets
+./bin/clean info         # Delete info directory
+./bin/clean raw          # Delete raw directory
+./bin/clean raw-eod      # Delete raw/eod directory
+./bin/clean raw-intraday # Delete raw/intraday directory
+./bin/clean data         # Delete data directory
+./bin/clean data-eod     # Delete data/eod directory
+./bin/clean data-intraday # Delete data/intraday directory
+./bin/clean log          # Delete log directory
+
+# Dry run (show target without deleting)
+./bin/clean data -n
 ```
 
 ## Architecture
