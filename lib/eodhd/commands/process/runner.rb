@@ -21,8 +21,8 @@ module Eodhd
           @intraday_runner.process(force: force, parallel: parallel, workers: workers)
         end
 
-        def meta
-          @meta_runner.process
+        def meta(parallel:, workers:)
+          @meta_runner.process(parallel: parallel, workers: workers)
         end
       end
     end

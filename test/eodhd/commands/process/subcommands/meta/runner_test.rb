@@ -270,4 +270,35 @@ describe Eodhd::Commands::Process::Subcommands::Meta::Runner do
       assert_nil msft["intraday"]
     end
   end
+
+  it "writes merged meta.json in parallel mode" do
+    Dir.mktmpdir do |output_dir|
+      io = Eodhd::Shared::Io.new(output_dir: output_dir)
+      runner = Eodhd::Commands::Process::Subcommands::Meta::Runner.new(log: Logging::NullLogger.new, io: io)
+
+      io.write_csv(
+        Eodhd::Shared::Path.data_eod_symbol_file("US", "MSFT"),
+        <<~CSV
+          Date,Open,High,Low,Close,Volume
+          2024-02-10,1,1,1,1,1
+          2024-02-11,1,1,1,1,1
+        CSV
+      )
+
+      io.write_csv(
+        Eodhd::Shared::Path.data_intraday_month_file("US", "AAPL", 2024, 1),
+        <<~CSV
+          Timestamp,Datetime,Open,High,Low,Close,Volume
+          1704187800,2024-01-02 09:30:00,1,1,1,1,1
+          1704193200,2024-01-02 11:00:00,1,1,1,1,1
+        CSV
+      )
+
+      runner.process(parallel: true, workers: 2)
+
+      result = JSON.parse(io.read_text(Eodhd::Shared::Path.meta_file))
+      assert_equal 2, result.size
+      assert_equal %w[aapl msft], result.map { |row| row["symbol"] }
+    end
+  end
 end

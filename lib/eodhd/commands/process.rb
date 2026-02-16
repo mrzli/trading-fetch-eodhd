@@ -29,8 +29,8 @@ module Eodhd
           runner.intraday(force: force, parallel: parallel, workers: workers)
         when "meta"
           args_parser = Subcommands::Meta::Args.new(container: container)
-          args_parser.parse(ARGV)
-          runner.meta
+          parallel, workers = args_parser.parse(ARGV).deconstruct
+          runner.meta(parallel: parallel, workers: workers)
         else
           raise "Unknown subcommand: #{subcommand}"
         end

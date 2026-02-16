@@ -11,5 +11,13 @@ module Util
         items.each(&block)
       end
     end
+
+    def self.map(items, parallel:, workers:, &block)
+      if parallel
+        Parallel.map(items, in_processes: workers, &block)
+      else
+        items.map(&block)
+      end
+    end
   end
 end

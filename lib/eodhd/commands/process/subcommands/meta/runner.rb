@@ -18,11 +18,11 @@ module Eodhd
               @io = io
             end
 
-            def process
+            def process(parallel: false, workers: 1)
               @log.info("Building meta summary from processed data...")
 
-              daily_ranges = get_daily_ranges()
-              intraday_ranges = get_intraday_ranges()
+              daily_ranges = get_daily_ranges(parallel: parallel, workers: workers)
+              intraday_ranges = get_intraday_ranges(parallel: parallel, workers: workers)
 
               rows = combine_ranges(daily_ranges, intraday_ranges)
 
@@ -66,7 +66,7 @@ module Eodhd
 
             private
 
-            def get_daily_ranges()
+            def get_daily_ranges(parallel: false, workers: 1)
               root_dir = Eodhd::Shared::Path.data_eod_dir
               unless @io.dir_exists?(root_dir)
                 @log.info("No processed EOD directory found: #{root_dir}")
@@ -96,19 +96,26 @@ module Eodhd
 
                 @log.info("[#{exchange}] Processing #{symbol_files.size} EOD symbol file(s)")
 
-                symbol_files.each_with_index do |symbol_file, index|
-                  symbol = File.basename(symbol_file, ".csv")
-                  symbol_number = index + 1
-                  if (symbol_number % SYMBOL_PROGRESS_LOG_EVERY).zero? || symbol_number == symbol_files.size
-                    @log.info("[#{exchange}] Processed #{symbol_number}/#{symbol_files.size} EOD symbol file(s) (current: #{symbol})")
-                  end
-
-                  results << {
-                    exchange: exchange,
-                    symbol: symbol,
-                    daily_range: daily_range(symbol_file)
+                symbol_items = symbol_files.each_with_index.map do |symbol_file, index|
+                  {
+                    symbol_file: symbol_file,
+                    symbol_number: index + 1,
+                    total_symbols: symbol_files.size
                   }
                 end
+
+                exchange_results = Util::ParallelExecutor.map(symbol_items, parallel: parallel, workers: workers) do |item|
+                  symbol = File.basename(item[:symbol_file], ".csv")
+                  log_symbol_progress(exchange, item[:symbol_number], item[:total_symbols], symbol, "EOD symbol file(s)")
+
+                  {
+                    exchange: exchange,
+                    symbol: symbol,
+                    daily_range: daily_range(item[:symbol_file])
+                  }
+                end
+
+                results.concat(exchange_results)
               end
 
               results
@@ -128,7 +135,7 @@ module Eodhd
               { from: from.iso8601, to: to.iso8601 }
             end
 
-            def get_intraday_ranges()
+            def get_intraday_ranges(parallel: false, workers: 1)
               root_dir = Eodhd::Shared::Path.data_intraday_dir
               unless @io.dir_exists?(root_dir)
                 @log.info("No processed intraday directory found: #{root_dir}")
@@ -157,24 +164,42 @@ module Eodhd
 
                 @log.info("[#{exchange}] Processing #{symbol_dirs.size} intraday symbol director#{symbol_dirs.size == 1 ? 'y' : 'ies'}")
 
-                symbol_dirs.each do |symbol_dir|
+                symbol_items = symbol_dirs.each_with_index.map do |symbol_dir, index|
+                  {
+                    symbol_dir: symbol_dir,
+                    symbol_number: index + 1,
+                    total_symbols: symbol_dirs.size
+                  }
+                end
+
+                exchange_results = Util::ParallelExecutor.map(symbol_items, parallel: parallel, workers: workers) do |item|
+                  symbol_dir = item[:symbol_dir]
                   symbol = File.basename(symbol_dir)
                   month_files = @io.list_relative_files(symbol_dir)
                     .filter { |path| path.end_with?(".csv") }
                     .sort
 
                   @log.info("[#{exchange}/#{symbol}] Found #{month_files.size} intraday month file(s)")
-                  next if month_files.empty?
+                  log_symbol_progress(exchange, item[:symbol_number], item[:total_symbols], symbol, "intraday symbol director#{item[:total_symbols] == 1 ? 'y' : 'ies'}")
+                  next nil if month_files.empty?
 
-                  results << {
+                  {
                     exchange: exchange,
                     symbol: symbol,
                     intraday_range: intraday_range(month_files)
                   }
                 end
+
+                results.concat(exchange_results.compact)
               end
 
               results
+            end
+
+            def log_symbol_progress(exchange, symbol_number, total_symbols, symbol, noun)
+              return unless (symbol_number % SYMBOL_PROGRESS_LOG_EVERY).zero? || symbol_number == total_symbols
+
+              @log.info("[#{exchange}] Processed #{symbol_number}/#{total_symbols} #{noun} (current: #{symbol})")
             end
 
             def intraday_range(relative_csv_paths)
