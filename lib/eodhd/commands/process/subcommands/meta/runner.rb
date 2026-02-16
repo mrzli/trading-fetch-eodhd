@@ -41,27 +41,6 @@ module Eodhd
               output_file = Eodhd::Shared::Path.meta_file
               @io.write_json(output_file, JSON.generate(rows), true)
               @log.info("Wrote #{output_file} (#{rows.size} entries)")
-
-              # rows = rows_by_key
-              #   .values
-              #   .sort_by { |row| [row[:exchange], row[:symbol]] }
-
-              # rows_with_daily = rows.count { |row| !row[:daily].nil? }
-              # rows_with_intraday = rows.count { |row| !row[:intraday].nil? }
-
-              # if rows.empty?
-              #   @log.warn("No processed data found under #{Eodhd::Shared::Path.data_dir}; writing empty summary")
-              # else
-              #   @log.info(
-              #     "Prepared #{rows.size} meta entr#{rows.size == 1 ? 'y' : 'ies'} " \
-              #     "(daily: #{rows_with_daily}, intraday: #{rows_with_intraday}, " \
-              #     "daily files scanned: #{daily_files_scanned}, intraday files scanned: #{intraday_files_scanned})"
-              #   )
-              # end
-
-              # output_file = Eodhd::Shared::Path.meta_file
-              # @io.write_json(output_file, JSON.generate(rows), true)
-              # @log.info("Wrote #{output_file} (#{rows.size} entries)")
             end
 
             private
