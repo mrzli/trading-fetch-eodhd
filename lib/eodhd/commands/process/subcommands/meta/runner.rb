@@ -18,7 +18,7 @@ module Eodhd
               @io = io
             end
 
-            def process(parallel: false, workers: 1)
+            def process(parallel:, workers:)
               @log.info("Building meta summary from processed data...")
 
               daily_ranges = get_daily_ranges(parallel: parallel, workers: workers)
@@ -45,7 +45,7 @@ module Eodhd
 
             private
 
-            def get_daily_ranges(parallel: false, workers: 1)
+            def get_daily_ranges(parallel:, workers:)
               root_dir = Eodhd::Shared::Path.data_eod_dir
               unless @io.dir_exists?(root_dir)
                 @log.info("No processed EOD directory found: #{root_dir}")
@@ -114,7 +114,7 @@ module Eodhd
               { from: from.iso8601, to: to.iso8601 }
             end
 
-            def get_intraday_ranges(parallel: false, workers: 1)
+            def get_intraday_ranges(parallel:, workers:)
               root_dir = Eodhd::Shared::Path.data_intraday_dir
               unless @io.dir_exists?(root_dir)
                 @log.info("No processed intraday directory found: #{root_dir}")
