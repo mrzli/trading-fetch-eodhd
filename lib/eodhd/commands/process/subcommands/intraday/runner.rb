@@ -7,6 +7,7 @@ module Eodhd
         module Intraday
           class Runner
             OUTPUT_HEADERS = ["Timestamp", "Datetime", "Open", "High", "Low", "Close", "Volume"].freeze
+            FILE_PROGRESS_LOG_EVERY = 50
 
             def initialize(log:, io:)
               @log = log
@@ -107,7 +108,7 @@ module Eodhd
               data_by_month = Eodhd::Shared::Processing::IntradayGrouper.group_by_month(data)
               @log.info("[#{exchange_symbol}] Grouped into #{data_by_month.size} month(s)")
 
-              data_by_month.each do |year_month, data_for_month|
+              data_by_month.each_with_index do |(year_month, data_for_month), index|
                 year, month = year_month
                 processed_file = Eodhd::Shared::Path.data_intraday_month_file(exchange, symbol, year, month)
 
@@ -115,7 +116,11 @@ module Eodhd
                 processed_csv = to_csv(data)
 
                 @io.write_csv(processed_file, processed_csv)
-                @log.info("[#{exchange_symbol}] Wrote #{processed_file}")
+                current = index + 1
+                total = data_by_month.size
+                if should_log_file_progress?(current, total)
+                  @log.info("[#{exchange_symbol}] Writing file #{current}/#{total}: #{File.basename(processed_file)}")
+                end
               end
 
               @log.info("[#{exchange_symbol}] Completed processing intraday")
@@ -163,13 +168,22 @@ module Eodhd
               exchange_symbol = "#{exchange}/#{symbol}"
               
               month_files.each_with_index do |raw_file, index|
-                @log.info("[#{exchange_symbol}] Parsing file #{index + 1}/#{month_files.size}: #{File.basename(raw_file)}")
+                current = index + 1
+                total = month_files.size
+                if should_log_file_progress?(current, total)
+                  @log.info("[#{exchange_symbol}] Parsing file #{current}/#{total}: #{File.basename(raw_file)}")
+                end
+
                 raw_csv = @io.read_text(raw_file)
                 parsed_data = Eodhd::Shared::Parsing::IntradayCsvParser.parse(raw_csv)
                 all_data.concat(parsed_data)
               end
 
               all_data
+            end
+
+            def should_log_file_progress?(current, total)
+              current == total || (current % FILE_PROGRESS_LOG_EVERY).zero?
             end
 
             def to_output(data)
