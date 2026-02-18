@@ -9,6 +9,7 @@ module Eodhd
             DAYS_TO_SECONDS = 24 * 60 * 60
             RANGE_SECONDS = 118 * DAYS_TO_SECONDS
             STRIDE_SECONDS = 110 * DAYS_TO_SECONDS
+            UNFETCHED_SCAN_LOG_EVERY = 100
 
             def initialize(container:, shared:)
               @log = container.logger
@@ -23,21 +24,36 @@ module Eodhd
             end
 
             def fetch(recheck_start_date:, unfetched_only:, parallel:, workers:)
+              @log.info("Starting intraday fetch (recheck_start_date=#{recheck_start_date}, unfetched_only=#{unfetched_only}, parallel=#{parallel}, workers=#{workers})")
+
               symbol_entries = @data_reader.symbols
+              @log.info("Loaded #{symbol_entries.size} symbols")
+
               filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol_intraday?(entry) }
+              @log.info("Eligible symbols for intraday fetch: #{filtered_entries.size}/#{symbol_entries.size}")
 
               if unfetched_only
                 total_candidates = filtered_entries.size
-                filtered_entries = filtered_entries.filter do |entry|
+                @log.info("Unfetched-only scan: checking processed intraday files for #{total_candidates} symbols...")
+
+                kept_entries = []
+                filtered_entries.each_with_index do |entry, index|
                   exchange = entry[:exchange]
                   symbol = entry[:symbol]
 
-                  !processed_intraday_exists?(exchange, symbol)
+                  kept_entries << entry unless processed_intraday_exists?(exchange, symbol)
+
+                  next unless ((index + 1) % UNFETCHED_SCAN_LOG_EVERY).zero?
+
+                  @log.info("Unfetched-only scan progress: #{index + 1}/#{total_candidates}")
                 end
+                filtered_entries = kept_entries
 
                 skipped_count = total_candidates - filtered_entries.size
                 @log.info("Unfetched-only: skipped #{skipped_count} symbols with processed intraday files")
               end
+
+              @log.info("Intraday fetch queue size: #{filtered_entries.size} symbols")
 
               fetch_intraday_for_symbols(
                 filtered_entries,
