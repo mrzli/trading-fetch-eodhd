@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "set"
+
 module Eodhd
   module Commands
     module Fetch
@@ -9,7 +11,6 @@ module Eodhd
             DAYS_TO_SECONDS = 24 * 60 * 60
             RANGE_SECONDS = 118 * DAYS_TO_SECONDS
             STRIDE_SECONDS = 110 * DAYS_TO_SECONDS
-            UNFETCHED_SCAN_LOG_EVERY = 100
 
             def initialize(container:, shared:)
               @log = container.logger
@@ -24,30 +25,22 @@ module Eodhd
             end
 
             def fetch(recheck_start_date:, unfetched_only:, parallel:, workers:)
-              @log.info("Starting intraday fetch (recheck_start_date=#{recheck_start_date}, unfetched_only=#{unfetched_only}, parallel=#{parallel}, workers=#{workers})")
+              @log.info("Starting intraday fetch...")
 
               symbol_entries = @data_reader.symbols
-              @log.info("Loaded #{symbol_entries.size} symbols")
 
               filtered_entries = symbol_entries.filter { |entry| @shared.should_fetch_symbol_intraday?(entry) }
-              @log.info("Eligible symbols for intraday fetch: #{filtered_entries.size}/#{symbol_entries.size}")
+              @log.info("Eligible symbols for intraday fetch: #{filtered_entries.size}")
 
               if unfetched_only
                 total_candidates = filtered_entries.size
                 @log.info("Unfetched-only scan: checking processed intraday files for #{total_candidates} symbols...")
 
-                kept_entries = []
-                filtered_entries.each_with_index do |entry, index|
-                  exchange = entry[:exchange]
-                  symbol = entry[:symbol]
-
-                  kept_entries << entry unless processed_intraday_exists?(exchange, symbol)
-
-                  next unless ((index + 1) % UNFETCHED_SCAN_LOG_EVERY).zero?
-
-                  @log.info("Unfetched-only scan progress: #{index + 1}/#{total_candidates}")
+                processed_pairs = existing_processed_intraday_pairs
+                filtered_entries = filtered_entries.reject do |entry|
+                  pair = normalized_exchange_symbol_pair(entry[:exchange], entry[:symbol])
+                  processed_pairs.include?(pair)
                 end
-                filtered_entries = kept_entries
 
                 skipped_count = total_candidates - filtered_entries.size
                 @log.info("Unfetched-only: skipped #{skipped_count} symbols with processed intraday files")
@@ -184,8 +177,19 @@ module Eodhd
                 .sort
             end
 
-            def processed_intraday_exists?(exchange, symbol)
-              sorted_processed_files(exchange, symbol).any?
+            def existing_processed_intraday_pairs
+              root_dir = Eodhd::Shared::Path.raw_intraday_processed_dir
+              exchange_dirs = @io.list_relative_dirs(root_dir)
+
+              exchange_dirs.flat_map do |exchange_dir|
+                exchange = File.basename(exchange_dir)
+                symbol_dirs = @io.list_relative_dirs(exchange_dir)
+                symbol_dirs.map { |symbol_dir| "#{exchange}/#{File.basename(symbol_dir)}" }
+              end.to_set
+            end
+
+            def normalized_exchange_symbol_pair(exchange, symbol)
+              "#{Util::String.kebab_case(exchange)}/#{Util::String.kebab_case(symbol)}"
             end
 
             def should_refetch?(exchange, symbol, first_ts, exchange_symbol)
