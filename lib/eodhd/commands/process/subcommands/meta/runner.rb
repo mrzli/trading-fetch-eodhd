@@ -109,8 +109,8 @@ module Eodhd
                 raise Error, "CSV contains no data rows: #{relative_csv_path}"
               end
 
-              from = parse_iso_date(rows.first["Date"], relative_csv_path, :first)
-              to = parse_iso_date(rows.last["Date"], relative_csv_path, :last)
+              from = Date.iso8601(rows.first["Date"].to_s.strip)
+              to = Date.iso8601(rows.last["Date"].to_s.strip)
               { from: from.iso8601, to: to.iso8601 }
             end
 
@@ -162,10 +162,12 @@ module Eodhd
                   log_symbol_progress(exchange, item[:symbol_number], item[:total_symbols], symbol, "intraday symbol director#{item[:total_symbols] == 1 ? 'y' : 'ies'}")
                   next nil if month_files.empty?
 
+                  range = intraday_range(month_files)
+
                   {
                     exchange: exchange,
                     symbol: symbol,
-                    intraday_range: intraday_range(month_files)
+                    intraday_range: range
                   }
                 end
 
@@ -187,31 +189,31 @@ module Eodhd
 
               first_file = sorted_paths.first
               first_rows = CSV.parse(@io.read_text(first_file), headers: true).each.to_a
-              raise Error, "Intraday first file has no data rows: #{first_file}" if first_rows.empty?
-              from = parse_datetime(first_rows.first["Datetime"], first_file, :first)
-              
+              if first_rows.empty?
+                @log.warn("Intraday first file has no data rows: #{first_file}")
+                return nil
+              end
+              from_string = first_rows.first["Datetime"].to_s.strip
+              if from_string.empty?
+                @log.warn("Intraday first file has empty datetime in first row: #{first_file}")
+                return nil
+              end
+              from = DateTime.parse(from_string)
+
               last_file = sorted_paths.last
               last_rows = CSV.parse(@io.read_text(last_file), headers: true).each.to_a
-              raise Error, "Intraday last file has no data rows: #{last_file}" if last_rows.empty?
-              to = parse_datetime(last_rows.last["Datetime"], last_file, :last)
+              if last_rows.empty?
+                @log.warn("Intraday last file has no data rows: #{last_file}")
+                return nil
+              end
+              to_string = last_rows.last["Datetime"].to_s.strip
+              if to_string.empty?
+                @log.warn("Intraday last file has empty datetime in last row: #{last_file}")
+                return nil
+              end
+              to = DateTime.parse(to_string)
 
               { from: from.iso8601, to: to.iso8601 }
-            end
-
-            def parse_iso_date(raw_value, file_path, boundary)
-              value = raw_value.to_s.strip
-              Date.iso8601(value)
-            rescue Date::Error => e
-              @log.warn("Date parse failed for #{boundary} row in #{file_path}: value='#{value}' (#{e.class}: #{e.message})")
-              raise
-            end
-
-            def parse_datetime(raw_value, file_path, boundary)
-              value = raw_value.to_s.strip
-              DateTime.parse(value)
-            rescue Date::Error => e
-              @log.warn("Datetime parse failed for #{boundary} row in #{file_path}: value='#{value}' (#{e.class}: #{e.message})")
-              raise
             end
 
             def combine_ranges(daily_ranges, intraday_ranges)
