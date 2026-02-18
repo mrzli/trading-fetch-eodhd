@@ -163,6 +163,7 @@ module Eodhd
                   next nil if month_files.empty?
 
                   range = intraday_range(month_files)
+                  next nil if range.nil?
 
                   {
                     exchange: exchange,
