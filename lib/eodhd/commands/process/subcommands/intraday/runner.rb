@@ -60,14 +60,10 @@ module Eodhd
               symbol_dir = symbol_data[:symbol_dir]
               exchange_symbol = "#{exchange}/#{symbol}"
 
-              @log.info("[#{exchange_symbol}] Processing intraday...")
-
               month_files = @io.list_relative_files(symbol_dir)
                 .filter { |path| path.end_with?(".csv") }
                 .sort
               return if month_files.empty?
-
-              @log.info("[#{exchange_symbol}] Found #{month_files.size} month file(s)")
 
               processed_dir = Eodhd::Shared::Path.data_intraday_symbol_dir(exchange, symbol)
               processed_files = @io.list_relative_files(processed_dir)
@@ -87,6 +83,8 @@ module Eodhd
                 @log.info("[#{exchange_symbol}] Skipping processed intraday (fresh)")
                 return
               end
+
+              @log.info("[#{exchange_symbol}] Processing intraday, found #{month_files.size} raw month file(s)")
 
               @log.info("[#{exchange_symbol}] Parsing raw data (#{month_files.size} files)...")
               data_raw = parse_raw_data(month_files, exchange, symbol)
