@@ -189,13 +189,13 @@ module Eodhd
               last_file = sorted_paths.last
 
               first_rows = CSV.parse(@io.read_text(first_file), headers: true).each.to_a
-              last_rows = CSV.parse(@io.read_text(last_file), headers: true).each.to_a
-
-              raise Error, "Intraday boundary file has no data rows: #{first_file}" if first_rows.empty?
-              raise Error, "Intraday boundary file has no data rows: #{last_file}" if last_rows.empty?
-
+              raise Error, "Intraday first file has no data rows: #{first_file}" if first_rows.empty?
               from = DateTime.parse(first_rows.first["Datetime"].to_s.strip)
+
+              last_rows = CSV.parse(@io.read_text(last_file), headers: true).each.to_a
+              raise Error, "Intraday last file has no data rows: #{last_file}" if last_rows.empty?
               to = DateTime.parse(last_rows.last["Datetime"].to_s.strip)
+
               { from: from.iso8601, to: to.iso8601 }
             end
 
