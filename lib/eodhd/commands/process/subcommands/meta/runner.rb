@@ -109,8 +109,8 @@ module Eodhd
                 raise Error, "CSV contains no data rows: #{relative_csv_path}"
               end
 
-              from = Date.iso8601(rows.first["Date"].to_s.strip)
-              to = Date.iso8601(rows.last["Date"].to_s.strip)
+              from = parse_iso_date(rows.first["Date"], relative_csv_path, :first)
+              to = parse_iso_date(rows.last["Date"], relative_csv_path, :last)
               { from: from.iso8601, to: to.iso8601 }
             end
 
@@ -186,17 +186,32 @@ module Eodhd
               return nil if sorted_paths.empty?
 
               first_file = sorted_paths.first
-              last_file = sorted_paths.last
-
               first_rows = CSV.parse(@io.read_text(first_file), headers: true).each.to_a
               raise Error, "Intraday first file has no data rows: #{first_file}" if first_rows.empty?
-              from = DateTime.parse(first_rows.first["Datetime"].to_s.strip)
-
+              from = parse_datetime(first_rows.first["Datetime"], first_file, :first)
+              
+              last_file = sorted_paths.last
               last_rows = CSV.parse(@io.read_text(last_file), headers: true).each.to_a
               raise Error, "Intraday last file has no data rows: #{last_file}" if last_rows.empty?
-              to = DateTime.parse(last_rows.last["Datetime"].to_s.strip)
+              to = parse_datetime(last_rows.last["Datetime"], last_file, :last)
 
               { from: from.iso8601, to: to.iso8601 }
+            end
+
+            def parse_iso_date(raw_value, file_path, boundary)
+              value = raw_value.to_s.strip
+              Date.iso8601(value)
+            rescue Date::Error => e
+              @log.warn("Date parse failed for #{boundary} row in #{file_path}: value='#{value}' (#{e.class}: #{e.message})")
+              raise
+            end
+
+            def parse_datetime(raw_value, file_path, boundary)
+              value = raw_value.to_s.strip
+              DateTime.parse(value)
+            rescue Date::Error => e
+              @log.warn("Datetime parse failed for #{boundary} row in #{file_path}: value='#{value}' (#{e.class}: #{e.message})")
+              raise
             end
 
             def combine_ranges(daily_ranges, intraday_ranges)
